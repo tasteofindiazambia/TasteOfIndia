@@ -1,0 +1,159 @@
+import React, { useState } from 'react';
+import { MessageCircle, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { Order } from '../types';
+
+interface WhatsAppShareProps {
+  order: Order;
+}
+
+const WhatsAppShare: React.FC<WhatsAppShareProps> = ({ order }) => {
+  const [generating, setGenerating] = useState(false);
+
+  const generateOrderSummary = () => {
+    const orderText = `
+🍛 *Taste of India - Order Summary*
+
+📋 *Order #${order.id}*
+👤 Customer: ${order.customer_name}
+📞 Phone: ${order.customer_phone}
+📅 Date: ${new Date(order.created_at).toLocaleDateString()}
+
+🛒 *Items Ordered:*
+${Array.isArray(order.items) 
+  ? order.items.map((item: any) => `• ${item.name} × ${item.quantity} - K${(item.price * item.quantity).toFixed(0)}`).join('\n')
+  : 'Items details not available'}
+
+💰 *Total: K${(order.total || order.total_amount || 0).toFixed(0)}*
+
+${order.special_instructions ? `📝 Special Instructions: ${order.special_instructions}` : ''}
+
+🏪 *Taste of India Restaurant*
+Thank you for your order! 🙏
+    `.trim();
+
+    return orderText;
+  };
+
+  const shareToWhatsApp = () => {
+    const orderSummary = generateOrderSummary();
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(orderSummary)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const generateScreenshot = async () => {
+    setGenerating(true);
+    try {
+      // Create a temporary div with order details for screenshot
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '400px';
+      tempDiv.style.padding = '20px';
+      tempDiv.style.backgroundColor = 'white';
+      tempDiv.style.fontFamily = 'Arial, sans-serif';
+      
+      tempDiv.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #ea580c; margin: 0;">🍛 Taste of India</h2>
+          <p style="margin: 5px 0; color: #666;">Order Summary</p>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <strong>Order #${order.id}</strong><br>
+          <small>Date: ${new Date(order.created_at).toLocaleDateString()}</small>
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <strong>Customer:</strong> ${order.customer_name}<br>
+          <strong>Phone:</strong> ${order.customer_phone}
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+          <strong>Items:</strong><br>
+          ${Array.isArray(order.items) 
+            ? order.items.map((item: any) => 
+                `<div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                  <span>${item.name} × ${item.quantity}</span>
+                  <span>K{(item.price * item.quantity).toFixed(0)}</span>
+                </div>`
+              ).join('')
+            : '<div>Items details not available</div>'}
+        </div>
+        
+        ${order.special_instructions ? `
+          <div style="margin-bottom: 15px;">
+            <strong>Special Instructions:</strong><br>
+            <div style="background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 14px;">
+              ${order.special_instructions}
+            </div>
+          </div>
+        ` : ''}
+        
+        <div style="border-top: 2px solid #ea580c; padding-top: 10px; text-align: center;">
+          <strong style="font-size: 18px; color: #ea580c;">Total: K${(order.total || order.total_amount || 0).toFixed(0)}</strong>
+        </div>
+        
+        <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
+          Thank you for choosing Taste of India! 🙏
+        </div>
+      `;
+      
+      document.body.appendChild(tempDiv);
+      
+      const canvas = await html2canvas(tempDiv, {
+        backgroundColor: '#ffffff',
+        scale: 2
+      });
+      
+      document.body.removeChild(tempDiv);
+      
+      // Convert canvas to blob and download
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `order-${order.id}-summary.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error generating screenshot:', error);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <h3 className="font-semibold mb-4">Share Your Order</h3>
+      <p className="text-gray-600 mb-4">
+        Share your order summary with friends or save it for your records
+      </p>
+      
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={shareToWhatsApp}
+          className="flex items-center justify-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" />
+          <span>Share on WhatsApp</span>
+        </button>
+        
+        <button
+          onClick={generateScreenshot}
+          disabled={generating}
+          className="flex items-center justify-center space-x-2 border border-deep-maroon text-deep-maroon px-4 py-2 rounded-lg hover:bg-deep-maroon hover:text-light-cream transition-colors disabled:opacity-50"
+        >
+          <Download className="w-4 h-4" />
+          <span>{generating ? 'Generating...' : 'Download Summary'}</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default WhatsAppShare;
