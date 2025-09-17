@@ -2,11 +2,26 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+/assets/*.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*.css
+  Content-Type: text/css; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
 *.js
-  Content-Type: application/javascript
+  Content-Type: application/javascript; charset=utf-8
 
 *.css
-  Content-Type: text/css
+  Content-Type: text/css; charset=utf-8
 
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
+  Content-Type: text/html; charset=utf-8
+
+# Security headers
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin

@@ -3,8 +3,41 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+// Suppress browser extension errors and Sentry errors
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  const message = args.join(' ');
+  
+  // Filter out browser extension and Sentry errors
+  if (
+    message.includes('ERR_BLOCKED_BY_CLIENT') ||
+    message.includes('sentry') ||
+    message.includes('listener indicated an asynchronous response') ||
+    message.includes('runtime.lastError') ||
+    message.includes('Could not establish connection')
+  ) {
+    return; // Suppress these errors
+  }
+  
+  originalConsoleError.apply(console, args);
+};
+
 // Add error boundary and console logging
 console.log('🚀 Starting Taste of India App...');
+
+// Handle unhandled promise rejections from browser extensions
+window.addEventListener('unhandledrejection', (event) => {
+  const message = event.reason?.message || event.reason || '';
+  
+  if (
+    message.includes('listener indicated an asynchronous response') ||
+    message.includes('runtime.lastError') ||
+    message.includes('Could not establish connection')
+  ) {
+    event.preventDefault(); // Prevent the error from showing
+    return;
+  }
+});
 
 try {
   const rootElement = document.getElementById('root');
