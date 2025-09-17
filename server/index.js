@@ -124,9 +124,9 @@ function insertSampleData() {
     // Insert restaurants
     const restaurants = [
       {
-        name: 'Taste of India - Lusaka',
-        address: 'Lusaka Central Business District, Zambia',
-        phone: '+260 211 123456',
+        name: 'Taste of India - Parirenyetwa',
+        address: 'Parirenyetwa Rd, Lusaka 10101, Zambia',
+        phone: '+260 77 3219999',
         hours: 'Mon-Sun: 11:00 AM - 10:00 PM'
       },
       {

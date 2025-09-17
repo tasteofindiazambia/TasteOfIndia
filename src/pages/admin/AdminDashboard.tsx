@@ -67,7 +67,7 @@ const AdminDashboard: React.FC = () => {
     ],
     locationComparison: {
       'Manda Hill': { revenue: 8500, orders: 180, avgOrder: 47.22 },
-      'Lusaka Central': { revenue: 6200, orders: 140, avgOrder: 44.29 }
+      'Parirenyetwa': { revenue: 6200, orders: 140, avgOrder: 44.29 }
     },
     alerts: [
       { type: 'warning', message: 'Low stock: Basmati rice (5kg remaining)', icon: AlertTriangle },

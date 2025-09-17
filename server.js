@@ -36,9 +36,9 @@ const sampleRestaurants = [
   },
   {
     id: 2,
-    name: 'Taste of India - Lusaka Central',
-    address: 'Lusaka Central Business District',
-    phone: '+260 XX XXX XXXX',
+    name: 'Taste of India - Parirenyetwa',
+    address: 'Parirenyetwa Rd, Lusaka 10101, Zambia',
+    phone: '+260 77 3219999',
     hours: 'Mon-Sun: 11:00 AM - 10:00 PM'
   }
 ];

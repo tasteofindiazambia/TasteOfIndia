@@ -162,7 +162,7 @@ CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
 -- Insert sample data
 INSERT OR IGNORE INTO restaurants (id, name, address, phone, email, hours) VALUES
 (1, 'Taste of India - Manda Hill', 'Manda Hill Shopping Centre, Lusaka', '+260 97 123 4567', 'manda@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}'),
-(2, 'Taste of India - Lusaka Central', 'Central Business District, Lusaka', '+260 97 234 5678', 'central@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}');
+(2, 'Taste of India - Parirenyetwa', 'Parirenyetwa Rd, Lusaka 10101, Zambia', '+260 77 3219999', 'parirenyetwa@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}');
 
 INSERT OR IGNORE INTO categories (id, name, description, restaurant_id, display_order) VALUES
 (1, 'Appetizers', 'Start your meal with our delicious appetizers', 1, 1),
@@ -184,7 +184,7 @@ INSERT OR IGNORE INTO menu_items (id, name, description, price, category_id, res
 -- Insert sample customers
 INSERT OR IGNORE INTO customers (id, name, phone, email, location, total_orders, total_spent, average_order_value, last_order_date, favorite_items, dietary_requirements, birthday, loyalty_points, preferred_contact_method, notes, status) VALUES
 (1, 'John Mwamba', '+260 97 123 4567', 'john.mwamba@email.com', 'Manda Hill', 15, 450.00, 30.00, '2024-01-15 19:30:00', '["Chicken Biryani", "Samosas", "Mango Lassi"]', '["No nuts"]', '1985-03-15', 1250, 'whatsapp', 'Prefers spicy food, regular customer', 'vip'),
-(2, 'Sarah Chisenga', '+260 96 234 5678', 'sarah.chisenga@email.com', 'Lusaka Central', 8, 180.00, 22.50, '2024-01-10 18:45:00', '["Butter Chicken", "Naan Bread"]', '["Vegetarian"]', '1990-07-22', 450, 'email', 'Vegetarian customer, likes mild spices', 'active'),
+(2, 'Sarah Chisenga', '+260 96 234 5678', 'sarah.chisenga@email.com', 'Parirenyetwa', 8, 180.00, 22.50, '2024-01-10 18:45:00', '["Butter Chicken", "Naan Bread"]', '["Vegetarian"]', '1990-07-22', 450, 'email', 'Vegetarian customer, likes mild spices', 'active'),
 (3, 'Michael Banda', '+260 95 345 6789', 'michael.banda@email.com', 'Manda Hill', 3, 75.00, 25.00, '2023-12-20 20:15:00', '["Chicken Biryani"]', '[]', NULL, 150, 'sms', 'New customer, interested in family meals', 'active');
 
 -- Insert sample orders

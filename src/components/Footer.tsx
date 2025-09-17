@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-deep-maroon text-light-cream w-full">
+    <footer className="bg-[#532734] text-[#F5F5DC] w-full">
       <div className="w-full px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand Info */}
@@ -74,18 +74,18 @@ const Footer: React.FC = () => {
                 className="block md:hidden h-8 w-auto object-contain filter brightness-0 invert"
               />
             </div>
-            <p className="text-light-cream/80 leading-relaxed mb-6">
+            <p className="text-[#F5F5DC] leading-relaxed mb-6">
               Where evenings come alive. Join our warm, friendly community celebrating 
               diversity and authentic flavors in the heart of Lusaka.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="p-2 text-light-cream/80 hover:text-warm-pink transition-colors">
+              <a href="#" className="p-2 text-[#F5F5DC] hover:text-[#D2691E] transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="p-2 text-light-cream/80 hover:text-warm-pink transition-colors">
+              <a href="#" className="p-2 text-[#F5F5DC] hover:text-[#D2691E] transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="p-2 text-light-cream/80 hover:text-warm-pink transition-colors">
+              <a href="#" className="p-2 text-[#F5F5DC] hover:text-[#D2691E] transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
@@ -93,32 +93,32 @@ const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-display text-lg font-semibold text-light-cream mb-6 tracking-wide uppercase">
+            <h3 className="font-display text-lg font-semibold text-[#F5F5DC] mb-6 tracking-wide uppercase">
               Quick Links
             </h3>
             <ul className="space-y-3">
               <li>
-              <a href="/" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+              <a href="/" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                 Menu
               </a>
               </li>
               <li>
-                <a href="/reservation" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+                <a href="/reservation" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                   Reservations
                 </a>
               </li>
               <li>
-                <a href="/locations" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+                <a href="/locations" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                   Locations
                 </a>
               </li>
               <li>
-                <a href="/private-events" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+                <a href="/private-events" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                   Private Events
                 </a>
               </li>
               <li>
-                <a href="/contact" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+                <a href="/contact" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                   Contact
                 </a>
               </li>
@@ -127,34 +127,34 @@ const Footer: React.FC = () => {
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-display text-lg font-semibold text-light-cream mb-6 tracking-wide uppercase">
+            <h3 className="font-display text-lg font-semibold text-[#F5F5DC] mb-6 tracking-wide uppercase">
               Contact
             </h3>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <MapPin className="w-5 h-5 text-warm-pink mt-0.5 flex-shrink-0" />
+                <MapPin className="w-5 h-5 text-[#D2691E] mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-light-cream/80 text-sm leading-relaxed">
+                  <p className="text-[#F5F5DC] text-sm leading-relaxed font-medium">
                     Manda Hill, Lusaka
                   </p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-warm-pink flex-shrink-0" />
-                <p className="text-light-cream/80 text-sm">
+                <Phone className="w-5 h-5 text-[#D2691E] flex-shrink-0" />
+                <p className="text-[#F5F5DC] text-sm font-medium">
                   +91 70995 39615
                 </p>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail className="w-5 h-5 text-warm-pink flex-shrink-0" />
-                <p className="text-light-cream/80 text-sm">
+                <Mail className="w-5 h-5 text-[#D2691E] flex-shrink-0" />
+                <p className="text-[#F5F5DC] text-sm font-medium">
                   hello@tasteofindia.co.zm
                 </p>
               </div>
               <div className="flex items-start space-x-3">
-                <Clock className="w-5 h-5 text-warm-pink mt-0.5 flex-shrink-0" />
+                <Clock className="w-5 h-5 text-[#D2691E] mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-light-cream/80 text-sm">
+                  <p className="text-[#F5F5DC] text-sm font-medium">
                     Mon-Sun: 11:00 AM - 10:00 PM
                   </p>
                 </div>
@@ -164,20 +164,20 @@ const Footer: React.FC = () => {
 
           {/* Newsletter */}
           <div>
-            <h3 className="font-display text-lg font-semibold text-light-cream mb-6 tracking-wide uppercase">
+            <h3 className="font-display text-lg font-semibold text-[#F5F5DC] mb-6 tracking-wide uppercase">
               Connect
             </h3>
-            <p className="text-light-cream/80 text-sm leading-relaxed mb-4">
+            <p className="text-[#F5F5DC] text-sm leading-relaxed mb-4">
               Follow us for special offers, new menu items, and exclusive events.
             </p>
             <div className="flex space-x-4 mb-4">
-              <a href="#" className="p-2 text-light-cream/80 hover:text-warm-pink transition-colors">
+              <a href="#" className="p-2 text-[#F5F5DC] hover:text-[#D2691E] transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="p-2 text-light-cream/80 hover:text-warm-pink transition-colors">
+              <a href="#" className="p-2 text-[#F5F5DC] hover:text-[#D2691E] transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="p-2 text-light-cream/80 hover:text-warm-pink transition-colors">
+              <a href="#" className="p-2 text-[#F5F5DC] hover:text-[#D2691E] transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
             </div>
@@ -185,7 +185,7 @@ const Footer: React.FC = () => {
               <div className="space-y-3">
                 <button 
                   onClick={() => setShowSubscribeForm(true)}
-                  className="w-full btn-primary bg-warm-pink text-light-cream px-4 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-rose hover:shadow-lg"
+                  className="w-full bg-[#D2691E] text-[#F5F5DC] px-4 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-[#F4A460] hover:shadow-lg"
                 >
                   Subscribe to Newsletter
                 </button>
@@ -193,7 +193,7 @@ const Footer: React.FC = () => {
             ) : (
               <form onSubmit={handleSubscribe} className="space-y-3">
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-light-cream/60" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#F5F5DC]/60" />
                   <input
                     type="text"
                     name="name"
@@ -201,11 +201,11 @@ const Footer: React.FC = () => {
                     onChange={handleInputChange}
                     placeholder="Your name"
                     required
-                    className="w-full pl-10 pr-4 py-3 bg-light-cream/10 border border-light-cream/20 rounded-none text-light-cream placeholder-light-cream/60 focus:outline-none focus:border-warm-pink transition-colors text-sm"
+                    className="w-full pl-10 pr-4 py-3 bg-[#F5F5DC]/10 border border-[#F5F5DC]/20 rounded-none text-[#F5F5DC] placeholder-[#F5F5DC]/60 focus:outline-none focus:border-[#D2691E] transition-colors text-sm"
                   />
                 </div>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-light-cream/60" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#F5F5DC]/60" />
                   <input
                     type="email"
                     name="email"
@@ -213,32 +213,32 @@ const Footer: React.FC = () => {
                     onChange={handleInputChange}
                     placeholder="Your email"
                     required
-                    className="w-full pl-10 pr-4 py-3 bg-light-cream/10 border border-light-cream/20 rounded-none text-light-cream placeholder-light-cream/60 focus:outline-none focus:border-warm-pink transition-colors text-sm"
+                    className="w-full pl-10 pr-4 py-3 bg-[#F5F5DC]/10 border border-[#F5F5DC]/20 rounded-none text-[#F5F5DC] placeholder-[#F5F5DC]/60 focus:outline-none focus:border-[#D2691E] transition-colors text-sm"
                   />
                 </div>
                 <div className="relative">
-                  <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-light-cream/60" />
+                  <MessageSquare className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#F5F5DC]/60" />
                   <input
                     type="tel"
                     name="whatsapp"
                     value={formData.whatsapp}
                     onChange={handleInputChange}
                     placeholder="WhatsApp number (optional)"
-                    className="w-full pl-10 pr-4 py-3 bg-light-cream/10 border border-light-cream/20 rounded-none text-light-cream placeholder-light-cream/60 focus:outline-none focus:border-warm-pink transition-colors text-sm"
+                    className="w-full pl-10 pr-4 py-3 bg-[#F5F5DC]/10 border border-[#F5F5DC]/20 rounded-none text-[#F5F5DC] placeholder-[#F5F5DC]/60 focus:outline-none focus:border-[#D2691E] transition-colors text-sm"
                   />
                 </div>
                 <div className="flex space-x-2">
                   <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 bg-warm-pink text-light-cream px-4 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-rose hover:shadow-lg disabled:opacity-50"
+                    className="flex-1 bg-[#D2691E] text-[#F5F5DC] px-4 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-[#F4A460] hover:shadow-lg disabled:opacity-50"
                   >
                     {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                   </button>
                   <button 
                     type="button"
                     onClick={() => setShowSubscribeForm(false)}
-                    className="px-4 py-3 border border-light-cream/20 text-light-cream hover:bg-light-cream/10 transition-colors text-sm"
+                    className="px-4 py-3 border border-[#F5F5DC]/20 text-[#F5F5DC] hover:bg-[#F5F5DC]/10 transition-colors text-sm"
                   >
                     Cancel
                   </button>
@@ -255,19 +255,19 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-light-cream/20 mt-12 pt-8">
+        <div className="border-t border-[#F5F5DC]/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-light-cream/80 text-sm">
+            <p className="text-[#F5F5DC] text-sm font-medium">
               © 2024 Taste of India. All rights reserved.
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+              <a href="#" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                 Privacy Policy
               </a>
-              <a href="#" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+              <a href="#" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                 Terms of Service
               </a>
-              <a href="#" className="text-light-cream hover:text-warm-pink transition-colors text-sm">
+              <a href="#" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                 Cookie Policy
               </a>
             </div>

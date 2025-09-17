@@ -265,7 +265,7 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ isOpen, onClose, on
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
                   >
                     <option value="Manda Hill">Manda Hill</option>
-                    <option value="Lusaka Central">Lusaka Central</option>
+                    <option value="Parirenyetwa">Parirenyetwa</option>
                   </select>
                 </div>
               </div>
@@ -343,8 +343,8 @@ const CreateOrderModal: React.FC<CreateOrderModalProps> = ({ isOpen, onClose, on
                   <div className="space-y-2">
                     {getSelectedItemsList().map((item) => (
                       <div key={item.id} className="flex justify-between text-sm">
-                        <span>{item.name} × {item.quantity}</span>
-                        <span>K{(item.price * item.quantity).toFixed(0)}</span>
+                        <span>{item?.name} × {item?.quantity}</span>
+                        <span>K{((item?.price || 0) * (item?.quantity || 0)).toFixed(0)}</span>
                       </div>
                     ))}
                     <div className="border-t pt-2 flex justify-between font-semibold">

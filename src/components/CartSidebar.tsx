@@ -172,7 +172,7 @@ const CartSidebar: React.FC = () => {
                 <div className="flex space-x-3">
                   <button
                     onClick={handleContinueShopping}
-                    className="flex-1 btn-secondary border-2 border-charcoal text-charcoal px-6 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-charcoal hover:text-warm-white"
+                    className="flex-1 bg-white border-2 border-[#2C2C2C] text-[#2C2C2C] px-6 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-[#2C2C2C] hover:text-[#FEFCF7]"
                   >
                     Continue Shopping
                   </button>

@@ -182,7 +182,7 @@ const AboutPage: React.FC = () => {
             </Link>
             <Link 
               to="/contact" 
-              className="btn-secondary border-2 border-light-cream text-light-cream hover:bg-light-cream hover:text-deep-maroon px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 flex items-center justify-center space-x-2"
+              className="bg-[#F5F5DC] text-[#532734] border-2 border-[#F5F5DC] hover:bg-[#532734] hover:text-[#F5F5DC] px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 flex items-center justify-center space-x-2"
             >
               <span>CONTACT US</span>
             </Link>

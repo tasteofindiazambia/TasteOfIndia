@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "server": "node server-complete.js",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
+    "start": "node server-complete.js",
+    "vercel-build": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

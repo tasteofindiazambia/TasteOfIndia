@@ -312,7 +312,7 @@ const CreateReservationModal: React.FC<CreateReservationModalProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
                   >
                     <option value="Manda Hill">Manda Hill</option>
-                    <option value="Lusaka Central">Lusaka Central</option>
+                    <option value="Parirenyetwa">Parirenyetwa</option>
                   </select>
                 </div>
               </div>

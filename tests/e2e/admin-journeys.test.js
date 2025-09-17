@@ -248,7 +248,7 @@ test.describe('Admin User Journeys', () => {
     
     // 3. Verify locations are displayed
     await expect(page.locator('text=Taste of India - Manda Hill')).toBeVisible();
-    await expect(page.locator('text=Taste of India - East Park Mall')).toBeVisible();
+    await expect(page.locator('text=Taste of India - Parirenyetwa')).toBeVisible();
     
     // 4. Edit location details
     await page.click('[data-testid="edit-location-1"]');

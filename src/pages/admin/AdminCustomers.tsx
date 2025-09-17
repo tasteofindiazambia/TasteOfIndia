@@ -66,7 +66,7 @@ const AdminCustomers: React.FC = () => {
       name: 'Sarah Chisenga',
       phone: '+260 96 234 5678',
       email: 'sarah.chisenga@email.com',
-      location: 'Lusaka Central',
+      location: 'Parirenyetwa',
       totalOrders: 8,
       totalSpent: 180.00,
       averageOrderValue: 22.50,
