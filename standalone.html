@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taste of India - Standalone Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #532734, #A0522D);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #F5F5DC;
+        }
+        
+        .card p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #532734;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+        }
+        
+        .btn:hover {
+            background: #A0522D;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .btn-outline:hover {
+            background: white;
+            color: #532734;
+        }
+        
+        .locations {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .location {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .location-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status">
+        ✅ Website Working!
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🍛 Taste of India</h1>
+            <p>Where Evenings Come Alive</p>
+        </div>
+        
+        <div class="content">
+            <div class="card">
+                <h3>🍽️ Our Menu</h3>
+                <p>Experience authentic Indian cuisine with our carefully crafted menu featuring traditional dishes from across India.</p>
+                <button class="btn" onclick="showMenu()">View Menu</button>
+            </div>
+            
+            <div class="card">
+                <h3>📅 Reservations</h3>
+                <p>Book a table for your special occasion and enjoy our warm hospitality in a beautiful setting.</p>
+                <button class="btn" onclick="makeReservation()">Make Reservation</button>
+            </div>
+            
+            <div class="card">
+                <h3>📞 Contact Us</h3>
+                <p>Get in touch with us for any inquiries, special requests, or to place an order for delivery.</p>
+                <button class="btn btn-outline" onclick="contactUs()">Contact Us</button>
+            </div>
+        </div>
+        
+        <div class="locations">
+            <h3>📍 Our Locations</h3>
+            <div class="location">
+                <span class="location-icon">🏢</span>
+                <div>
+                    <strong>Taste of India - Manda Hill</strong><br>
+                    Manda Hill Shopping Centre, Lusaka<br>
+                    Phone: +260 77 4219999
+                </div>
+            </div>
+            <div class="location">
+                <span class="location-icon">🏢</span>
+                <div>
+                    <strong>Taste of India - Parirenyetwa</strong><br>
+                    Parirenyetwa Rd, Lusaka 10101, Zambia<br>
+                    Phone: +260 77 3219999
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2024 Taste of India. All rights reserved.</p>
+            <p>Experience the authentic flavors of India in the heart of Lusaka.</p>
+        </div>
+    </div>
+    
+    <script>
+        function showMenu() {
+            alert('Menu feature coming soon! For now, please visit our restaurant to see our full menu.');
+        }
+        
+        function makeReservation() {
+            alert('Reservation feature coming soon! Please call us directly to make a reservation.');
+        }
+        
+        function contactUs() {
+            alert('Contact us at:\n\nManda Hill: +260 77 4219999\nParirenyetwa: +260 77 3219999\n\nOr visit us in person!');
+        }
+        
+        // Test backend connection
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                console.log('✅ Backend connected:', data);
+            } catch (error) {
+                console.log('❌ Backend not available:', error.message);
+            }
+        }
+        
+        // Test on page load
+        window.addEventListener('load', function() {
+            console.log('🚀 Taste of India website loaded successfully!');
+            testBackend();
+        });
+    </script>
+</body>
+</html>

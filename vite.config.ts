@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    include: ['lucide-react'],
   },
   build: {
     rollupOptions: {
@@ -16,5 +16,7 @@ export default defineConfig({
   },
   server: {
     historyApiFallback: true,
+    port: 5173,
+    host: true,
   },
 });
