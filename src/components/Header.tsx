@@ -58,6 +58,9 @@ const Header: React.FC = () => {
                 <Link to="/about" className="text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase">
                   About
                 </Link>
+                <Link to="/admin" className="text-deep-maroon hover:text-maroon transition-colors font-medium tracking-wide text-sm uppercase border border-deep-maroon px-3 py-1 rounded">
+                  Admin
+                </Link>
               </nav>
             </div>
 
@@ -140,6 +143,13 @@ const Header: React.FC = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
+                </Link>
+                <Link 
+                  to="/admin" 
+                  className="block text-deep-maroon hover:text-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2 border border-deep-maroon px-3 py-2 rounded"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Admin
                 </Link>
               </nav>
               

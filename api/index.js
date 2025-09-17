@@ -1,7 +1,7 @@
 // Vercel serverless function for API routes
 import express from 'express';
 import cors from 'cors';
-import db from '../server/database.js';
+import db from '../lib/database.js';
 
 const app = express();
 

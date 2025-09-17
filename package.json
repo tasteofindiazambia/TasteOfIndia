@@ -25,6 +25,7 @@
     "test:ci": "npm run test:coverage && npm run test:e2e"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.6.0",
     "concurrently": "^8.2.2",
     "cors": "^2.8.5",
