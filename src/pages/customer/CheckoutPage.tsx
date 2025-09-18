@@ -42,6 +42,7 @@ const CheckoutPage: React.FC = () => {
         menu_item_id: item.menuItem.id,
         quantity: item.quantity,
         unit_price: item.price,
+        total_price: item.price * item.quantity,
         special_instructions: item.specialInstructions || ''
       }));
 
@@ -51,6 +52,7 @@ const CheckoutPage: React.FC = () => {
         restaurant_id: data.restaurant_id,
         special_instructions: data.special_instructions,
         items: transformedItems,
+        total_amount: getCartTotal(),
         order_type: 'pickup',
         payment_method: 'cash'
       };
