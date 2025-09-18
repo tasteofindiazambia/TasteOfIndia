@@ -576,23 +576,21 @@ const AdminOrders: React.FC = () => {
               <div className="mb-6">
                 <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
                 <div className="space-y-2">
-                  {/* {selectedOrder ? (Array.isArray(selectedOrder.items) ? selectedOrder.items : JSON.parse(selectedOrder.items as string)).map((item: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-medium text-gray-900">{item.name}</span>
-                        <span className="text-gray-600 ml-2">× {item.quantity}</span>
+                  {selectedOrder?.order_items && selectedOrder.order_items.length > 0 ? (
+                    selectedOrder.order_items.map((item: any, index: number) => (
+                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <span className="font-medium text-gray-900">{item.menu_items?.name || 'Unknown Item'}</span>
+                          <span className="text-gray-600 ml-2">× {item.quantity}</span>
+                        </div>
+                        <span className="font-medium text-gray-900">K{item.total_price?.toFixed(0) || '0'}</span>
                       </div>
-                      <span className="font-medium text-gray-900">K{(item.price * item.quantity).toFixed(0)}</span>
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      No items found
                     </div>
-                  )) : (
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-medium text-gray-900">Test Item</span>
-                        <span className="text-gray-600 ml-2">× 1</span>
-                      </div>
-                      <span className="font-medium text-gray-900">$10.00</span>
-                    </div>
-                  )} */}
+                  )}
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="flex justify-between items-center text-lg font-bold text-gray-900">

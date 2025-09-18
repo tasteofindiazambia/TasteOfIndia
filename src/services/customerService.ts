@@ -28,7 +28,7 @@ export const customerService = {
   async getCustomers(): Promise<Customer[]> {
     console.log('🔍 Frontend: Fetching customers from API...');
     try {
-      const response = await apiService.request('/admin/customers');
+      const response = await apiService.getAdminCustomers();
       console.log('✅ Frontend: Customers received:', response);
       return response;
     } catch (error) {
