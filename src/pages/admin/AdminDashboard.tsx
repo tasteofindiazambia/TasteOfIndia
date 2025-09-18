@@ -8,6 +8,7 @@ import { reservationService } from '../../services/reservationService';
 import { useRestaurant } from '../../context/RestaurantContext';
 import AdminLocationSwitcher from '../../components/AdminLocationSwitcher';
 import { useOrderNotifications } from '../../hooks/useOrderNotifications';
+import { useRealTimeUpdates } from '../../hooks/useRealTimeUpdates';
 
 const AdminDashboard: React.FC = () => {
   const { selectedRestaurant } = useRestaurant();
@@ -26,6 +27,24 @@ const AdminDashboard: React.FC = () => {
   useOrderNotifications({ 
     restaurantId: selectedRestaurant?.id, 
     enabled: true 
+  });
+
+  // Real-time updates
+  useRealTimeUpdates({
+    restaurantId: selectedRestaurant?.id,
+    onNewOrder: (newOrder) => {
+      console.log('🆕 Dashboard: New order received:', newOrder);
+      setRecentOrders(prev => [newOrder, ...prev.slice(0, 4)]); // Keep only 5 most recent
+      setStats(prev => ({
+        ...prev,
+        totalOrders: prev.totalOrders + 1
+      }));
+    },
+    onNewReservation: (newReservation) => {
+      console.log('📅 Dashboard: New reservation received:', newReservation);
+      setTodayReservations(prev => [newReservation, ...prev]);
+    },
+    enabled: true
   });
 
   // Real data will be fetched from API
@@ -89,14 +108,6 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchDashboardData();
-    
-    // Auto-refresh every 15 seconds
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing dashboard data...');
-      fetchDashboardData(true);
-    }, 15000);
-    
-    return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
   if (loading) {

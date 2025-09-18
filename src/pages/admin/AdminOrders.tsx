@@ -6,6 +6,7 @@ import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
 import CreateOrderModal from '../../components/CreateOrderModal';
 import { useOrderNotifications } from '../../hooks/useOrderNotifications';
+import { useRealTimeUpdates } from '../../hooks/useRealTimeUpdates';
 
 const AdminOrders: React.FC = () => {
   const { selectedRestaurant } = useRestaurant();
@@ -33,6 +34,29 @@ const AdminOrders: React.FC = () => {
     enabled: true 
   });
 
+  // Real-time updates
+  useRealTimeUpdates({
+    restaurantId: selectedRestaurant?.id,
+    onNewOrder: (newOrder) => {
+      console.log('🆕 Real-time: New order received:', newOrder);
+      setOrders(prev => [newOrder, ...prev]);
+      showNotification({
+        type: 'success',
+        message: `New order #${newOrder.id} received from ${newOrder.customer_name}`
+      });
+    },
+    onOrderUpdate: (updatedOrder) => {
+      console.log('🔄 Real-time: Order updated:', updatedOrder);
+      setOrders(prev => prev.map(order => 
+        order.id === updatedOrder.id ? updatedOrder : order
+      ));
+      if (selectedOrder && selectedOrder.id === updatedOrder.id) {
+        setSelectedOrder(updatedOrder);
+      }
+    },
+    enabled: true
+  });
+
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
@@ -54,14 +78,6 @@ const AdminOrders: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
-    
-    // Auto-refresh every 15 seconds
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing orders...');
-      fetchOrders();
-    }, 15000);
-    
-    return () => clearInterval(interval);
   }, [fetchOrders]);
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {

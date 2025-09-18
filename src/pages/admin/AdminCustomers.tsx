@@ -62,14 +62,6 @@ const AdminCustomers: React.FC = () => {
     };
 
     fetchCustomers();
-    
-    // Auto-refresh every 15 seconds
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing customers...');
-      fetchCustomers();
-    }, 15000);
-    
-    return () => clearInterval(interval);
   }, [showNotification]);
 
   const filteredCustomers = customers.filter(customer => {

@@ -60,14 +60,6 @@ const AdminReservations: React.FC = () => {
 
   useEffect(() => {
     fetchReservations();
-    
-    // Auto-refresh every 15 seconds
-    const interval = setInterval(() => {
-      console.log('🔄 Auto-refreshing reservations...');
-      fetchReservations();
-    }, 15000);
-    
-    return () => clearInterval(interval);
   }, [fetchReservations]);
 
   const updateReservationStatus = async (reservationId: number, newStatus: string) => {
