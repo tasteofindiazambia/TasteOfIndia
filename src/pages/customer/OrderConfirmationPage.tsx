@@ -24,6 +24,7 @@ const OrderConfirmationPage: React.FC = () => {
           orderData.items = JSON.parse(orderData.items);
         }
         
+        console.log('Order data received:', orderData);
         setOrder(orderData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch order');
@@ -113,6 +114,7 @@ const OrderConfirmationPage: React.FC = () => {
         <div className="border-t pt-4 mb-4">
           <h3 className="font-semibold mb-3">Order Items</h3>
           <div className="space-y-2">
+            {console.log('Order items debug:', order.order_items)}
             {order.order_items && order.order_items.length > 0 ? (
               order.order_items.map((item: any, index: number) => (
                 <div key={item.id || index} className="flex justify-between items-center">
@@ -127,7 +129,7 @@ const OrderConfirmationPage: React.FC = () => {
               ))
             ) : (
               <div className="text-center py-4 text-gray-500">
-                No items found
+                No items found - Debug: {JSON.stringify(order.order_items)}
               </div>
             )}
           </div>
