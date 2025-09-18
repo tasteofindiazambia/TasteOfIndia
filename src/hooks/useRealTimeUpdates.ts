@@ -40,7 +40,7 @@ export const useRealTimeUpdates = ({
         const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-he5e2guvy-raeskaas-projects.vercel.app/api';
         
         // Check for new orders
-        if (onNewOrder) {
+        if (onNewOrder && restaurantId) {
           const ordersResponse = await fetch(`${API_BASE_URL}/admin?type=orders&restaurant_id=${restaurantId}&limit=1`);
           const orders = await ordersResponse.json();
           
@@ -53,7 +53,7 @@ export const useRealTimeUpdates = ({
         }
 
         // Check for new reservations
-        if (onNewReservation) {
+        if (onNewReservation && restaurantId) {
           const reservationsResponse = await fetch(`${API_BASE_URL}/admin?type=reservations&restaurant_id=${restaurantId}&limit=1`);
           const reservations = await reservationsResponse.json();
           
