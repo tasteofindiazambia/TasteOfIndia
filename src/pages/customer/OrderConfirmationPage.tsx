@@ -113,17 +113,23 @@ const OrderConfirmationPage: React.FC = () => {
         <div className="border-t pt-4 mb-4">
           <h3 className="font-semibold mb-3">Order Items</h3>
           <div className="space-y-2">
-            {(Array.isArray(order.items) ? order.items : JSON.parse(order.items as string)).map((item: {id?: number, name: string, quantity: number, price: number}, index: number) => (
-              <div key={item.id || index} className="flex justify-between items-center">
-                <div>
-                  <span className="font-medium">{item.name}</span>
-                  <span className="text-gray-600 ml-2">× {item.quantity}</span>
+            {order.order_items && order.order_items.length > 0 ? (
+              order.order_items.map((item: any, index: number) => (
+                <div key={item.id || index} className="flex justify-between items-center">
+                  <div>
+                    <span className="font-medium">{item.menu_items?.name || 'Unknown Item'}</span>
+                    <span className="text-gray-600 ml-2">× {item.quantity}</span>
+                  </div>
+                  <span className="font-medium">
+                    K{item.total_price?.toFixed(0) || '0'}
+                  </span>
                 </div>
-                <span className="font-medium">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
+              ))
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                No items found
               </div>
-            ))}
+            )}
           </div>
         </div>
 
