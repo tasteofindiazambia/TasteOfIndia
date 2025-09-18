@@ -100,10 +100,45 @@ const AdminMenu: React.FC = () => {
     }
   };
 
-  const toggleAvailability = (itemId: number) => {
-    setMenuItems(prev => prev.map(item => 
-      item.id === itemId ? { ...item, availability_status: item.availability_status === 1 ? 0 : 1 } : item
-    ));
+  const toggleAvailability = async (itemId: number) => {
+    try {
+      const item = menuItems.find(i => i.id === itemId);
+      if (!item) return;
+      
+      const newAvailability = !item.available;
+      
+      // Update in database
+      const response = await fetch(`https://taste-of-india-26lfparp8-raeskaas-projects.vercel.app/api/menu/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: itemId,
+          available: newAvailability
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setMenuItems(prev => prev.map(menuItem => 
+          menuItem.id === itemId ? { ...menuItem, available: newAvailability } : menuItem
+        ));
+        
+        showNotification({
+          type: 'success',
+          message: `Item ${newAvailability ? 'enabled' : 'disabled'} successfully`
+        });
+      } else {
+        throw new Error('Failed to update availability');
+      }
+    } catch (error) {
+      console.error('Error toggling availability:', error);
+      showNotification({
+        type: 'error',
+        message: 'Failed to update item availability'
+      });
+    }
   };
 
   const resetForm = () => {
@@ -143,8 +178,8 @@ const AdminMenu: React.FC = () => {
   const handleMenuItemSave = async (itemData: MenuItem) => {
     try {
       const url = modalMode === 'create' 
-        ? 'http://localhost:3001/api/admin/menu'
-        : `http://localhost:3001/api/admin/menu/${itemData.id}`;
+        ? `https://taste-of-india-26lfparp8-raeskaas-projects.vercel.app/api/menu/${selectedRestaurant?.id}`
+        : `https://taste-of-india-26lfparp8-raeskaas-projects.vercel.app/api/menu/${selectedRestaurant?.id}`;
       
       const method = modalMode === 'create' ? 'POST' : 'PUT';
       
@@ -490,11 +525,11 @@ const AdminMenu: React.FC = () => {
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        item.availability_status === 1 
+                        item.available 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {item.availability_status === 1 ? 'Available' : 'Unavailable'}
+                        {item.available ? 'Available' : 'Unavailable'}
                       </span>
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
@@ -507,9 +542,9 @@ const AdminMenu: React.FC = () => {
                         </button>
                         <button
                           onClick={() => toggleAvailability(item.id)}
-                          className={`${item.availability_status === 1 ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
+                          className={`${item.available ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
                         >
-                          {item.availability_status === 1 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {item.available ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => handleDelete(item.id)}

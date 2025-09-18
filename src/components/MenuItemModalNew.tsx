@@ -501,16 +501,26 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
                   
                   {formData.tags && (
                     <div className="flex flex-wrap gap-1">
-                      {formData.tags.split(',').slice(0, 3).map((tag, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                          {tag.trim()}
-                        </span>
-                      ))}
-                      {formData.tags.split(',').length > 3 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                          +{formData.tags.split(',').length - 3} more
-                        </span>
-                      )}
+                      {(() => {
+                        const tagsArray = Array.isArray(formData.tags) 
+                          ? formData.tags 
+                          : (typeof formData.tags === 'string' ? formData.tags.split(',') : []);
+                        return tagsArray.slice(0, 3).map((tag, index) => (
+                          <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                            {tag.trim()}
+                          </span>
+                        ));
+                      })()}
+                      {(() => {
+                        const tagsArray = Array.isArray(formData.tags) 
+                          ? formData.tags 
+                          : (typeof formData.tags === 'string' ? formData.tags.split(',') : []);
+                        return tagsArray.length > 3 && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                            +{tagsArray.length - 3} more
+                          </span>
+                        );
+                      })()}
                     </div>
                   )}
                   
