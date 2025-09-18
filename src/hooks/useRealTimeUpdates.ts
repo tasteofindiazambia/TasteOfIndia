@@ -37,7 +37,7 @@ export const useRealTimeUpdates = ({
     // Use smart polling instead of SSE (Vercel has limitations with SSE)
     const checkForUpdates = async () => {
       try {
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-he5e2guvy-raeskaas-projects.vercel.app/api';
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-4qj5iiu04-raeskaas-projects.vercel.app/api';
         
         // Check for new orders
         if (onNewOrder && restaurantId) {
