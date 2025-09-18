@@ -58,13 +58,12 @@ export default async function handler(req, res) {
           name,
           phone,
           email,
-          restaurant_id: restaurant_id || 1,
           location,
           dietary_requirements,
           birthday,
           anniversary,
           notes,
-          source: source || 'contact_form'
+          status: 'active'
         }])
         .select()
         .single();
