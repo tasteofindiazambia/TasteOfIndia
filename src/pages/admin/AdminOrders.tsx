@@ -68,13 +68,18 @@ const AdminOrders: React.FC = () => {
         ordersData = await orderService.getOrdersByStatus(filter, selectedRestaurant?.id);
       }
       
+      console.log(`📋 Fetched ${ordersData.length} orders for restaurant ${selectedRestaurant?.id}`);
       setOrders(ordersData);
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
+      console.error('❌ Failed to fetch orders:', error);
+      showNotification({
+        type: 'error',
+        message: 'Failed to load orders. Please refresh the page.'
+      });
     } finally {
       setLoading(false);
     }
-  }, [selectedRestaurant, filter]);
+  }, [selectedRestaurant, filter, showNotification]);
 
   useEffect(() => {
     fetchOrders();
@@ -119,6 +124,11 @@ const AdminOrders: React.FC = () => {
   const handleCloseSidebar = () => {
     setShowOrderSidebar(false);
     setSelectedOrder(null);
+  };
+
+  const handleRefreshOrders = () => {
+    console.log('🔄 Manually refreshing orders...');
+    fetchOrders();
   };
 
   const handleWhatsAppCustomer = (order: Order) => {
@@ -301,6 +311,13 @@ const AdminOrders: React.FC = () => {
           
           <div className="flex flex-wrap gap-3">
             {/* Create Order Button */}
+            <button
+              onClick={handleRefreshOrders}
+              className="flex items-center gap-2 px-4 py-2 border border-deep-maroon text-deep-maroon rounded-lg hover:bg-deep-maroon hover:text-white transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
             <button
               onClick={() => setShowCreateOrderModal(true)}
               className="flex items-center gap-2 px-4 py-2 bg-deep-maroon text-light-cream rounded-lg hover:bg-burgundy transition-colors"
