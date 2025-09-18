@@ -1,5 +1,5 @@
 // API service for connecting frontend to backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-6dgcbykh0-raeskaas-projects.vercel.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-d40ddimzp-raeskaas-projects.vercel.app/api';
 
 class ApiService {
   constructor() {
