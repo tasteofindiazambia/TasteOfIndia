@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, AlertCircle, Info, X } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info, X, ShoppingBag, Calendar } from 'lucide-react';
 
 interface NotificationToastProps {
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'order' | 'reservation';
   message: string;
+  title?: string;
   duration?: number;
   onClose: () => void;
 }
@@ -11,6 +12,7 @@ interface NotificationToastProps {
 const NotificationToast: React.FC<NotificationToastProps> = ({
   type,
   message,
+  title,
   duration = 5000,
   onClose
 }) => {
@@ -37,6 +39,10 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         return <AlertCircle className="w-5 h-5 text-red-500" />;
       case 'info':
         return <Info className="w-5 h-5 text-blue-500" />;
+      case 'order':
+        return <ShoppingBag className="w-5 h-5 text-orange-500" />;
+      case 'reservation':
+        return <Calendar className="w-5 h-5 text-purple-500" />;
       default:
         return <Info className="w-5 h-5 text-blue-500" />;
     }
@@ -50,6 +56,10 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         return 'bg-red-50 border-red-200';
       case 'info':
         return 'bg-blue-50 border-blue-200';
+      case 'order':
+        return 'bg-orange-50 border-orange-200';
+      case 'reservation':
+        return 'bg-purple-50 border-purple-200';
       default:
         return 'bg-blue-50 border-blue-200';
     }
@@ -63,6 +73,10 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         return 'text-red-800';
       case 'info':
         return 'text-blue-800';
+      case 'order':
+        return 'text-orange-800';
+      case 'reservation':
+        return 'text-purple-800';
       default:
         return 'text-blue-800';
     }
@@ -78,7 +92,12 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         <div className="flex items-start space-x-3">
           {getIcon()}
           <div className="flex-1">
-            <p className={`text-sm font-medium ${getTextColor()}`}>
+            {title && (
+              <p className={`text-sm font-semibold ${getTextColor()} mb-1`}>
+                {title}
+              </p>
+            )}
+            <p className={`text-sm ${title ? 'font-normal' : 'font-medium'} ${getTextColor()}`}>
               {message}
             </p>
           </div>

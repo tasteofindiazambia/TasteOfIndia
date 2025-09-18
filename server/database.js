@@ -19,6 +19,8 @@ class Database {
       
       // Enable foreign key constraints
       await this.run('PRAGMA foreign_keys = ON');
+      console.log('Foreign key constraints enables')
+      
       
       // Create tables if they don't exist
       await this.createTables();

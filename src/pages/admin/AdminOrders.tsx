@@ -5,6 +5,7 @@ import { orderService } from '../../services/orderService';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
 import CreateOrderModal from '../../components/CreateOrderModal';
+import { useOrderNotifications } from '../../hooks/useOrderNotifications';
 
 const AdminOrders: React.FC = () => {
   const { selectedRestaurant } = useRestaurant();
@@ -24,6 +25,12 @@ const AdminOrders: React.FC = () => {
   const [orderValueRange, setOrderValueRange] = useState<{min: number, max: number}>({
     min: 0,
     max: 1000
+  });
+
+  // Enable order notifications
+  useOrderNotifications({ 
+    restaurantId: selectedRestaurant?.id, 
+    enabled: true 
   });
 
   const fetchOrders = useCallback(async () => {
@@ -47,6 +54,14 @@ const AdminOrders: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
+    
+    // Auto-refresh every 15 seconds
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing orders...');
+      fetchOrders();
+    }, 15000);
+    
+    return () => clearInterval(interval);
   }, [fetchOrders]);
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {

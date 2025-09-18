@@ -1,10 +1,26 @@
 import apiService from './api';
 import { Reservation, ReservationFormData } from '../types';
+import { customerService } from './customerService';
 
 export const reservationService = {
   // Create a new reservation
   createReservation: async (reservationData: ReservationFormData): Promise<Reservation> => {
-    return await apiService.createReservation(reservationData);
+    const reservation = await apiService.createReservation(reservationData);
+    
+    // Automatically save customer data
+    try {
+      await customerService.createCustomer({
+        name: reservationData.customer_name,
+        phone: reservationData.customer_phone,
+        email: undefined, // ReservationFormData doesn't include email
+        source: 'contact_form'
+      });
+    } catch (error) {
+      console.error('Failed to save customer data:', error);
+      // Don't throw error - reservation creation should still succeed
+    }
+    
+    return reservation;
   },
 
   // Get all reservations (admin)
@@ -16,7 +32,7 @@ export const reservationService = {
   // Get reservation by ID
   getReservation: async (id: number): Promise<Reservation> => {
     const reservations = await apiService.getAdminReservations();
-    return reservations.find(r => r.id === id);
+    return reservations.find((r: Reservation) => r.id === id);
   },
 
   // Update reservation status (admin)
@@ -31,7 +47,7 @@ export const reservationService = {
     endDate: string, 
     restaurantId?: number
   ): Promise<Reservation[]> => {
-    const filters = { date_from: startDate, date_to: endDate };
+    const filters: any = { date_from: startDate, date_to: endDate };
     if (restaurantId) {
       filters.restaurant_id = restaurantId;
     }

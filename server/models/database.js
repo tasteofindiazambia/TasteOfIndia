@@ -91,6 +91,17 @@ class Database {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`);
 
+      // Customers table
+      this.db.run(`CREATE TABLE IF NOT EXISTS customers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT,
+        email TEXT,
+        source TEXT NOT NULL CHECK (source IN ('order', 'contact_form', 'whatsapp')),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_activity DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`);
+
       // Blogs table
       this.db.run(`CREATE TABLE IF NOT EXISTS blogs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

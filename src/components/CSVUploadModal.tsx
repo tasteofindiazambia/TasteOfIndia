@@ -37,31 +37,31 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
   const [previewData, setPreviewData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // CSV Template structure
+  // CSV Template structure - Updated to match your file format
   const csvTemplate = [
     {
-      name: 'Chicken Biryani',
-      description: 'Aromatic basmati rice with tender chicken and spices',
-      price: 25.00,
-      category: 'Main Course',
-      tags: 'North Indian,Non-Vegetarian',
-      vegetarian: false,
-      spiceLevel: 'Medium',
-      pieces: 1,
-      imageUrl: 'https://example.com/chicken-biryani.jpg',
-      available: true
+      Name: 'Pani Puri',
+      Description: 'Crispy puris filled with spicy, tangy water and chutneys along with dry puris',
+      Price: 60,
+      Category: 'food',
+      Tags: 'Crunchy,Tangy,Spicy,Sharable,Popular,Vegetarian',
+      Available: 'TRUE',
+      Vegetarian: 'TRUE',
+      ImageUrl: '',
+      spiceLevel: '1',
+      pieces: '1'
     },
     {
-      name: 'Samosas',
-      description: 'Crispy pastries filled with spiced potatoes',
-      price: 8.00,
-      category: 'Appetizer',
-      tags: 'Vegetarian,Snack',
-      vegetarian: true,
-      spiceLevel: 'Mild',
-      pieces: 2,
-      imageUrl: 'https://example.com/samosas.jpg',
-      available: true
+      Name: 'Chicken Biryani',
+      Description: 'Aromatic basmati rice with tender chicken and spices',
+      Price: 25.00,
+      Category: 'Main Course',
+      Tags: 'North Indian,Non-Vegetarian',
+      Available: 'TRUE',
+      Vegetarian: 'FALSE',
+      ImageUrl: 'https://example.com/chicken-biryani.jpg',
+      spiceLevel: '2',
+      pieces: '1'
     }
   ];
 
@@ -103,14 +103,49 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const lines = text.split('\n');
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      const lines = text.split('\n').filter(line => line.trim()); // Remove empty lines
       
-      // Auto-map columns
+      // Find the header row (look for common header patterns)
+      let headerRowIndex = 0;
+      for (let i = 0; i < Math.min(3, lines.length); i++) {
+        const line = lines[i].toLowerCase();
+        if (line.includes('name') && line.includes('description') && line.includes('price')) {
+          headerRowIndex = i;
+          break;
+        }
+      }
+      
+      const headers = lines[headerRowIndex].split(',').map(h => h.trim().replace(/"/g, ''));
+      
+      // Auto-map columns - Enhanced to handle your CSV format
       const mapping: {[key: string]: string} = {};
       headers.forEach(header => {
-        const lowerHeader = header.toLowerCase();
-        if (lowerHeader.includes('name') || lowerHeader.includes('item')) {
+        const lowerHeader = header.toLowerCase().trim();
+        
+        // Direct matches for your CSV format
+        if (lowerHeader === 'name') {
+          mapping[header] = 'name';
+        } else if (lowerHeader === 'description') {
+          mapping[header] = 'description';
+        } else if (lowerHeader === 'price') {
+          mapping[header] = 'price';
+        } else if (lowerHeader === 'category') {
+          mapping[header] = 'category';
+        } else if (lowerHeader === 'tags') {
+          mapping[header] = 'tags';
+        } else if (lowerHeader === 'available') {
+          mapping[header] = 'available';
+        } else if (lowerHeader === 'vegetarian') {
+          mapping[header] = 'vegetarian';
+        } else if (lowerHeader === 'imageurl') {
+          mapping[header] = 'imageUrl';
+        } else if (lowerHeader === 'spicelevel') {
+          mapping[header] = 'spiceLevel';
+        } else if (lowerHeader === 'pieces') {
+          mapping[header] = 'pieces';
+        }
+        // Fallback fuzzy matching
+        else if (lowerHeader.includes('name') || lowerHeader.includes('item')) {
           mapping[header] = 'name';
         } else if (lowerHeader.includes('description') || lowerHeader.includes('desc')) {
           mapping[header] = 'description';
@@ -135,9 +170,9 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
 
       setColumnMapping(mapping);
 
-      // Parse data
+      // Parse data starting from the row after headers
       const data: any[] = [];
-      for (let i = 1; i < lines.length; i++) {
+      for (let i = headerRowIndex + 1; i < lines.length; i++) {
         if (lines[i].trim()) {
           const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
           const row: any = {};
@@ -192,11 +227,11 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
       }
 
       // Validate vegetarian
-      if (row.vegetarian && !['true', 'false', 'yes', 'no', '1', '0'].includes(row.vegetarian.toLowerCase())) {
+      if (row.vegetarian && !['true', 'false', 'yes', 'no', '1', '0', 'true', 'false'].includes(row.vegetarian.toLowerCase())) {
         errors.push({
           row: rowNum,
           field: 'vegetarian',
-          message: 'Vegetarian must be true/false, yes/no, or 1/0'
+          message: 'Vegetarian must be TRUE/FALSE, true/false, yes/no, or 1/0'
         });
       }
 
@@ -210,11 +245,11 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
       }
 
       // Validate available
-      if (row.available && !['true', 'false', 'yes', 'no', '1', '0'].includes(row.available.toLowerCase())) {
+      if (row.available && !['true', 'false', 'yes', 'no', '1', '0', 'true', 'false'].includes(row.available.toLowerCase())) {
         errors.push({
           row: rowNum,
           field: 'available',
-          message: 'Available must be true/false, yes/no, or 1/0'
+          message: 'Available must be TRUE/FALSE, true/false, yes/no, or 1/0'
         });
       }
     });
@@ -234,11 +269,11 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
         price: parseFloat(row.price) || 0,
         category: row.category?.toString().trim(),
         tags: row.tags?.toString().trim(),
-        vegetarian: ['true', 'yes', '1'].includes(row.vegetarian?.toString().toLowerCase()),
+        vegetarian: ['true', 'yes', '1', 'true'].includes(row.vegetarian?.toString().toLowerCase()),
         spiceLevel: row.spiceLevel?.toString().trim(),
         pieces: parseInt(row.pieces) || 1,
         imageUrl: row.imageUrl?.toString().trim(),
-        available: ['true', 'yes', '1'].includes(row.available?.toString().toLowerCase())
+        available: ['true', 'yes', '1', 'true'].includes(row.available?.toString().toLowerCase())
       }));
       
       setCsvData(transformedData);
@@ -282,12 +317,13 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
   };
 
   const downloadTemplate = () => {
-    const headers = requiredFields;
+    // Use the exact format from your CSV file
+    const headers = ['Name', 'Description', 'Price', 'Category', 'Tags', 'Available', 'Vegetarian', 'ImageUrl', 'spiceLevel', 'pieces'];
     const csvContent = [
       headers.join(','),
       ...csvTemplate.map(row => 
         headers.map(header => {
-          const value = row[header as keyof MenuItem];
+          const value = row[header as keyof typeof row];
           return typeof value === 'string' && value.includes(',') ? `"${value}"` : value;
         }).join(',')
       )
@@ -349,8 +385,16 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
                 <Upload className="w-16 h-16 text-deep-maroon mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload CSV File</h3>
                 <p className="text-gray-600 mb-6">
-                  Upload a CSV file with your menu items. Download our template to get started.
+                  Upload a CSV file with your menu items. The system will automatically detect and map your columns.
                 </p>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <h4 className="font-semibold text-blue-800 mb-2">✨ Smart CSV Import</h4>
+                  <p className="text-blue-700 text-sm">
+                    Our system automatically detects your CSV format and maps columns intelligently. 
+                    It works with various formats including your existing menu data structure.
+                  </p>
+                </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
@@ -381,9 +425,9 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gray-200">
-                        {requiredFields.map(field => (
-                          <th key={field} className="px-3 py-2 text-left font-medium text-gray-700">
-                            {fieldLabels[field as keyof typeof fieldLabels]}
+                        {['Name', 'Description', 'Price', 'Category', 'Tags', 'Available', 'Vegetarian', 'ImageUrl', 'spiceLevel', 'pieces'].map(header => (
+                          <th key={header} className="px-3 py-2 text-left font-medium text-gray-700">
+                            {header}
                           </th>
                         ))}
                       </tr>
@@ -391,9 +435,9 @@ const CSVUploadModal: React.FC<CSVUploadModalProps> = ({ isOpen, onClose, onUplo
                     <tbody>
                       {csvTemplate.slice(0, 2).map((row, index) => (
                         <tr key={index} className="border-t">
-                          {requiredFields.map(field => (
-                            <td key={field} className="px-3 py-2 text-gray-600">
-                              {row[field as keyof MenuItem]?.toString()}
+                          {['Name', 'Description', 'Price', 'Category', 'Tags', 'Available', 'Vegetarian', 'ImageUrl', 'spiceLevel', 'pieces'].map(header => (
+                            <td key={header} className="px-3 py-2 text-gray-600">
+                              {row[header as keyof typeof row]?.toString()}
                             </td>
                           ))}
                         </tr>

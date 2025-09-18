@@ -3,9 +3,11 @@ import NotificationToast from '../components/NotificationToast';
 
 interface Notification {
   id: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'order' | 'reservation';
   message: string;
   duration?: number;
+  title?: string;
+  data?: any;
 }
 
 interface NotificationContextType {
@@ -47,6 +49,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         <NotificationToast
           key={notification.id}
           type={notification.type}
+          title={notification.title}
           message={notification.message}
           duration={notification.duration}
           onClose={() => removeNotification(notification.id)}

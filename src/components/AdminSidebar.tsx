@@ -18,15 +18,18 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
   };
 
   const menuItems = [
+    // Essential Admin Features - Always Visible
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/admin/menu', icon: Menu, label: 'Menu Management' },
-    { path: '/admin/customers', icon: Users, label: 'Customer Management' },
+    { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/admin/reservations', icon: Calendar, label: 'Reservations' },
-    { path: '/admin/locations', icon: MapPin, label: 'Location Management' },
-    { path: '/admin/blogs', icon: BookOpen, label: 'Blog Management' },
-    { path: '/admin/events', icon: CalendarIcon, label: 'Event Management' },
-    { path: '/admin/branding', icon: Palette, label: 'Website Branding' },
+    { path: '/admin/customers', icon: Users, label: 'Customer Management' },
+    
+    // Commented out features - Available for future use
+    // { path: '/admin/locations', icon: MapPin, label: 'Location Management' },
+    // { path: '/admin/blogs', icon: BookOpen, label: 'Blog Management' },
+    // { path: '/admin/events', icon: CalendarIcon, label: 'Event Management' },
+    // { path: '/admin/branding', icon: Palette, label: 'Website Branding' },
   ];
 
   const isActive = (path: string) => location.pathname === path;

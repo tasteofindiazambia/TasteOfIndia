@@ -12,6 +12,7 @@ import authRoutes from './routes/auth.js';
 import blogRoutes from './routes/blogs.js';
 import eventRoutes from './routes/events.js';
 import brandingRoutes from './routes/branding.js';
+import customerRoutes from './routes/customers.js';
 
 // Import database to initialize
 import Database from './models/database.js';
@@ -45,6 +46,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/branding', brandingRoutes);
+app.use('/api/customers', customerRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -1,10 +1,26 @@
 import apiService from './api';
 import { Order, OrderFormData, OrderStatusUpdate } from '../types';
+import { customerService } from './customerService';
 
 export const orderService = {
   // Create a new order
   createOrder: async (orderData: OrderFormData): Promise<Order> => {
-    return await apiService.createOrder(orderData);
+    const order = await apiService.createOrder(orderData);
+    
+    // Automatically save customer data
+    try {
+      await customerService.createCustomer({
+        name: orderData.customer_name,
+        phone: orderData.customer_phone,
+        email: undefined, // OrderFormData doesn't include email
+        source: 'order'
+      });
+    } catch (error) {
+      console.error('Failed to save customer data:', error);
+      // Don't throw error - order creation should still succeed
+    }
+    
+    return order;
   },
 
   // Get all orders (admin)
