@@ -88,9 +88,9 @@ class ApiService {
   }
 
   async updateOrderStatus(id, status, estimatedTime) {
-    return this.request('/admin', {
+    return this.request(`/admin?type=orders`, {
       method: 'PUT',
-      body: JSON.stringify({ type: 'orders', orderId: id, status, estimatedTime }),
+      body: JSON.stringify({ orderId: id, status, estimatedTime }),
     });
   }
 
@@ -112,9 +112,9 @@ class ApiService {
   }
 
   async updateReservationStatus(id, status, notes) {
-    return this.request('/admin', {
+    return this.request(`/admin?type=reservations`, {
       method: 'PUT',
-      body: JSON.stringify({ type: 'reservations', reservationId: id, status, notes }),
+      body: JSON.stringify({ reservationId: id, status, notes }),
     });
   }
 

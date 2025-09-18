@@ -460,11 +460,7 @@ const AdminOrders: React.FC = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredAndSortedOrders().map((order) => {
-                    const orderItems = Array.isArray(order.items) 
-                      ? order.items 
-                      : (order.items && typeof order.items === 'string') 
-                        ? JSON.parse(order.items) 
-                        : [];
+                    const orderItems = order.order_items || [];
                     return (
                       <tr key={order.id} className="hover:bg-gray-50">
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
