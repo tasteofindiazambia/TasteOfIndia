@@ -83,14 +83,14 @@ class ApiService {
   }
 
   async getAdminOrders(filters = {}) {
-    const params = new URLSearchParams(filters);
-    return this.request(`/admin/orders?${params}`);
+    const params = new URLSearchParams({ type: 'orders', ...filters });
+    return this.request(`/admin?${params}`);
   }
 
   async updateOrderStatus(id, status, estimatedTime) {
-    return this.request(`/admin/orders/${id}`, {
+    return this.request('/admin', {
       method: 'PUT',
-      body: JSON.stringify({ status, estimated_preparation_time: estimatedTime }),
+      body: JSON.stringify({ type: 'orders', orderId: id, status, estimatedTime }),
     });
   }
 
@@ -107,27 +107,27 @@ class ApiService {
   }
 
   async getAdminReservations(filters = {}) {
-    const params = new URLSearchParams(filters);
-    return this.request(`/admin/reservations?${params}`);
+    const params = new URLSearchParams({ type: 'reservations', ...filters });
+    return this.request(`/admin?${params}`);
   }
 
   async updateReservationStatus(id, status, notes) {
-    return this.request(`/admin/reservations/${id}`, {
+    return this.request('/admin', {
       method: 'PUT',
-      body: JSON.stringify({ status, notes }),
+      body: JSON.stringify({ type: 'reservations', reservationId: id, status, notes }),
     });
   }
 
   // ==================== CUSTOMERS ====================
   async getAdminCustomers(filters = {}) {
-    const params = new URLSearchParams(filters);
-    return this.request(`/admin/customers?${params}`);
+    const params = new URLSearchParams({ type: 'customers', ...filters });
+    return this.request(`/admin?${params}`);
   }
 
   // ==================== ANALYTICS ====================
   async getDashboardAnalytics(filters = {}) {
-    const params = new URLSearchParams(filters);
-    return this.request(`/admin/analytics/dashboard?${params}`);
+    const params = new URLSearchParams({ type: 'dashboard', ...filters });
+    return this.request(`/admin?${params}`);
   }
 
   // ==================== HEALTH CHECK ====================
