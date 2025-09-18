@@ -1,58 +1,85 @@
-import db from '../../lib/database.js';
+// Vercel serverless function for menu API
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ootznaeeshzasqkjersy.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vdHpuYWVlc2h6YXNxa2plcnN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDc1MDcsImV4cCI6MjA3Mzc4MzUwN30.-aOSSovEXRXCM0imIxXad1R96iDVB6nFgPG5PcthI3Y';
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
   // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
+  const { restaurantId } = req.query;
+
   try {
     if (req.method === 'GET') {
-      const { restaurantId } = req.query;
-      
-      // Get categories with menu items
-      const categories = await db.all(`
-        SELECT c.*, 
-               json_group_array(
-                 json_object(
-                   'id', mi.id,
-                   'name', mi.name,
-                   'description', mi.description,
-                   'price', mi.price,
-                   'image_url', mi.image_url,
-                   'available', mi.available,
-                   'featured', mi.featured,
-                   'tags', mi.tags,
-                   'spice_level', mi.spice_level,
-                   'pieces_count', mi.pieces_count,
-                   'preparation_time', mi.preparation_time,
-                   'is_vegetarian', mi.is_vegetarian,
-                   'is_vegan', mi.is_vegan,
-                   'is_gluten_free', mi.is_gluten_free
-                 )
-               ) as items
-        FROM categories c
-        LEFT JOIN menu_items mi ON c.id = mi.category_id AND mi.available = 1
-        WHERE c.restaurant_id = ? AND c.is_active = 1
-        GROUP BY c.id
-        ORDER BY c.display_order, c.name
-      `, [restaurantId]);
+      // Get menu items for a restaurant
+      const { data: menuItems, error } = await supabase
+        .from('menu_items')
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            description,
+            display_order
+          )
+        `)
+        .eq('restaurant_id', restaurantId)
+        .eq('available', true)
+        .order('name');
 
-      res.status(200).json(categories);
+      if (error) {
+        console.error('Error fetching menu items:', error);
+        return res.status(500).json({ error: 'Failed to fetch menu items' });
+      }
+
+      res.json(menuItems);
+    } else if (req.method === 'POST') {
+      // Create new menu item
+      const { name, description, price, category_id, image_url, available, featured, tags, spice_level, pieces_count, preparation_time, is_vegetarian, is_vegan, is_gluten_free } = req.body;
+
+      const { data: menuItem, error } = await supabase
+        .from('menu_items')
+        .insert([{
+          name,
+          description,
+          price,
+          category_id,
+          restaurant_id: restaurantId,
+          image_url,
+          available,
+          featured,
+          tags,
+          spice_level,
+          pieces_count,
+          preparation_time,
+          is_vegetarian,
+          is_vegan,
+          is_gluten_free
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating menu item:', error);
+        return res.status(500).json({ error: 'Failed to create menu item' });
+      }
+
+      res.status(201).json(menuItem);
     } else {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Error fetching menu:', error);
-    res.status(500).json({ error: 'Failed to fetch menu' });
+    console.error('Server error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

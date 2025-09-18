@@ -1,4 +1,4 @@
-// Vercel serverless function for restaurants API
+// Vercel serverless function for menu categories API
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ootznaeeshzasqkjersy.supabase.co';
@@ -17,37 +17,45 @@ export default async function handler(req, res) {
     return;
   }
 
+  const { restaurantId } = req.query;
+
   try {
     if (req.method === 'GET') {
-      // Get all restaurants
-      const { data: restaurants, error } = await supabase
-        .from('restaurants')
+      // Get categories for a restaurant
+      const { data: categories, error } = await supabase
+        .from('categories')
         .select('*')
+        .eq('restaurant_id', restaurantId)
         .eq('is_active', true)
-        .order('name');
+        .order('display_order', { ascending: true });
 
       if (error) {
-        console.error('Error fetching restaurants:', error);
-        return res.status(500).json({ error: 'Failed to fetch restaurants' });
+        console.error('Error fetching categories:', error);
+        return res.status(500).json({ error: 'Failed to fetch categories' });
       }
 
-      res.json(restaurants);
+      res.json(categories);
     } else if (req.method === 'POST') {
-      // Create new restaurant
-      const { name, address, phone, email, hours } = req.body;
+      // Create new category
+      const { name, description, display_order } = req.body;
 
-      const { data: restaurant, error } = await supabase
-        .from('restaurants')
-        .insert([{ name, address, phone, email, hours }])
+      const { data: category, error } = await supabase
+        .from('categories')
+        .insert([{
+          name,
+          description,
+          restaurant_id: restaurantId,
+          display_order: display_order || 0
+        }])
         .select()
         .single();
 
       if (error) {
-        console.error('Error creating restaurant:', error);
-        return res.status(500).json({ error: 'Failed to create restaurant' });
+        console.error('Error creating category:', error);
+        return res.status(500).json({ error: 'Failed to create category' });
       }
 
-      res.status(201).json(restaurant);
+      res.status(201).json(category);
     } else {
       res.status(405).json({ error: 'Method not allowed' });
     }
