@@ -108,7 +108,7 @@ const AdminMenu: React.FC = () => {
       const newAvailability = !item.available;
       
       // Update in database
-      const response = await fetch(`https://taste-of-india-oy7hihulv-raeskaas-projects.vercel.app/api/menu/update`, {
+      const response = await fetch(`https://taste-of-india-es8m05ywg-raeskaas-projects.vercel.app/api/menu/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -178,8 +178,8 @@ const AdminMenu: React.FC = () => {
   const handleMenuItemSave = async (itemData: MenuItem) => {
     try {
       const url = modalMode === 'create' 
-        ? `https://taste-of-india-oy7hihulv-raeskaas-projects.vercel.app/api/menu/${selectedRestaurant?.id}`
-        : `https://taste-of-india-oy7hihulv-raeskaas-projects.vercel.app/api/menu/${selectedRestaurant?.id}`;
+        ? `https://taste-of-india-es8m05ywg-raeskaas-projects.vercel.app/api/menu/${selectedRestaurant?.id}`
+        : `https://taste-of-india-es8m05ywg-raeskaas-projects.vercel.app/api/menu/update`;
       
       const method = modalMode === 'create' ? 'POST' : 'PUT';
       
