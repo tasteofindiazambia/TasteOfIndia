@@ -20,8 +20,8 @@ const WhatsAppShare: React.FC<WhatsAppShareProps> = ({ order }) => {
 📅 Date: ${new Date(order.created_at).toLocaleDateString()}
 
 🛒 *Items Ordered:*
-${Array.isArray(order.items) 
-  ? order.items.map((item: any) => `• ${item.name} × ${item.quantity} - K${(item.price * item.quantity).toFixed(0)}`).join('\n')
+${order.order_items && order.order_items.length > 0 
+  ? order.order_items.map((item: any) => `• ${item.menu_items?.name || 'Unknown Item'} × ${item.quantity} - K${item.total_price?.toFixed(0) || '0'}`).join('\n')
   : 'Items details not available'}
 
 💰 *Total: K${(order.total || order.total_amount || 0).toFixed(0)}*
