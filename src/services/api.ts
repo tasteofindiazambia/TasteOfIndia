@@ -95,7 +95,7 @@ class ApiService {
   }
 
   async getOrderDetails(id) {
-    return this.request(`/admin/orders/${id}`);
+    return this.request(`/orders/${id}`);
   }
 
   // ==================== RESERVATIONS ====================
