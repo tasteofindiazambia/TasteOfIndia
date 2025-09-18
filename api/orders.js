@@ -106,6 +106,7 @@ export default async function handler(req, res) {
 
       res.status(201).json({
         success: true,
+        id: order.id,
         order_id: order.id,
         order_number,
         message: 'Order created successfully'
