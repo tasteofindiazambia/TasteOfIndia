@@ -42,7 +42,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
         )}
         
         {/* Availability Badge */}
-        {(item.availability_status === 0 || item.available === false) && (
+        {!item.available && (
           <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm">
             Out of Stock
           </div>
@@ -59,7 +59,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
             K{item.price.toFixed(0)}
           </span>
           
-          {item.availability_status === 1 ? (
+          {item.available ? (
             <div className="flex items-center space-x-2">
               {showQuantitySelector ? (
                 <div className="flex items-center space-x-2">

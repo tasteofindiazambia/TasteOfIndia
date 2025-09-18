@@ -30,15 +30,21 @@ export interface MenuItem {
   image_prompt?: string;
   category_id: number;
   item_family?: string;
-  tags?: string;
-  availability_status: number; // 1 = available, 0 = unavailable
+  tags?: string | string[];
+  available: boolean; // Main availability field
   preparation_time?: number;
   restaurant_id?: number;
   created_at?: string;
   updated_at?: string;
-  available?: boolean; // Computed property for backward compatibility
   category?: Category;
   category_name?: string;
+  // Additional fields for menu items
+  featured?: boolean;
+  spice_level?: string;
+  pieces_count?: number;
+  is_vegetarian?: boolean;
+  is_vegan?: boolean;
+  is_gluten_free?: boolean;
 }
 
 // Order Types
