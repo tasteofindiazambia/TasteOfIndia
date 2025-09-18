@@ -28,93 +28,63 @@ export const useRealTimeUpdates = ({
 }: UseRealTimeUpdatesProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const lastOrderIdRef = useRef<number>(0);
+  const lastReservationIdRef = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled) return;
 
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-6w40h9asr-raeskaas-projects.vercel.app/api';
-    const streamUrl = `${API_BASE_URL}/admin/stream${restaurantId ? `?restaurant_id=${restaurantId}` : ''}`;
-
-    console.log('🔌 Connecting to real-time stream:', streamUrl);
-
-    const eventSource = new EventSource(streamUrl);
-    eventSourceRef.current = eventSource;
-
-    eventSource.onopen = () => {
-      console.log('✅ Real-time connection established');
-      setIsConnected(true);
-    };
-
-    eventSource.onmessage = (event) => {
+    // Use smart polling instead of SSE (Vercel has limitations with SSE)
+    const checkForUpdates = async () => {
       try {
-        const data: RealTimeUpdate = JSON.parse(event.data);
-        console.log('📡 Real-time update received:', data);
-
-        setLastUpdate(data.timestamp || new Date().toISOString());
-
-        switch (data.type) {
-          case 'connected':
-            console.log('🎉 SSE connection confirmed');
-            break;
-            
-          case 'new_order':
-            if (data.order && onNewOrder) {
-              console.log('🆕 New order received:', data.order);
-              onNewOrder(data.order);
-              // Play notification sound
-              playOrderAlert();
-            }
-            break;
-            
-          case 'order_updated':
-            if (data.order && onOrderUpdate) {
-              console.log('🔄 Order updated:', data.order);
-              onOrderUpdate(data.order);
-            }
-            break;
-            
-          case 'new_reservation':
-            if (data.reservation && onNewReservation) {
-              console.log('📅 New reservation received:', data.reservation);
-              onNewReservation(data.reservation);
-              // Play notification sound
-              playReservationAlert();
-            }
-            break;
-            
-          case 'reservation_updated':
-            if (data.reservation && onReservationUpdate) {
-              console.log('🔄 Reservation updated:', data.reservation);
-              onReservationUpdate(data.reservation);
-            }
-            break;
-            
-          case 'heartbeat':
-            // Keep connection alive
-            break;
-            
-          case 'error':
-            console.error('❌ Real-time stream error:', data.message);
-            break;
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://taste-of-india-otlkt93xh-raeskaas-projects.vercel.app/api';
+        
+        // Check for new orders
+        if (onNewOrder) {
+          const ordersResponse = await fetch(`${API_BASE_URL}/admin?type=orders&restaurant_id=${restaurantId}&limit=1`);
+          const orders = await ordersResponse.json();
+          
+          if (orders.length > 0 && orders[0].id > lastOrderIdRef.current) {
+            console.log('🆕 New order detected:', orders[0]);
+            onNewOrder(orders[0]);
+            playOrderAlert();
+            lastOrderIdRef.current = orders[0].id;
+          }
         }
+
+        // Check for new reservations
+        if (onNewReservation) {
+          const reservationsResponse = await fetch(`${API_BASE_URL}/admin?type=reservations&restaurant_id=${restaurantId}&limit=1`);
+          const reservations = await reservationsResponse.json();
+          
+          if (reservations.length > 0 && reservations[0].id > lastReservationIdRef.current) {
+            console.log('📅 New reservation detected:', reservations[0]);
+            onNewReservation(reservations[0]);
+            playReservationAlert();
+            lastReservationIdRef.current = reservations[0].id;
+          }
+        }
+
+        setLastUpdate(new Date().toISOString());
+        setIsConnected(true);
       } catch (error) {
-        console.error('❌ Failed to parse real-time update:', error);
+        console.error('❌ Error checking for updates:', error);
+        setIsConnected(false);
       }
     };
 
-    eventSource.onerror = (error) => {
-      console.error('❌ Real-time connection error:', error);
-      setIsConnected(false);
-    };
+    // Initial check
+    checkForUpdates();
+    
+    // Check every 8 seconds (much less frequent than before)
+    const interval = setInterval(checkForUpdates, 8000);
 
     return () => {
-      console.log('🔌 Disconnecting from real-time stream');
-      eventSource.close();
-      eventSourceRef.current = null;
+      console.log('🔌 Disconnecting from real-time updates');
+      clearInterval(interval);
       setIsConnected(false);
     };
-  }, [restaurantId, enabled, onNewOrder, onOrderUpdate, onNewReservation, onReservationUpdate]);
+  }, [restaurantId, enabled, onNewOrder, onNewReservation]);
 
   return {
     isConnected,
@@ -141,6 +111,8 @@ function playOrderAlert() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
+    
+    console.log('🔊 Order alert sound played');
   } catch (error) {
     console.error('Failed to play order alert sound:', error);
   }
@@ -165,6 +137,8 @@ function playReservationAlert() {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.4);
+    
+    console.log('🔊 Reservation alert sound played');
   } catch (error) {
     console.error('Failed to play reservation alert sound:', error);
   }

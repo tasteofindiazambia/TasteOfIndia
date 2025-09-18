@@ -30,9 +30,9 @@ const BackendStatus: React.FC = () => {
 
   useEffect(() => {
     checkBackendStatus();
-    // Check every 30 seconds
-    const interval = setInterval(checkBackendStatus, 30000);
-    return () => clearInterval(interval);
+    // Disable auto-checking to prevent refreshes
+    // const interval = setInterval(checkBackendStatus, 30000);
+    // return () => clearInterval(interval);
   }, []);
 
   const getStatusColor = () => {

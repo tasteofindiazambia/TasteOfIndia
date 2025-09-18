@@ -49,9 +49,8 @@ export const useOrderNotifications = ({ restaurantId, enabled = true }: UseOrder
       }
     };
 
-    // Check for new orders every 10 seconds
-    const interval = setInterval(checkForNewOrders, 10000);
-
-    return () => clearInterval(interval);
+    // Disable polling - we now use real-time updates instead
+    // const interval = setInterval(checkForNewOrders, 10000);
+    // return () => clearInterval(interval);
   }, [restaurantId, enabled, showNotification]);
 };
