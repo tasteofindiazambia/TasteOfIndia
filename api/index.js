@@ -186,22 +186,10 @@ async function handleOrders(req, res, endpoint) {
   if (req.method === 'GET') {
     const { restaurant_id, status, limit = 50 } = req.query;
 
+    // Simplified query to avoid join issues
     let query = supabase
       .from('orders')
-      .select(`
-        *,
-        restaurants (name, address, phone),
-        order_items (
-          id,
-          menu_item_id,
-          quantity,
-          unit_price,
-          total_price,
-          special_instructions,
-          menu_items (name, price, image_url),
-          categories (name)
-        )
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
       .limit(parseInt(limit));
 
@@ -212,18 +200,21 @@ async function handleOrders(req, res, endpoint) {
       query = query.eq('status', status);
     }
 
+    console.log('Fetching orders with query:', { restaurant_id, status, limit });
+    
     const { data: orders, error } = await query;
-    if (error) throw error;
+    
+    console.log('Orders query result:', { orders: orders?.length, error });
+    
+    if (error) {
+      console.error('Orders query error:', error);
+      throw error;
+    }
 
-    // Format orders
+    // Format orders - simplified without joins
     const formattedOrders = orders.map(order => ({
       ...order,
-      restaurant_name: order.restaurants?.name,
-      items: order.order_items?.map(item => ({
-        ...item,
-        menu_item_name: item.menu_items?.name,
-        category_name: item.categories?.name
-      })) || []
+      items: [] // TODO: Fetch order items separately
     }));
 
     return res.json(formattedOrders);
