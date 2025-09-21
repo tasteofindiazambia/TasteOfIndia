@@ -24,19 +24,26 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Starting URL parsing for:', req.url);
+    
     // Parse URL path and query parameters
     const urlParts = req.url.split('?');
+    console.log('URL parts:', urlParts);
+    
     const pathname = urlParts[0].replace('/api', '').replace(/^\//, '');
     const pathSegments = pathname.split('/').filter(Boolean);
+    console.log('Path segments:', pathSegments);
     
     // Parse query parameters
     const query = {};
     if (urlParts[1]) {
+      console.log('Parsing query string:', urlParts[1]);
       const searchParams = new URLSearchParams(urlParts[1]);
       for (const [key, value] of searchParams) {
         query[key] = value;
       }
     }
+    console.log('Parsed query:', query);
 
     // Health check
     if (pathSegments.length === 0) {
