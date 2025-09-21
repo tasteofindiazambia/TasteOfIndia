@@ -1,8 +1,8 @@
 // Vercel serverless function for menu API
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ootznaeeshzasqkjersy.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vdHpuYWVlc2h6YXNxa2plcnN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMDc1MDcsImV4cCI6MjA3Mzc4MzUwN30.-aOSSovEXRXCM0imIxXad1R96iDVB6nFgPG5PcthI3Y';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://qslfidheyalqdetiqdbs.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbGZpZGhleWFscWRldGlxZGJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNjI5MjYsImV4cCI6MjA3MzkzODkyNn0.IRX5qpkcIenyECrTTuPwsRK-hBXsW57eF4TFjm2RhxE';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -35,6 +35,7 @@ export default async function handler(req, res) {
         `)
         .eq('restaurant_id', restaurantId)
         .eq('available', true)
+        .order('listing_preference')
         .order('name');
 
       if (error) {
@@ -42,7 +43,19 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to fetch menu items' });
       }
 
-      res.json(menuItems);
+      // Format data to match expected frontend structure
+      const formattedItems = menuItems.map(item => ({
+        ...item,
+        category_id: item.categories?.id,
+        category_name: item.categories?.name,
+        category_description: item.categories?.description,
+        category_display_order: item.categories?.display_order,
+        tags: typeof item.tags === 'string' ? item.tags.split(',').map(tag => tag.trim()) : item.tags || [],
+        availability_status: item.available,
+        pricing_type: item.dynamic_pricing ? 'per_gram' : 'fixed'
+      }));
+
+      res.json(formattedItems);
     } else if (req.method === 'POST') {
       // Create new menu item
       const { name, description, price, category_id, image_url, available, featured, tags, spice_level, pieces_count, preparation_time, is_vegetarian, is_vegan, is_gluten_free } = req.body;
