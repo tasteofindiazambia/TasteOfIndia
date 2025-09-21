@@ -22,9 +22,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse the URL to determine the endpoint
-    const urlPath = req.url.replace('/api', '').replace(/^\//, '');
-    const pathSegments = urlPath.split('/').filter(Boolean);
+    // Parse the URL properly with query parameters
+    const fullUrl = new URL(req.url, `https://${req.headers.host}`);
+    const pathname = fullUrl.pathname.replace('/api', '').replace(/^\//, '');
+    const pathSegments = pathname.split('/').filter(Boolean);
+    
+    // Make query parameters available to handlers
+    req.query = Object.fromEntries(fullUrl.searchParams.entries());
 
     // Health check - root API call
     if (pathSegments.length === 0) {
@@ -57,7 +61,12 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('API Error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      details: error.message,
+      path: req.url,
+      method: req.method
+    });
   }
 }
 
@@ -184,35 +193,48 @@ async function handleOrders(req, res, endpoint) {
 
   // Handle regular orders
   if (req.method === 'GET') {
-    const { restaurant_id, status, limit = 50 } = req.query;
+    const restaurant_id = req.query.restaurant_id;
+    const status = req.query.status;
+    const limitParam = req.query.limit || '50';
+    const limit = Math.max(1, Math.min(200, parseInt(limitParam) || 50));
+
+    console.log('Orders GET request:', { restaurant_id, status, limit, query: req.query });
 
     // Simplified query to avoid join issues
     let query = supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(parseInt(limit));
+      .limit(limit);
 
     if (restaurant_id) {
-      query = query.eq('restaurant_id', restaurant_id);
+      query = query.eq('restaurant_id', parseInt(restaurant_id));
     }
-    if (status) {
+    if (status && status !== 'all') {
       query = query.eq('status', status);
     }
 
-    console.log('Fetching orders with query:', { restaurant_id, status, limit });
+    console.log('Executing orders query with filters:', { restaurant_id, status, limit });
     
     const { data: orders, error } = await query;
     
-    console.log('Orders query result:', { orders: orders?.length, error });
+    console.log('Orders query result:', { 
+      ordersCount: orders?.length, 
+      error: error?.message,
+      firstOrder: orders?.[0]?.id 
+    });
     
     if (error) {
       console.error('Orders query error:', error);
-      throw error;
+      return res.status(500).json({ 
+        error: 'Failed to fetch orders', 
+        details: error.message,
+        filters: { restaurant_id, status, limit }
+      });
     }
 
-    // Format orders - simplified without joins
-    const formattedOrders = orders.map(order => ({
+    // Format orders - simplified without joins for now
+    const formattedOrders = (orders || []).map(order => ({
       ...order,
       items: [] // TODO: Fetch order items separately
     }));
@@ -358,19 +380,28 @@ async function handleReservations(req, res, endpoint) {
   if (req.method === 'GET') {
     const { restaurant_id } = req.query;
     
-    let query = supabase
-      .from('reservations')
-      .select('*')
-      .order('date_time', { ascending: true });
-    
-    if (restaurant_id) {
-      query = query.eq('restaurant_id', restaurant_id);
+    try {
+      let query = supabase
+        .from('reservations')
+        .select('*')
+        .order('date_time', { ascending: true });
+      
+      if (restaurant_id) {
+        query = query.eq('restaurant_id', restaurant_id);
+      }
+      
+      const { data: reservations, error } = await query;
+      
+      if (error) {
+        console.log('Reservations query error (returning empty):', error);
+        return res.json([]);
+      }
+      
+      return res.json(reservations || []);
+    } catch (error) {
+      console.log('Reservations error (returning empty):', error);
+      return res.json([]);
     }
-    
-    const { data: reservations, error } = await query;
-    if (error) throw error;
-    
-    return res.json(reservations);
   }
   
   if (req.method === 'POST') {
@@ -417,6 +448,31 @@ async function handleAuth(req, res, pathSegments) {
   const JWT_SECRET = process.env.JWT_SECRET || 'taste-of-india-secret-2024';
   
   console.log('Auth handler called with pathSegments:', pathSegments);
+  
+  // Handle /api/auth/verify
+  if (pathSegments[1] === 'verify') {
+    if (req.method === 'GET') {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+      }
+
+      const token = authHeader.substring(7);
+      
+      if (token === 'simple-admin-token') {
+        return res.json({
+          success: true,
+          user: {
+            id: 1,
+            username: 'admin',
+            role: 'admin'
+          }
+        });
+      } else {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    }
+  }
   
   // Handle /api/auth/login
   if (pathSegments[1] === 'login' || pathSegments.length === 1) {
