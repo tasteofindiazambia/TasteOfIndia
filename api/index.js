@@ -56,7 +56,9 @@ export default async function handler(req, res) {
         return handleRestaurants(req, res, query);
       case 'orders':
         console.log('Calling handleOrders');
-        return handleOrders(req, res, pathSegments, query);
+        // Temporary: return simple response to test
+        return res.json({ message: 'Orders endpoint reached', query, pathSegments });
+        // return handleOrders(req, res, pathSegments, query);
       case 'auth':
         console.log('Calling handleAuth');
         return handleAuth(req, res, pathSegments);
