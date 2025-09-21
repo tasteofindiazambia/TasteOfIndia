@@ -42,12 +42,14 @@ export default async function handler(req, res) {
     }
 
     // Route to appropriate handler based on first path segment
+    console.log('Routing to handler:', pathSegments[0], 'with segments:', pathSegments);
     switch (pathSegments[0]) {
       case 'restaurants':
         return await handleRestaurants(req, res, pathSegments);
       case 'menu':
         return await handleMenu(req, res, pathSegments);
       case 'orders':
+        console.log('About to call handleOrders with:', pathSegments);
         return await handleOrders(req, res, pathSegments);
       case 'customers':
         return await handleCustomers(req, res, pathSegments);
