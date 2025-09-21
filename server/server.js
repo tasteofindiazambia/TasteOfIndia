@@ -12,7 +12,7 @@ import authRoutes from './routes/auth.js';
 import customerRoutes from './routes/customers.js';
 
 // Import database to initialize
-import Database from './models/database.js';
+import DatabaseAdapter from './models/databaseAdapter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,11 +21,23 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Initialize database
-const db = Database;
+const db = DatabaseAdapter;
 
-// CORS configuration for development
+// CORS configuration for development and production
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:5175'],
+  origin: [
+    // Development
+    'http://localhost:5173', 
+    'http://localhost:5174', 
+    'http://localhost:5175', 
+    'http://127.0.0.1:5173', 
+    'http://127.0.0.1:5174', 
+    'http://127.0.0.1:5175',
+    // Production
+    'https://taste-of-india-tawny.vercel.app',
+    'https://qslfidheyalqdetiqdbs.supabase.co',
+    ...(process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : [])
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
