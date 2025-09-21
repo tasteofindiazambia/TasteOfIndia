@@ -28,34 +28,19 @@ const AdminOrders: React.FC = () => {
     max: 1000
   });
 
-  // Enable order notifications
+  // Disable auto-refresh to reduce server load
+  // Real-time updates disabled - use manual refresh button instead
+  /*
   useOrderNotifications({ 
     restaurantId: selectedRestaurant?.id, 
-    enabled: true 
+    enabled: false 
   });
 
-  // Real-time updates
   useRealTimeUpdates({
     restaurantId: selectedRestaurant?.id,
-    onNewOrder: (newOrder) => {
-      console.log('🆕 Real-time: New order received:', newOrder);
-      setOrders(prev => [newOrder, ...prev]);
-      showNotification({
-        type: 'success',
-        message: `New order #${newOrder.id} received from ${newOrder.customer_name}`
-      });
-    },
-    onOrderUpdate: (updatedOrder) => {
-      console.log('🔄 Real-time: Order updated:', updatedOrder);
-      setOrders(prev => prev.map(order => 
-        order.id === updatedOrder.id ? updatedOrder : order
-      ));
-      if (selectedOrder && selectedOrder.id === updatedOrder.id) {
-        setSelectedOrder(updatedOrder);
-      }
-    },
-    enabled: true
+    enabled: false
   });
+  */
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -74,16 +59,19 @@ const AdminOrders: React.FC = () => {
       console.error('❌ Failed to fetch orders:', error);
       showNotification({
         type: 'error',
-        message: 'Failed to load orders. Please refresh the page.'
+        message: 'Failed to load orders. Please try refreshing.'
       });
     } finally {
       setLoading(false);
     }
-  }, [selectedRestaurant, filter, showNotification]);
+  }, [selectedRestaurant?.id, filter, showNotification]);
 
+  // Only fetch orders on initial load and when restaurant/filter changes
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    if (selectedRestaurant?.id) {
+      fetchOrders();
+    }
+  }, [selectedRestaurant?.id, filter]); // Removed fetchOrders dependency to prevent infinite loops
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {
     try {
@@ -304,9 +292,20 @@ const AdminOrders: React.FC = () => {
       {/* Main Content */}
       <div className={`flex-1 transition-all duration-300 ${showOrderSidebar ? 'lg:mr-96' : ''}`}>
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders Management</h1>
-            <p className="text-gray-600 mt-1">Manage and track all customer orders</p>
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders Management</h1>
+              <p className="text-gray-600 mt-1">Manage and track all customer orders</p>
+            </div>
+            <button
+              onClick={handleRefreshOrders}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-deep-maroon text-white rounded-lg hover:bg-burgundy transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh orders"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
           </div>
           
           <div className="flex flex-wrap gap-3">
