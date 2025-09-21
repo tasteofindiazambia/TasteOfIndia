@@ -56,7 +56,9 @@ export default async function handler(req, res) {
         return await handleMenu(req, res, pathSegments);
       case 'orders':
         console.log('About to call handleOrders with:', pathSegments);
-        return await handleOrders(req, res, pathSegments);
+        // Temporary: return simple response to test routing
+        return res.json({ message: 'Orders endpoint reached', pathSegments, query: req.query });
+        // return await handleOrders(req, res, pathSegments);
       case 'customers':
         return await handleCustomers(req, res, pathSegments);
       case 'reservations':
