@@ -1,391 +1,428 @@
-// Vercel serverless function for API routes
-import express from 'express';
-import cors from 'cors';
-import db from '../lib/database.js';
+// Consolidated API handler for Vercel Hobby plan (12 function limit)
+import { createClient } from '@supabase/supabase-js';
 
-const app = express();
+const supabaseUrl = process.env.SUPABASE_URL || 'https://qslfidheyalqdetiqdbs.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbGZpZGhleWFscWRldGlxZGJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNjI5MjYsImV4cCI6MjA3MzkzODkyNn0.IRX5qpkcIenyECrTTuPwsRK-hBXsW57eF4TFjm2RhxE';
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    message: 'Backend server is running',
-    timestamp: new Date().toISOString(),
-    database: 'connected'
-  });
-});
+// Set CORS headers
+const setCorsHeaders = (res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+};
 
-// ==================== RESTAURANTS API ====================
+export default async function handler(req, res) {
+  setCorsHeaders(res);
 
-// Get all restaurants
-app.get('/api/restaurants', async (req, res) => {
-  try {
-    const restaurants = await db.all('SELECT * FROM restaurants WHERE is_active = 1 ORDER BY name');
-    res.json(restaurants);
-  } catch (error) {
-    console.error('Error fetching restaurants:', error);
-    res.status(500).json({ error: 'Failed to fetch restaurants' });
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
   }
-});
 
-// Get restaurant by ID
-app.get('/api/restaurants/:id', async (req, res) => {
   try {
-    const restaurant = await db.get('SELECT * FROM restaurants WHERE id = ? AND is_active = 1', [req.params.id]);
-    if (!restaurant) {
-      return res.status(404).json({ error: 'Restaurant not found' });
+    const { endpoint, id, token } = req.query;
+
+    // Health check
+    if (!endpoint) {
+      return res.json({ 
+        status: 'ok', 
+        message: 'Taste of India API is running',
+        timestamp: new Date().toISOString(),
+        supabase: !!supabaseUrl
+      });
     }
-    res.json(restaurant);
+
+    // Route to appropriate handler
+    switch (endpoint[0]) {
+      case 'restaurants':
+        return await handleRestaurants(req, res, endpoint);
+      case 'menu':
+        return await handleMenu(req, res, endpoint);
+      case 'orders':
+        return await handleOrders(req, res, endpoint);
+      case 'customers':
+        return await handleCustomers(req, res, endpoint);
+      case 'reservations':
+        return await handleReservations(req, res, endpoint);
+      default:
+        return res.status(404).json({ error: 'Endpoint not found' });
+    }
   } catch (error) {
-    console.error('Error fetching restaurant:', error);
-    res.status(500).json({ error: 'Failed to fetch restaurant' });
+    console.error('API Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-});
+}
 
-// ==================== MENU API ====================
+// Restaurant handlers
+async function handleRestaurants(req, res, endpoint) {
+  if (req.method === 'GET') {
+    const { data: restaurants, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
 
-// Get menu for a restaurant
-app.get('/api/menu/:restaurantId', async (req, res) => {
-  try {
-    const { restaurantId } = req.params;
+    if (error) throw error;
+    return res.json(restaurants);
+  }
+  
+  if (req.method === 'POST') {
+    const { name, address, phone, email, hours } = req.body;
+    const { data: restaurant, error } = await supabase
+      .from('restaurants')
+      .insert([{ name, address, phone, email, hours }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return res.status(201).json(restaurant);
+  }
+  
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Menu handlers
+async function handleMenu(req, res, endpoint) {
+  const restaurantId = endpoint[1]; // /api/menu/[restaurantId]
+  
+  if (req.method === 'GET' && restaurantId) {
+    const { data: menuItems, error } = await supabase
+      .from('menu_items')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          description,
+          display_order
+        )
+      `)
+      .eq('restaurant_id', restaurantId)
+      .eq('available', true)
+      .order('listing_preference')
+      .order('name');
+
+    if (error) throw error;
+
+    // Format data to match expected frontend structure
+    const formattedItems = menuItems.map(item => ({
+      ...item,
+      category_id: item.categories?.id,
+      category_name: item.categories?.name,
+      category_description: item.categories?.description,
+      category_display_order: item.categories?.display_order,
+      tags: typeof item.tags === 'string' ? item.tags.split(',').map(tag => tag.trim()) : item.tags || [],
+      availability_status: item.available,
+      pricing_type: item.dynamic_pricing ? 'per_gram' : 'fixed'
+    }));
+
+    return res.json(formattedItems);
+  }
+  
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Order handlers
+async function handleOrders(req, res, endpoint) {
+  // Handle /api/orders/token/[token]
+  if (endpoint[1] === 'token' && endpoint[2]) {
+    const token = endpoint[2];
     
-    // Get categories with menu items
-    const categories = await db.all(`
-      SELECT c.*, 
-             json_group_array(
-               json_object(
-                 'id', mi.id,
-                 'name', mi.name,
-                 'description', mi.description,
-                 'price', mi.price,
-                 'image_url', mi.image_url,
-                 'available', mi.available,
-                 'featured', mi.featured,
-                 'tags', mi.tags,
-                 'spice_level', mi.spice_level,
-                 'pieces_count', mi.pieces_count,
-                 'preparation_time', mi.preparation_time,
-                 'is_vegetarian', mi.is_vegetarian,
-                 'is_vegan', mi.is_vegan,
-                 'is_gluten_free', mi.is_gluten_free
-               )
-             ) as items
-      FROM categories c
-      LEFT JOIN menu_items mi ON c.id = mi.category_id AND mi.available = 1
-      WHERE c.restaurant_id = ? AND c.is_active = 1
-      GROUP BY c.id
-      ORDER BY c.display_order, c.name
-    `, [restaurantId]);
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        restaurants (
+          name,
+          address,
+          phone
+        ),
+        order_items (
+          id,
+          menu_item_id,
+          quantity,
+          unit_price,
+          total_price,
+          special_instructions,
+          menu_items (
+            name,
+            description,
+            price,
+            image_url,
+            spice_level,
+            preparation_time,
+            tags,
+            dynamic_pricing,
+            packaging_price
+          ),
+          categories (
+            name
+          )
+        )
+      `)
+      .eq('order_token', token)
+      .single();
 
-    res.json(categories);
-  } catch (error) {
-    console.error('Error fetching menu:', error);
-    res.status(500).json({ error: 'Failed to fetch menu' });
+    if (error || !order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Format the data to match expected structure
+    const formattedOrder = {
+      ...order,
+      restaurant_name: order.restaurants?.name,
+      restaurant_address: order.restaurants?.address,
+      restaurant_phone: order.restaurants?.phone,
+      items: order.order_items?.map(item => ({
+        ...item,
+        menu_item_name: item.menu_items?.name,
+        menu_item_description: item.menu_items?.description,
+        menu_item_price: item.menu_items?.price,
+        menu_item_image: item.menu_items?.image_url,
+        spice_level: item.menu_items?.spice_level,
+        preparation_time: item.menu_items?.preparation_time,
+        tags: item.menu_items?.tags,
+        dynamic_pricing: item.menu_items?.dynamic_pricing,
+        packaging_price: item.menu_items?.packaging_price,
+        category_name: item.categories?.name
+      })) || []
+    };
+
+    delete formattedOrder.restaurants;
+    delete formattedOrder.order_items;
+
+    return res.json(formattedOrder);
   }
-});
 
-// Get menu items by category
-app.get('/api/menu/:restaurantId/category/:categoryId', async (req, res) => {
-  try {
-    const { restaurantId, categoryId } = req.params;
-    
-    const items = await db.all(`
-      SELECT * FROM menu_items 
-      WHERE restaurant_id = ? AND category_id = ? AND available = 1
-      ORDER BY featured DESC, name
-    `, [restaurantId, categoryId]);
+  // Handle regular orders
+  if (req.method === 'GET') {
+    const { restaurant_id, status, limit = 50 } = req.query;
 
-    res.json(items);
-  } catch (error) {
-    console.error('Error fetching menu items:', error);
-    res.status(500).json({ error: 'Failed to fetch menu items' });
+    let query = supabase
+      .from('orders')
+      .select(`
+        *,
+        restaurants (name, address, phone),
+        order_items (
+          id,
+          menu_item_id,
+          quantity,
+          unit_price,
+          total_price,
+          special_instructions,
+          menu_items (name, price, image_url),
+          categories (name)
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(parseInt(limit));
+
+    if (restaurant_id) {
+      query = query.eq('restaurant_id', restaurant_id);
+    }
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data: orders, error } = await query;
+    if (error) throw error;
+
+    // Format orders
+    const formattedOrders = orders.map(order => ({
+      ...order,
+      restaurant_name: order.restaurants?.name,
+      items: order.order_items?.map(item => ({
+        ...item,
+        menu_item_name: item.menu_items?.name,
+        category_name: item.categories?.name
+      })) || []
+    }));
+
+    return res.json(formattedOrders);
   }
-});
 
-// ==================== ORDERS API ====================
+  if (req.method === 'POST') {
+    const { 
+      customer_name, 
+      customer_phone, 
+      customer_email,
+      restaurant_id,
+      items,
+      order_type = 'pickup',
+      payment_method = 'cash',
+      special_instructions,
+      delivery_address,
+      delivery_latitude,
+      delivery_longitude,
+      delivery_distance_km,
+      delivery_fee = 0
+    } = req.body;
 
-// Create new order
-app.post('/api/orders', async (req, res) => {
-  try {
-    const { customer_name, customer_phone, customer_email, restaurant_id, items, total_amount, order_type, payment_method, special_instructions } = req.body;
+    // Generate order token
+    const crypto = await import('crypto');
+    const orderToken = crypto.randomBytes(32).toString('hex');
+    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-    // Generate order number
-    const order_number = `ORD-${Date.now()}`;
+    // Calculate total and create order
+    let totalAmount = items.reduce((sum, item) => sum + (item.total_price || 0), 0);
+    if (order_type === 'delivery') {
+      totalAmount += parseFloat(delivery_fee || 0);
+    }
 
     // Create order
-    const orderResult = await db.run(`
-      INSERT INTO orders (order_number, customer_name, customer_phone, customer_email, restaurant_id, total_amount, order_type, payment_method, special_instructions)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [order_number, customer_name, customer_phone, customer_email, restaurant_id, total_amount, order_type, payment_method, special_instructions]);
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert([{
+        order_number: orderNumber,
+        order_token: orderToken,
+        customer_name,
+        customer_phone,
+        customer_email,
+        restaurant_id,
+        total_amount: totalAmount,
+        status: 'pending',
+        order_type,
+        payment_method,
+        special_instructions,
+        estimated_preparation_time: 20,
+        delivery_address,
+        delivery_fee: parseFloat(delivery_fee || 0),
+        delivery_latitude,
+        delivery_longitude,
+        delivery_distance_km
+      }])
+      .select()
+      .single();
 
-    const orderId = orderResult.lastID;
+    if (orderError) throw orderError;
 
-    // Add order items
-    for (const item of items) {
-      await db.run(`
-        INSERT INTO order_items (order_id, menu_item_id, quantity, unit_price, total_price, special_instructions)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `, [orderId, item.menu_item_id, item.quantity, item.unit_price, item.total_price, item.special_instructions]);
-    }
+    // Create order items
+    const orderItems = items.map(item => ({
+      order_id: order.id,
+      menu_item_id: item.menu_item_id,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+      total_price: item.total_price,
+      special_instructions: item.special_instructions
+    }));
 
-    res.json({ 
-      success: true, 
-      order_id: orderId, 
-      order_number,
-      message: 'Order created successfully' 
+    const { error: itemsError } = await supabase
+      .from('order_items')
+      .insert(orderItems);
+
+    if (itemsError) throw itemsError;
+
+    return res.status(201).json({
+      success: true,
+      order: order,
+      message: 'Order created successfully'
     });
-  } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ error: 'Failed to create order' });
   }
-});
+  
+  return res.status(405).json({ error: 'Method not allowed' });
+}
 
-// Get orders for a restaurant
-app.get('/api/orders/:restaurantId', async (req, res) => {
-  try {
-    const { restaurantId } = req.params;
-    const { status, limit = 50 } = req.query;
-
-    let query = `
-      SELECT o.*, 
-             json_group_array(
-               json_object(
-                 'id', oi.id,
-                 'menu_item_id', oi.menu_item_id,
-                 'quantity', oi.quantity,
-                 'unit_price', oi.unit_price,
-                 'total_price', oi.total_price,
-                 'special_instructions', oi.special_instructions,
-                 'item_name', mi.name
-               )
-             ) as items
-      FROM orders o
-      LEFT JOIN order_items oi ON o.id = oi.order_id
-      LEFT JOIN menu_items mi ON oi.menu_item_id = mi.id
-      WHERE o.restaurant_id = ?
-    `;
-
-    const params = [restaurantId];
-
-    if (status) {
-      query += ' AND o.status = ?';
-      params.push(status);
-    }
-
-    query += ' GROUP BY o.id ORDER BY o.created_at DESC LIMIT ?';
-    params.push(parseInt(limit));
-
-    const orders = await db.all(query, params);
-    res.json(orders);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-
-// Update order status
-app.put('/api/orders/:orderId/status', async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const { status } = req.body;
-
-    await db.run('UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [status, orderId]);
-
-    res.json({ success: true, message: 'Order status updated' });
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ error: 'Failed to update order status' });
-  }
-});
-
-// ==================== RESERVATIONS API ====================
-
-// Create new reservation
-app.post('/api/reservations', async (req, res) => {
-  try {
-    const { customer_name, customer_phone, customer_email, restaurant_id, date_time, party_size, occasion, table_preference, dietary_requirements, special_requests } = req.body;
-
-    // Generate reservation number
-    const reservation_number = `RES-${Date.now()}`;
-
-    const result = await db.run(`
-      INSERT INTO reservations (reservation_number, customer_name, customer_phone, customer_email, restaurant_id, date_time, party_size, occasion, table_preference, dietary_requirements, special_requests)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [reservation_number, customer_name, customer_phone, customer_email, restaurant_id, date_time, party_size, occasion, table_preference, dietary_requirements, special_requests]);
-
-    res.json({ 
-      success: true, 
-      reservation_id: result.lastID, 
-      reservation_number,
-      message: 'Reservation created successfully' 
-    });
-  } catch (error) {
-    console.error('Error creating reservation:', error);
-    res.status(500).json({ error: 'Failed to create reservation' });
-  }
-});
-
-// Get reservations for a restaurant
-app.get('/api/reservations/:restaurantId', async (req, res) => {
-  try {
-    const { restaurantId } = req.params;
-    const { date, status } = req.query;
-
-    let query = 'SELECT * FROM reservations WHERE restaurant_id = ?';
-    const params = [restaurantId];
-
-    if (date) {
-      query += ' AND DATE(date_time) = ?';
-      params.push(date);
-    }
-
-    if (status) {
-      query += ' AND status = ?';
-      params.push(status);
-    }
-
-    query += ' ORDER BY date_time DESC';
-
-    const reservations = await db.all(query, params);
-    res.json(reservations);
-  } catch (error) {
-    console.error('Error fetching reservations:', error);
-    res.status(500).json({ error: 'Failed to fetch reservations' });
-  }
-});
-
-// Update reservation status
-app.put('/api/reservations/:reservationId/status', async (req, res) => {
-  try {
-    const { reservationId } = req.params;
-    const { status } = req.body;
-
-    await db.run('UPDATE reservations SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [status, reservationId]);
-
-    res.json({ success: true, message: 'Reservation status updated' });
-  } catch (error) {
-    console.error('Error updating reservation status:', error);
-    res.status(500).json({ error: 'Failed to update reservation status' });
-  }
-});
-
-// ==================== CUSTOMERS API ====================
-
-// Get customers for a restaurant
-app.get('/api/customers/:restaurantId', async (req, res) => {
-  try {
-    const { restaurantId } = req.params;
-    const { search, status } = req.query;
-
-    let query = 'SELECT * FROM customers WHERE 1=1';
-    const params = [];
-
-    if (search) {
-      query += ' AND (name LIKE ? OR phone LIKE ? OR email LIKE ?)';
-      const searchTerm = `%${search}%`;
-      params.push(searchTerm, searchTerm, searchTerm);
-    }
-
-    if (status) {
-      query += ' AND status = ?';
-      params.push(status);
-    }
-
-    query += ' ORDER BY created_at DESC';
-
-    const customers = await db.all(query, params);
-    res.json(customers);
-  } catch (error) {
-    console.error('Error fetching customers:', error);
-    res.status(500).json({ error: 'Failed to fetch customers' });
-  }
-});
-
-// Create or update customer
-app.post('/api/customers', async (req, res) => {
-  try {
-    const { name, phone, email, location, dietary_requirements, birthday, anniversary, notes } = req.body;
+// Customer handlers
+async function handleCustomers(req, res, endpoint) {
+  if (req.method === 'POST') {
+    const { name, phone, email } = req.body;
 
     // Check if customer exists
-    const existingCustomer = await db.get('SELECT * FROM customers WHERE phone = ?', [phone]);
+    const { data: existingCustomer } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('phone', phone)
+      .single();
 
     if (existingCustomer) {
       // Update existing customer
-      await db.run(`
-        UPDATE customers 
-        SET name = ?, email = ?, location = ?, dietary_requirements = ?, birthday = ?, anniversary = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE phone = ?
-      `, [name, email, location, JSON.stringify(dietary_requirements), birthday, anniversary, notes, phone]);
+      const { data: customer, error } = await supabase
+        .from('customers')
+        .update({ 
+          name, 
+          email: email || existingCustomer.email,
+          total_orders: existingCustomer.total_orders + 1,
+          last_order_date: new Date().toISOString()
+        })
+        .eq('phone', phone)
+        .select()
+        .single();
 
-      res.json({ success: true, message: 'Customer updated successfully', customer: existingCustomer });
+      if (error) throw error;
+      return res.json(customer);
     } else {
       // Create new customer
-      const result = await db.run(`
-        INSERT INTO customers (name, phone, email, location, dietary_requirements, birthday, anniversary, notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [name, phone, email, location, JSON.stringify(dietary_requirements), birthday, anniversary, notes]);
+      const { data: customer, error } = await supabase
+        .from('customers')
+        .insert([{ name, phone, email, total_orders: 1, last_order_date: new Date().toISOString() }])
+        .select()
+        .single();
 
-      res.json({ 
-        success: true, 
-        message: 'Customer created successfully', 
-        customer_id: result.lastID 
-      });
+      if (error) throw error;
+      return res.status(201).json(customer);
     }
-  } catch (error) {
-    console.error('Error creating/updating customer:', error);
-    res.status(500).json({ error: 'Failed to create/update customer' });
   }
-});
+  
+  return res.status(405).json({ error: 'Method not allowed' });
+}
 
-// ==================== ANALYTICS API ====================
-
-// Get dashboard analytics
-app.get('/api/admin/analytics/dashboard', async (req, res) => {
-  try {
-    const { restaurantId, date } = req.query;
+// Reservation handlers
+async function handleReservations(req, res, endpoint) {
+  if (req.method === 'GET') {
+    const { restaurant_id } = req.query;
     
-    const today = date || new Date().toISOString().split('T')[0];
+    let query = supabase
+      .from('reservations')
+      .select('*')
+      .order('date_time', { ascending: true });
     
-    // Get today's stats
-    const todayStats = await db.get(`
-      SELECT 
-        COUNT(*) as total_orders,
-        COALESCE(SUM(total_amount), 0) as total_revenue,
-        COALESCE(AVG(total_amount), 0) as average_order_value
-      FROM orders 
-      WHERE restaurant_id = ? AND DATE(created_at) = ?
-    `, [restaurantId, today]);
-
-    // Get reservation stats
-    const reservationStats = await db.get(`
-      SELECT 
-        COUNT(*) as total_reservations,
-        COUNT(CASE WHEN status = 'confirmed' THEN 1 END) as confirmed_reservations
-      FROM reservations 
-      WHERE restaurant_id = ? AND DATE(date_time) = ?
-    `, [restaurantId, today]);
-
-    // Get recent orders
-    const recentOrders = await db.all(`
-      SELECT * FROM orders 
-      WHERE restaurant_id = ? 
-      ORDER BY created_at DESC 
-      LIMIT 10
-    `, [restaurantId]);
-
-    res.json({
-      today: todayStats,
-      reservations: reservationStats,
-      recent_orders: recentOrders
-    });
-  } catch (error) {
-    console.error('Error fetching analytics:', error);
-    res.status(500).json({ error: 'Failed to fetch analytics' });
+    if (restaurant_id) {
+      query = query.eq('restaurant_id', restaurant_id);
+    }
+    
+    const { data: reservations, error } = await query;
+    if (error) throw error;
+    
+    return res.json(reservations);
   }
-});
-
-export default app;
+  
+  if (req.method === 'POST') {
+    const { 
+      customer_name, 
+      customer_phone, 
+      customer_email,
+      restaurant_id,
+      date_time,
+      party_size,
+      occasion,
+      special_requests
+    } = req.body;
+    
+    const reservationNumber = `RES-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    
+    const { data: reservation, error } = await supabase
+      .from('reservations')
+      .insert([{
+        reservation_number: reservationNumber,
+        customer_name,
+        customer_phone,
+        customer_email,
+        restaurant_id,
+        date_time,
+        party_size,
+        occasion,
+        special_requests,
+        status: 'pending'
+      }])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    return res.status(201).json(reservation);
+  }
+  
+  return res.status(405).json({ error: 'Method not allowed' });
+}
