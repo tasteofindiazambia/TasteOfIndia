@@ -89,9 +89,13 @@ function handleRestaurants(req, res, query) {
 
 // Orders handler
 function handleOrders(req, res, pathSegments, query) {
+  console.log('Orders handler called:', { method: req.method, pathSegments, query });
+  
   if (req.method === 'GET') {
     const restaurantId = query.restaurant_id;
     const limit = Math.min(parseInt(query.limit) || 50, 200);
+
+    console.log('Building orders query with:', { restaurantId, limit });
 
     let queryBuilder = supabase
       .from('orders')
@@ -105,6 +109,8 @@ function handleOrders(req, res, pathSegments, query) {
 
     return queryBuilder
       .then(({ data, error }) => {
+        console.log('Orders query result:', { dataCount: data?.length, error: error?.message });
+        
         if (error) {
           console.error('Orders query error:', error);
           return res.json([]); // Return empty array instead of failing
@@ -116,6 +122,7 @@ function handleOrders(req, res, pathSegments, query) {
           items: [] // TODO: Add order items
         }));
         
+        console.log('Returning formatted orders:', formattedOrders.length);
         return res.json(formattedOrders);
       })
       .catch(error => {
