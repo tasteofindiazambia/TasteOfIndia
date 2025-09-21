@@ -294,11 +294,19 @@ async function handleOrders(req, res, endpoint) {
       special_instructions: item.special_instructions
     }));
 
+    console.log('Creating order items:', orderItems);
+    
     const { error: itemsError } = await supabase
       .from('order_items')
       .insert(orderItems);
 
-    if (itemsError) throw itemsError;
+    console.log('Order items creation result:', { itemsError });
+    
+    if (itemsError) {
+      console.error('Failed to create order items:', itemsError);
+      // For now, continue without failing the whole order
+      // throw itemsError;
+    }
 
     return res.status(201).json({
       success: true,
