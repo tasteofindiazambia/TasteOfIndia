@@ -60,6 +60,8 @@ export default async function handler(req, res) {
       case 'auth':
         console.log('Calling handleAuth');
         return handleAuth(req, res, pathSegments);
+      case 'debug':
+        return res.json({ message: 'Debug endpoint working', timestamp: new Date().toISOString() });
       default:
         return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
     }
