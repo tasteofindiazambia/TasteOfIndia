@@ -234,3 +234,4 @@ CREATE POLICY "Allow admin update orders" ON orders FOR UPDATE USING (true);
 
 -- Note: Custom functions can be added later if needed
 -- For now, we'll use direct SQL queries in the application code
+
