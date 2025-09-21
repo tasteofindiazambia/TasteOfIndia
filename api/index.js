@@ -22,10 +22,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { endpoint, id, token } = req.query;
+    // Parse the URL to determine the endpoint
+    const urlPath = req.url.replace('/api', '').replace(/^\//, '');
+    const pathSegments = urlPath.split('/').filter(Boolean);
 
-    // Health check
-    if (!endpoint) {
+    // Health check - root API call
+    if (pathSegments.length === 0) {
       return res.json({ 
         status: 'ok', 
         message: 'Taste of India API is running',
@@ -34,24 +36,24 @@ export default async function handler(req, res) {
       });
     }
 
-    // Route to appropriate handler
-    switch (endpoint[0]) {
+    // Route to appropriate handler based on first path segment
+    switch (pathSegments[0]) {
       case 'restaurants':
-        return await handleRestaurants(req, res, endpoint);
+        return await handleRestaurants(req, res, pathSegments);
       case 'menu':
-        return await handleMenu(req, res, endpoint);
+        return await handleMenu(req, res, pathSegments);
       case 'orders':
-        return await handleOrders(req, res, endpoint);
+        return await handleOrders(req, res, pathSegments);
       case 'customers':
-        return await handleCustomers(req, res, endpoint);
+        return await handleCustomers(req, res, pathSegments);
       case 'reservations':
-        return await handleReservations(req, res, endpoint);
+        return await handleReservations(req, res, pathSegments);
       default:
-        return res.status(404).json({ error: 'Endpoint not found' });
+        return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
     }
   } catch (error) {
     console.error('API Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 }
 
