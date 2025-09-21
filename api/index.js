@@ -136,6 +136,8 @@ async function handleOrders(req, res, endpoint) {
   if (endpoint[1] === 'token' && endpoint[2]) {
     const token = endpoint[2];
     
+    console.log('Looking up order by token:', token);
+    
     const { data: order, error } = await supabase
       .from('orders')
       .select(`
@@ -170,8 +172,79 @@ async function handleOrders(req, res, endpoint) {
       `)
       .eq('order_token', token)
       .single();
+      
+    console.log('Order lookup result:', { order, error });
 
     if (error || !order) {
+      // If token lookup fails, try looking up by ID (for debugging)
+      const numericId = parseInt(token);
+      if (!isNaN(numericId)) {
+        console.log('Token lookup failed, trying ID lookup:', numericId);
+        const { data: orderById, error: idError } = await supabase
+          .from('orders')
+          .select(`
+            *,
+            restaurants (
+              name,
+              address,
+              phone
+            ),
+            order_items (
+              id,
+              menu_item_id,
+              quantity,
+              unit_price,
+              total_price,
+              special_instructions,
+              menu_items (
+                name,
+                description,
+                price,
+                image_url,
+                spice_level,
+                preparation_time,
+                tags,
+                dynamic_pricing,
+                packaging_price
+              ),
+              categories (
+                name
+              )
+            )
+          `)
+          .eq('id', numericId)
+          .single();
+          
+        if (!idError && orderById) {
+          console.log('Found order by ID:', orderById.id);
+          // Use the order found by ID
+          const formattedOrder = {
+            ...orderById,
+            restaurant_name: orderById.restaurants?.name,
+            restaurant_address: orderById.restaurants?.address,
+            restaurant_phone: orderById.restaurants?.phone,
+            items: orderById.order_items?.map(item => ({
+              ...item,
+              menu_item_name: item.menu_items?.name,
+              menu_item_description: item.menu_items?.description,
+              menu_item_price: item.menu_items?.price,
+              menu_item_image: item.menu_items?.image_url,
+              spice_level: item.menu_items?.spice_level,
+              preparation_time: item.menu_items?.preparation_time,
+              tags: item.menu_items?.tags,
+              dynamic_pricing: item.menu_items?.dynamic_pricing,
+              packaging_price: item.menu_items?.packaging_price,
+              category_name: item.categories?.name
+            })) || []
+          };
+
+          delete formattedOrder.restaurants;
+          delete formattedOrder.order_items;
+
+          return res.json(formattedOrder);
+        }
+      }
+      
       return res.status(404).json({ error: 'Order not found' });
     }
 
