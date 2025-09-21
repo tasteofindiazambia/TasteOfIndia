@@ -48,6 +48,8 @@ export default async function handler(req, res) {
         return await handleCustomers(req, res, pathSegments);
       case 'reservations':
         return await handleReservations(req, res, pathSegments);
+      case 'auth':
+        return await handleAuth(req, res, pathSegments);
       default:
         return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
     }
@@ -426,5 +428,61 @@ async function handleReservations(req, res, endpoint) {
     return res.status(201).json(reservation);
   }
   
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Auth handler
+async function handleAuth(req, res, pathSegments) {
+  const JWT_SECRET = process.env.JWT_SECRET || 'taste-of-india-secret-2024';
+  
+  if (pathSegments[0] === 'auth' && pathSegments[1] === 'login') {
+    if (req.method === 'POST') {
+      const { username, password } = req.body;
+
+      // Simple admin authentication (in production, use proper hashing)
+      if (username === 'admin' && password === 'admin123') {
+        // For now, return a simple success response
+        // In production, you'd generate a proper JWT token
+        return res.json({
+          success: true,
+          token: 'simple-admin-token',
+          user: {
+            id: 1,
+            username: 'admin',
+            role: 'admin'
+          },
+          message: 'Login successful'
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid credentials'
+        });
+      }
+    } else if (req.method === 'GET') {
+      // Token verification endpoint
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+      }
+
+      // For now, accept any token that starts with 'simple-admin-token'
+      const token = authHeader.substring(7);
+      
+      if (token === 'simple-admin-token') {
+        return res.json({
+          success: true,
+          user: {
+            id: 1,
+            username: 'admin',
+            role: 'admin'
+          }
+        });
+      } else {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+    }
+  }
+
   return res.status(405).json({ error: 'Method not allowed' });
 }
