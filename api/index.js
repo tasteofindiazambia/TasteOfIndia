@@ -14,6 +14,8 @@ const setCorsHeaders = (res) => {
 };
 
 export default async function handler(req, res) {
+  console.log('Handler started:', req.method, req.url);
+  
   setCorsHeaders(res);
 
   if (req.method === 'OPTIONS') {
