@@ -14,6 +14,8 @@ const setCorsHeaders = (res) => {
 };
 
 export default async function handler(req, res) {
+  console.log('API Handler called:', req.method, req.url);
+  
   setCorsHeaders(res);
 
   if (req.method === 'OPTIONS') {
@@ -47,12 +49,16 @@ export default async function handler(req, res) {
     }
 
     // Route handlers
+    console.log('Routing to:', pathSegments[0], 'with segments:', pathSegments, 'query:', query);
     switch (pathSegments[0]) {
       case 'restaurants':
+        console.log('Calling handleRestaurants');
         return handleRestaurants(req, res, query);
       case 'orders':
+        console.log('Calling handleOrders');
         return handleOrders(req, res, pathSegments, query);
       case 'auth':
+        console.log('Calling handleAuth');
         return handleAuth(req, res, pathSegments);
       default:
         return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
