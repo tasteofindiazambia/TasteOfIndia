@@ -22,13 +22,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse the URL properly with query parameters
-    const fullUrl = new URL(req.url, `https://${req.headers.host}`);
-    const pathname = fullUrl.pathname.replace('/api', '').replace(/^\//, '');
+    // Simple URL parsing - avoid WHATWG URL API issues
+    const urlParts = req.url.split('?');
+    const pathname = urlParts[0].replace('/api', '').replace(/^\//, '');
     const pathSegments = pathname.split('/').filter(Boolean);
     
-    // Make query parameters available to handlers
-    req.query = Object.fromEntries(fullUrl.searchParams.entries());
+    // Parse query parameters manually
+    req.query = {};
+    if (urlParts[1]) {
+      const searchParams = new URLSearchParams(urlParts[1]);
+      req.query = Object.fromEntries(searchParams.entries());
+    }
+    
+    console.log('Parsed URL:', { pathname, pathSegments, query: req.query });
 
     // Health check - root API call
     if (pathSegments.length === 0) {
