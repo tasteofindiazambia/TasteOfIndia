@@ -144,6 +144,8 @@ async function handleMenu(req, res, endpoint) {
 
 // Order handlers
 async function handleOrders(req, res, endpoint) {
+  console.log('handleOrders called:', { method: req.method, endpoint, query: req.query });
+  
   // Handle /api/orders/token/[token]
   if (endpoint[1] === 'token' && endpoint[2]) {
     const token = endpoint[2];
