@@ -34,9 +34,10 @@ export default async function handler(req, res) {
     if (pathSegments.length === 0) {
       return res.json({ 
         status: 'ok', 
-        message: 'Taste of India API is running',
+        message: 'Taste of India API is running - FIXED VERSION',
         timestamp: new Date().toISOString(),
-        supabase: !!supabaseUrl
+        supabase: !!supabaseUrl,
+        version: '1.1'
       });
     }
 
