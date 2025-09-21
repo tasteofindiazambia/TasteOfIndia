@@ -57,6 +57,8 @@ export default async function handler(req, res) {
         return await handleAuth(req, res, pathSegments);
       case 'menu-categories':
         return await handleMenuCategories(req, res, pathSegments);
+      case 'test':
+        return await handleTest(req, res, pathSegments);
       default:
         return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
     }
@@ -589,5 +591,55 @@ async function handleMenuCategories(req, res, pathSegments) {
     return res.status(201).json(category);
   }
 
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Test handler to debug Supabase issues
+async function handleTest(req, res, pathSegments) {
+  if (req.method === 'GET') {
+    try {
+      console.log('Testing Supabase connection...');
+      
+      // Test 1: Simple query to see if Supabase works
+      const { data: tables, error: tablesError } = await supabase
+        .from('restaurants')
+        .select('id, name')
+        .limit(1);
+      
+      console.log('Restaurants test:', { tables, error: tablesError });
+      
+      // Test 2: Check if orders table exists
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .limit(1);
+      
+      console.log('Orders test:', { orders, error: ordersError });
+      
+      return res.json({
+        supabase_url: supabaseUrl ? 'configured' : 'missing',
+        supabase_key: supabaseKey ? 'configured' : 'missing',
+        restaurants_test: {
+          success: !tablesError,
+          data: tables,
+          error: tablesError?.message
+        },
+        orders_test: {
+          success: !ordersError,
+          data: orders,
+          error: ordersError?.message
+        }
+      });
+      
+    } catch (error) {
+      console.error('Test handler error:', error);
+      return res.status(500).json({
+        error: 'Test failed',
+        details: error.message,
+        stack: error.stack
+      });
+    }
+  }
+  
   return res.status(405).json({ error: 'Method not allowed' });
 }
