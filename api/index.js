@@ -17,8 +17,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = new URL(req.url, `https://${req.headers.host}`);
-    const pathSegments = url.pathname.replace('/api', '').split('/').filter(Boolean);
+    // Simple URL parsing to avoid issues
+    const urlPath = req.url.split('?')[0];
+    const pathSegments = urlPath.replace('/api', '').split('/').filter(Boolean);
 
     // Health check
     if (pathSegments.length === 0) {
