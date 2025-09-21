@@ -50,6 +50,8 @@ export default async function handler(req, res) {
         return await handleReservations(req, res, pathSegments);
       case 'auth':
         return await handleAuth(req, res, pathSegments);
+      case 'menu-categories':
+        return await handleMenuCategories(req, res, pathSegments);
       default:
         return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
     }
@@ -485,6 +487,58 @@ async function handleAuth(req, res, pathSegments) {
         return res.status(401).json({ error: 'Invalid token' });
       }
     }
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Menu Categories handler
+async function handleMenuCategories(req, res, pathSegments) {
+  // pathSegments[0] is 'menu-categories', pathSegments[1] should be restaurantId
+  const restaurantId = pathSegments[1];
+
+  if (!restaurantId) {
+    return res.status(400).json({ error: 'Restaurant ID is required' });
+  }
+
+  if (req.method === 'GET') {
+    // Get categories for a restaurant
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('restaurant_id', restaurantId)
+      .eq('is_active', true)
+      .order('display_order')
+      .order('name');
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return res.status(500).json({ error: 'Failed to fetch categories' });
+    }
+
+    return res.json(categories || []);
+  } else if (req.method === 'POST') {
+    // Create new category
+    const { name, description, display_order } = req.body;
+
+    const { data: category, error } = await supabase
+      .from('categories')
+      .insert([{
+        name,
+        description,
+        restaurant_id: restaurantId,
+        display_order: display_order || 0,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating category:', error);
+      return res.status(500).json({ error: 'Failed to create category' });
+    }
+
+    return res.status(201).json(category);
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
