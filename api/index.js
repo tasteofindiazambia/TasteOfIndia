@@ -435,7 +435,10 @@ async function handleReservations(req, res, endpoint) {
 async function handleAuth(req, res, pathSegments) {
   const JWT_SECRET = process.env.JWT_SECRET || 'taste-of-india-secret-2024';
   
-  if (pathSegments[0] === 'auth' && pathSegments[1] === 'login') {
+  console.log('Auth handler called with pathSegments:', pathSegments);
+  
+  // Handle /api/auth/login
+  if (pathSegments[1] === 'login' || pathSegments.length === 1) {
     if (req.method === 'POST') {
       const { username, password } = req.body;
 
