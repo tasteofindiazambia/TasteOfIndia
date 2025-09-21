@@ -1,10 +1,7 @@
--- Taste of India Supabase Database Schema
--- Run this in your Supabase SQL Editor
+-- 🍛 Taste of India - Supabase Database Schema
+-- Copy and paste this entire file into Supabase SQL Editor and click RUN
 
--- Taste of India Database Schema for Supabase
--- Note: JWT secret is configured in Supabase project settings, not via SQL
-
--- Restaurants/Locations table with delivery settings
+-- 🏢 Restaurants/Locations table with delivery settings
 CREATE TABLE IF NOT EXISTS restaurants (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -23,7 +20,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Categories table
+-- 📂 Categories table
 CREATE TABLE IF NOT EXISTS categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -35,7 +32,7 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Menu items table with dynamic pricing
+-- 🍽️ Menu items table with dynamic pricing
 CREATE TABLE IF NOT EXISTS menu_items (
     id SERIAL PRIMARY KEY,
     name VARCHAR(200) NOT NULL,
@@ -60,7 +57,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Customers table
+-- 👥 Customers table
 CREATE TABLE IF NOT EXISTS customers (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -83,7 +80,7 @@ CREATE TABLE IF NOT EXISTS customers (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Orders table with delivery and security features
+-- 📦 Orders table with delivery and security features
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     order_number VARCHAR(20) UNIQUE NOT NULL,
@@ -108,7 +105,7 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Order items table
+-- 🛒 Order items table
 CREATE TABLE IF NOT EXISTS order_items (
     id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -120,7 +117,7 @@ CREATE TABLE IF NOT EXISTS order_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Reservations table
+-- 🍽️ Reservations table
 CREATE TABLE IF NOT EXISTS reservations (
     id SERIAL PRIMARY KEY,
     reservation_number VARCHAR(20) UNIQUE NOT NULL,
@@ -141,7 +138,7 @@ CREATE TABLE IF NOT EXISTS reservations (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Analytics table
+-- 📊 Analytics table
 CREATE TABLE IF NOT EXISTS analytics (
     id SERIAL PRIMARY KEY,
     date DATE NOT NULL,
@@ -154,25 +151,27 @@ CREATE TABLE IF NOT EXISTS analytics (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create indexes for better performance
+-- 🚀 Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_menu_items_restaurant ON menu_items(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_category ON menu_items(category_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_available ON menu_items(available);
 CREATE INDEX IF NOT EXISTS idx_orders_restaurant ON orders(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_date ON orders(created_at);
+CREATE INDEX IF NOT EXISTS idx_orders_token ON orders(order_token);
 CREATE INDEX IF NOT EXISTS idx_reservations_restaurant ON reservations(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_reservations_date ON reservations(date_time);
 CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations(status);
 CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);
 CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
 
--- Insert sample data with delivery settings
+-- 🏢 Insert sample restaurants with delivery settings
 INSERT INTO restaurants (id, name, address, phone, email, hours, delivery_fee_per_km, latitude, longitude, max_delivery_radius_km, min_delivery_order, delivery_time_minutes) VALUES
 (1, 'Taste of India - Manda Hill', 'Manda Hill Shopping Centre, Lusaka', '+260 97 123 4567', 'manda@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}', 10.00, -15.3875, 28.3228, 15, 25.00, 30),
 (2, 'Taste of India - Parirenyetwa', 'Parirenyetwa Rd, Lusaka 10101, Zambia', '+260 77 3219999', 'parirenyetwa@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}', 12.00, -15.4067, 28.2833, 12, 20.00, 25)
 ON CONFLICT (id) DO NOTHING;
 
+-- 📂 Insert categories
 INSERT INTO categories (id, name, description, restaurant_id, display_order) VALUES
 (1, 'Appetizers', 'Start your meal with our delicious appetizers', 1, 1),
 (2, 'Main Courses', 'Hearty main dishes to satisfy your hunger', 1, 2),
@@ -184,7 +183,7 @@ INSERT INTO categories (id, name, description, restaurant_id, display_order) VAL
 (8, 'Desserts', 'Sweet endings to your dining experience', 2, 4)
 ON CONFLICT (id) DO NOTHING;
 
--- Insert comprehensive menu items with dynamic pricing
+-- 🍽️ Insert comprehensive menu items with dynamic pricing
 INSERT INTO menu_items (id, name, description, price, category_id, restaurant_id, image_url, available, featured, tags, spice_level, pieces_count, preparation_time, is_vegetarian, dynamic_pricing, packaging_price, listing_preference) VALUES
 -- APPETIZERS - High Priority
 (1, 'Samosas', 'Crispy triangular pastries filled with spiced potatoes and peas', 8.00, 1, 1, '/images/samosas.jpg', true, true, 'popular,vegetarian,fried,crunchy,sharable', 'mild', 2, 15, true, false, 2.00, 'high'),
@@ -205,7 +204,7 @@ INSERT INTO menu_items (id, name, description, price, category_id, restaurant_id
 (10, 'Masala Chai', 'Traditional spiced tea with milk and aromatic spices', 5.00, 3, 1, '/images/masala-chai.jpg', true, false, 'drink,hot,spiced,traditional,warming', 'mild', 1, 8, true, false, 0.50, 'mid')
 ON CONFLICT (id) DO NOTHING;
 
--- Enable Row Level Security (RLS)
+-- 🔒 Enable Row Level Security (RLS)
 ALTER TABLE restaurants ENABLE ROW LEVEL SECURITY;
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
@@ -215,7 +214,7 @@ ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics ENABLE ROW LEVEL SECURITY;
 
--- Create policies for public access (adjust as needed for your security requirements)
+-- 🌐 Create policies for public access
 CREATE POLICY "Allow public read access" ON restaurants FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON categories FOR SELECT USING (true);
 CREATE POLICY "Allow public read access" ON menu_items FOR SELECT USING (true);
@@ -224,13 +223,10 @@ CREATE POLICY "Allow public insert" ON orders FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public insert" ON order_items FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public insert" ON reservations FOR INSERT WITH CHECK (true);
 
--- Additional policies for order access
+-- 🔐 Additional policies for order access
 CREATE POLICY "Allow public read orders by token" ON orders FOR SELECT USING (order_token IS NOT NULL);
 CREATE POLICY "Allow public read order_items" ON order_items FOR SELECT USING (true);
 
--- Admin policies (you may want to restrict these to authenticated admin users)
+-- 👨‍💼 Admin policies (you may want to restrict these to authenticated admin users)
 CREATE POLICY "Allow admin read all orders" ON orders FOR SELECT USING (true);
 CREATE POLICY "Allow admin update orders" ON orders FOR UPDATE USING (true);
-
--- Note: Custom functions can be added later if needed
--- For now, we'll use direct SQL queries in the application code

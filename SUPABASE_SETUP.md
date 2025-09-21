@@ -10,8 +10,10 @@
 ### 1. **Run the Database Schema**
 1. Go to your Supabase dashboard: [https://supabase.com/dashboard/project/qslfidheyalqdetiqdbs](https://supabase.com/dashboard/project/qslfidheyalqdetiqdbs)
 2. Navigate to **SQL Editor**
-3. Copy and paste the entire contents of `supabase-schema.sql`
+3. Copy and paste the entire contents of `supabase-schema-simple.sql` (this is the corrected version)
 4. Click **Run** to create all tables and sample data
+
+⚠️ **Note**: Use `supabase-schema-simple.sql` instead of `supabase-schema.sql` - it's been optimized for Supabase compatibility.
 
 ### 2. **Environment Variables for Vercel**
 Add these to your Vercel project settings:
