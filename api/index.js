@@ -1,10 +1,11 @@
 // Consolidated API handler for Vercel Hobby plan (12 function limit)
-import { createClient } from '@supabase/supabase-js';
+// Temporarily disable Supabase to test
+// import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || 'https://qslfidheyalqdetiqdbs.supabase.co';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbGZpZGhleWFscWRldGlxZGJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNjI5MjYsImV4cCI6MjA3MzkzODkyNn0.IRX5qpkcIenyECrTTuPwsRK-hBXsW57eF4TFjm2RhxE';
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+// const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Set CORS headers
 const setCorsHeaders = (res) => {
@@ -41,9 +42,9 @@ export default async function handler(req, res) {
     // Health check - root API call
     if (pathSegments.length === 0) {
       return res.json({ 
-        status: 'ok', 
+    status: 'ok', 
         message: 'Taste of India API is running - FIXED VERSION',
-        timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
         supabase: !!supabaseUrl,
         version: '1.1'
       });
@@ -427,7 +428,7 @@ async function handleReservations(req, res, endpoint) {
       }
       
       return res.json(reservations || []);
-    } catch (error) {
+  } catch (error) {
       console.log('Reservations error (returning empty):', error);
       return res.json([]);
     }
