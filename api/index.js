@@ -138,38 +138,10 @@ async function handleOrders(req, res, endpoint) {
     
     console.log('Looking up order by token:', token);
     
+    // Try simple query first to see if order exists
     const { data: order, error } = await supabase
       .from('orders')
-      .select(`
-        *,
-        restaurants (
-          name,
-          address,
-          phone
-        ),
-        order_items (
-          id,
-          menu_item_id,
-          quantity,
-          unit_price,
-          total_price,
-          special_instructions,
-          menu_items (
-            name,
-            description,
-            price,
-            image_url,
-            spice_level,
-            preparation_time,
-            tags,
-            dynamic_pricing,
-            packaging_price
-          ),
-          categories (
-            name
-          )
-        )
-      `)
+      .select('*')
       .eq('order_token', token)
       .single();
       
@@ -182,64 +154,17 @@ async function handleOrders(req, res, endpoint) {
         console.log('Token lookup failed, trying ID lookup:', numericId);
         const { data: orderById, error: idError } = await supabase
           .from('orders')
-          .select(`
-            *,
-            restaurants (
-              name,
-              address,
-              phone
-            ),
-            order_items (
-              id,
-              menu_item_id,
-              quantity,
-              unit_price,
-              total_price,
-              special_instructions,
-              menu_items (
-                name,
-                description,
-                price,
-                image_url,
-                spice_level,
-                preparation_time,
-                tags,
-                dynamic_pricing,
-                packaging_price
-              ),
-              categories (
-                name
-              )
-            )
-          `)
+          .select('*')
           .eq('id', numericId)
           .single();
           
         if (!idError && orderById) {
           console.log('Found order by ID:', orderById.id);
-          // Use the order found by ID
+          // Use the order found by ID - simple format for now
           const formattedOrder = {
             ...orderById,
-            restaurant_name: orderById.restaurants?.name,
-            restaurant_address: orderById.restaurants?.address,
-            restaurant_phone: orderById.restaurants?.phone,
-            items: orderById.order_items?.map(item => ({
-              ...item,
-              menu_item_name: item.menu_items?.name,
-              menu_item_description: item.menu_items?.description,
-              menu_item_price: item.menu_items?.price,
-              menu_item_image: item.menu_items?.image_url,
-              spice_level: item.menu_items?.spice_level,
-              preparation_time: item.menu_items?.preparation_time,
-              tags: item.menu_items?.tags,
-              dynamic_pricing: item.menu_items?.dynamic_pricing,
-              packaging_price: item.menu_items?.packaging_price,
-              category_name: item.categories?.name
-            })) || []
+            items: [] // TODO: Fetch order items separately
           };
-
-          delete formattedOrder.restaurants;
-          delete formattedOrder.order_items;
 
           return res.json(formattedOrder);
         }
@@ -248,29 +173,11 @@ async function handleOrders(req, res, endpoint) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // Format the data to match expected structure
+    // Format the data - simple format for now
     const formattedOrder = {
       ...order,
-      restaurant_name: order.restaurants?.name,
-      restaurant_address: order.restaurants?.address,
-      restaurant_phone: order.restaurants?.phone,
-      items: order.order_items?.map(item => ({
-        ...item,
-        menu_item_name: item.menu_items?.name,
-        menu_item_description: item.menu_items?.description,
-        menu_item_price: item.menu_items?.price,
-        menu_item_image: item.menu_items?.image_url,
-        spice_level: item.menu_items?.spice_level,
-        preparation_time: item.menu_items?.preparation_time,
-        tags: item.menu_items?.tags,
-        dynamic_pricing: item.menu_items?.dynamic_pricing,
-        packaging_price: item.menu_items?.packaging_price,
-        category_name: item.categories?.name
-      })) || []
+      items: [] // TODO: Fetch order items separately
     };
-
-    delete formattedOrder.restaurants;
-    delete formattedOrder.order_items;
 
     return res.json(formattedOrder);
   }
