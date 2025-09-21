@@ -1,32 +1,34 @@
 import express from 'express';
-import upload from '../middleware/upload.js';
 import {
-  getMenuItems,
-  getCategories,
+  getMenuByRestaurant,
+  getCategoriesByRestaurant,
+  getAllMenuItems,
   createMenuItem,
   updateMenuItem,
-  deleteMenuItem,
-  uploadMenuCSV
+  deleteMenuItem
 } from '../controllers/menuController.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /api/restaurants/:restaurantId/menu - Get menu items for restaurant
-router.get('/restaurants/:restaurantId/menu', getMenuItems);
+// Public routes
+// GET /api/menu/:restaurantId - Get menu items for a restaurant
+router.get('/menu/:restaurantId', getMenuByRestaurant);
 
-// GET /api/restaurants/:restaurantId/categories - Get categories for restaurant
-router.get('/restaurants/:restaurantId/categories', getCategories);
+// GET /api/menu-categories/:restaurantId - Get categories for a restaurant  
+router.get('/menu-categories/:restaurantId', getCategoriesByRestaurant);
 
-// POST /api/restaurants/:restaurantId/menu - Create new menu item
-router.post('/restaurants/:restaurantId/menu', createMenuItem);
+// Admin routes (protected)
+// GET /api/admin/menu - Get all menu items with filters
+router.get('/admin/menu', authenticateToken, getAllMenuItems);
 
-// PUT /api/menu/:id - Update menu item
-router.put('/menu/:id', updateMenuItem);
+// POST /api/admin/menu - Create new menu item
+router.post('/admin/menu', authenticateToken, createMenuItem);
 
-// DELETE /api/menu/:id - Delete menu item
-router.delete('/menu/:id', deleteMenuItem);
+// PUT /api/admin/menu/:id - Update menu item
+router.put('/admin/menu/:id', authenticateToken, updateMenuItem);
 
-// POST /api/restaurants/:restaurantId/menu/upload - Upload menu CSV
-router.post('/restaurants/:restaurantId/menu/upload', upload.single('menuFile'), uploadMenuCSV);
+// DELETE /api/admin/menu/:id - Delete menu item
+router.delete('/admin/menu/:id', authenticateToken, deleteMenuItem);
 
 export default router;

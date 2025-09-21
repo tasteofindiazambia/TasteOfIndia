@@ -605,14 +605,29 @@ const AdminOrders: React.FC = () => {
               <div className="mb-6">
                 <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
                 <div className="space-y-2">
-                  {selectedOrder?.order_items && selectedOrder.order_items.length > 0 ? (
-                    selectedOrder.order_items.map((item: any, index: number) => (
-                      <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                          <span className="font-medium text-gray-900">{item.menu_items?.name || 'Unknown Item'}</span>
-                          <span className="text-gray-600 ml-2">× {item.quantity}</span>
+                  {selectedOrder?.items && selectedOrder.items.length > 0 ? (
+                    selectedOrder.items.map((item: any, index: number) => (
+                      <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <span className="font-medium text-gray-900">{item.menu_item_name || 'Unknown Item'}</span>
+                            <span className="text-gray-600 ml-2">× {item.quantity}</span>
+                            <div className="text-sm text-gray-500 mt-1">
+                              K{item.unit_price?.toFixed(0) || '0'} each
+                              {item.category_name && (
+                                <span className="ml-2 px-2 py-1 bg-gray-200 rounded-full text-xs">
+                                  {item.category_name}
+                                </span>
+                              )}
+                            </div>
+                            {item.special_instructions && (
+                              <div className="text-sm text-gray-500 italic mt-1">
+                                📝 {item.special_instructions}
+                              </div>
+                            )}
+                          </div>
+                          <span className="font-medium text-gray-900">K{item.total_price?.toFixed(0) || '0'}</span>
                         </div>
-                        <span className="font-medium text-gray-900">K{item.total_price?.toFixed(0) || '0'}</span>
                       </div>
                     ))
                   ) : (
@@ -621,10 +636,67 @@ const AdminOrders: React.FC = () => {
                     </div>
                   )}
                 </div>
+                
+                {/* Order Breakdown */}
                 <div className="mt-4 pt-4 border-t border-gray-200">
-                  <div className="flex justify-between items-center text-lg font-bold text-gray-900">
-                    <span>Total:</span>
-                    <span>K{selectedOrder ? (selectedOrder.total || selectedOrder.total_amount || 0).toFixed(0) : '10'}</span>
+                  <div className="space-y-2 text-sm">
+                    {/* Subtotal */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-gray-900">
+                        K{selectedOrder?.items ? 
+                          selectedOrder.items.reduce((sum: number, item: any) => sum + (item.total_price || 0), 0).toFixed(0) 
+                          : '0'}
+                      </span>
+                    </div>
+                    
+                    {/* Delivery Information */}
+                    {selectedOrder?.order_type === 'delivery' && (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">
+                            Delivery Fee ({selectedOrder.delivery_distance_km}km):
+                          </span>
+                          <span className="text-gray-900">K{selectedOrder.delivery_fee?.toFixed(0) || '0'}</span>
+                        </div>
+                        {selectedOrder.delivery_address && (
+                          <div className="text-xs text-gray-500">
+                            📍 {selectedOrder.delivery_address}
+                          </div>
+                        )}
+                      </>
+                    )}
+                    
+                    {/* Order Type */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Order Type:</span>
+                      <span className="text-gray-900 capitalize">
+                        {selectedOrder?.order_type === 'delivery' ? '🚚 Delivery' : '🏪 Pickup'}
+                      </span>
+                    </div>
+                    
+                    {/* Preparation Time */}
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Prep Time:</span>
+                      <span className="text-gray-900">{selectedOrder?.estimated_preparation_time || 20} minutes</span>
+                    </div>
+                    
+                    {/* Delivery Time (if delivery) */}
+                    {selectedOrder?.order_type === 'delivery' && selectedOrder?.delivery_time_estimate && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Total Time:</span>
+                        <span className="text-gray-900">
+                          {(selectedOrder.estimated_preparation_time || 20) + (selectedOrder.delivery_time_estimate || 0)} minutes
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-3 pt-3 border-t border-gray-300">
+                    <div className="flex justify-between items-center text-lg font-bold text-gray-900">
+                      <span>Total:</span>
+                      <span>K{selectedOrder ? (selectedOrder.total || selectedOrder.total_amount || 0).toFixed(0) : '0'}</span>
+                    </div>
                   </div>
                 </div>
               </div>

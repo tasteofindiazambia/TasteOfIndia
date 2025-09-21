@@ -23,10 +23,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminReservations from './pages/admin/AdminReservations';
-import LocationManagement from './pages/admin/LocationManagement';
-import AdminBlogs from './pages/admin/AdminBlogs';
-import AdminEvents from './pages/admin/AdminEvents';
-import AdminBranding from './pages/admin/AdminBranding';
+// Removed: LocationManagement, AdminBlogs, AdminEvents, AdminBranding features
 
 // Shared Components
 import Layout from './components/Layout';
@@ -76,29 +73,9 @@ function App() {
                       <AdminCustomers />
                     </ProtectedRoute>
                   } />
-                  <Route path="locations" element={
-                    <ProtectedRoute>
-                      <LocationManagement />
-                    </ProtectedRoute>
-                  } />
                   <Route path="reservations" element={
                     <ProtectedRoute>
                       <AdminReservations />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="blogs" element={
-                    <ProtectedRoute>
-                      <AdminBlogs />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="events" element={
-                    <ProtectedRoute>
-                      <AdminEvents />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="branding" element={
-                    <ProtectedRoute>
-                      <AdminBranding />
                     </ProtectedRoute>
                   } />
                 </Route>

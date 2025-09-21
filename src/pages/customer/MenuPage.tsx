@@ -95,18 +95,33 @@ const MenuPage: React.FC = () => {
     setFilteredItems(filtered);
   }, [menuItems, selectedCategory, debouncedSearchQuery]);
 
-  const handleAddToCart = useCallback((menuItem: MenuItem, quantity: number = 1) => {
+  const handleAddToCart = useCallback((menuItem: MenuItem, quantity: number = 1, grams?: number) => {
+    const isDynamicPricing = menuItem.dynamic_pricing || menuItem.pricing_type === 'per_gram';
+    
+    // Calculate price based on dynamic pricing
+    let totalPrice = menuItem.price * quantity;
+    if (isDynamicPricing && grams) {
+      totalPrice = (menuItem.price * grams * quantity) + ((menuItem.packaging_price || 0) * quantity);
+    }
+    
     const cartItem: CartItem = {
-      id: Date.now(), // Temporary ID for cart item
+      id: Date.now() + Math.random(), // Unique ID for cart item
       name: menuItem.name,
-      price: menuItem.price,
+      price: totalPrice, // Store calculated total price
       quantity,
+      grams: isDynamicPricing ? grams : undefined,
       menuItem
     };
+    
     addToCart(cartItem);
+    
+    const message = isDynamicPricing && grams 
+      ? `${grams}g × ${quantity} ${menuItem.name} added to cart!`
+      : `${quantity} ${menuItem.name} added to cart!`;
+      
     showNotification({
       type: 'success',
-      message: `${quantity} ${menuItem.name} added to cart!`
+      message
     });
   }, [addToCart, showNotification]);
 

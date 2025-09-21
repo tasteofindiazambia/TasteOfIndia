@@ -13,11 +13,38 @@ const OrderConfirmationPage: React.FC = () => {
 
   useEffect(() => {
     const fetchOrder = async () => {
-      if (!orderId) return;
+      if (!orderId) {
+        console.log('No orderId provided');
+        setError('No order ID provided');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('Fetching order with ID/Token:', orderId);
+      console.log('Order ID length:', orderId.length);
+      console.log('Is numeric:', !isNaN(parseInt(orderId)));
       
       try {
         setLoading(true);
-        const orderData = await orderService.getOrder(parseInt(orderId));
+        
+        // Validate token format (should be 64 hex characters)
+        const isValidToken = orderId.length === 64 && /^[a-f0-9]+$/i.test(orderId);
+        const isNumericId = !isNaN(parseInt(orderId)) && orderId.length < 10;
+        
+        console.log('Is valid token:', isValidToken);
+        console.log('Is numeric ID:', isNumericId);
+        
+        let orderData;
+        if (isNumericId) {
+          // Numeric ID - admin access
+          orderData = await orderService.getOrder(parseInt(orderId));
+        } else if (isValidToken) {
+          // Valid token - customer access
+          orderData = await orderService.getOrderByToken(orderId);
+        } else {
+          // Invalid format
+          throw new Error('Invalid order identifier format');
+        }
         
         // Parse the items if they're stored as JSON string
         if (typeof orderData.items === 'string') {
@@ -27,6 +54,7 @@ const OrderConfirmationPage: React.FC = () => {
         console.log('Order data received:', orderData);
         setOrder(orderData);
       } catch (err) {
+        console.error('Error fetching order:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch order');
       } finally {
         setLoading(false);
@@ -48,10 +76,44 @@ const OrderConfirmationPage: React.FC = () => {
     return (
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center">
-          <p className="text-red-600 text-lg">{error || 'Order not found'}</p>
-          <Link to="/" className="text-deep-maroon hover:underline mt-4 inline-block">
-            Return to Home
-          </Link>
+          <div className="mb-4">
+            <div className="text-6xl mb-4">😔</div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
+            <p className="text-gray-600 mb-4">
+              {error || 'We couldn\'t find the order you\'re looking for.'}
+            </p>
+            
+            {orderId && (
+              <div className="bg-gray-100 p-4 rounded-lg mb-4">
+                <p className="text-sm text-gray-600 mb-2">Troubleshooting:</p>
+                <ul className="text-xs text-gray-500 space-y-1">
+                  <li>• Make sure you're using the correct confirmation link</li>
+                  <li>• Check if the link was copied completely</li>
+                  <li>• Try refreshing the page</li>
+                  <li>• Contact us if the problem persists</li>
+                </ul>
+                <p className="text-xs text-gray-400 mt-2">
+                  Order ID: {orderId?.substring(0, 10)}...
+                </p>
+              </div>
+            )}
+          </div>
+          
+          <div className="space-y-3">
+            <Link 
+              to="/" 
+              className="inline-block bg-deep-maroon text-white px-6 py-2 rounded-lg hover:bg-burgundy transition-colors"
+            >
+              Return to Home
+            </Link>
+            <br />
+            <Link 
+              to="/contact" 
+              className="text-deep-maroon hover:underline text-sm"
+            >
+              Contact Support
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -67,14 +129,26 @@ const OrderConfirmationPage: React.FC = () => {
     }
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string, orderType?: string) => {
     switch (status) {
       case 'received': return 'Order Received';
       case 'preparing': return 'Preparing Your Order';
-      case 'ready': return 'Ready for Pickup';
+      case 'ready': return orderType === 'delivery' ? 'Ready for Delivery' : 'Ready for Pickup';
       case 'completed': return 'Order Completed';
       default: return status;
     }
+  };
+
+  const getEstimatedTime = (order: any) => {
+    const prepTime = order.estimated_preparation_time || 20;
+    const deliveryTime = order.delivery_time_estimate || 0;
+    const totalTime = prepTime + deliveryTime;
+    
+    return {
+      prepTime,
+      deliveryTime,
+      totalTime
+    };
   };
 
   return (
@@ -110,17 +184,70 @@ const OrderConfirmationPage: React.FC = () => {
           <p className="text-gray-700">{order.customer_phone}</p>
         </div>
 
+        {/* Order Type & Delivery Info */}
+        <div className="border-t pt-4 mb-4">
+          <h3 className="font-semibold mb-2">Order Type & Timing</h3>
+          <div className="space-y-2">
+            <div className="flex items-center">
+              {order.order_type === 'pickup' ? (
+                <>
+                  <span className="text-2xl mr-2">🏪</span>
+                  <span className="font-medium text-deep-maroon">Pickup Order</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl mr-2">🚚</span>
+                  <span className="font-medium text-deep-maroon">Delivery Order</span>
+                </>
+              )}
+            </div>
+            
+            {order.order_type === 'delivery' && order.delivery_address && (
+              <div className="ml-8">
+                <p className="text-sm text-gray-600">Delivery Address:</p>
+                <p className="text-gray-700">{order.delivery_address}</p>
+              </div>
+            )}
+            
+            <div className="ml-8 space-y-1">
+              <div className="flex items-center text-sm">
+                <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                <span>Preparation Time: {getEstimatedTime(order).prepTime} minutes</span>
+              </div>
+              
+              {order.order_type === 'delivery' && (
+                <div className="flex items-center text-sm">
+                  <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                  <span>Delivery Time: +{getEstimatedTime(order).deliveryTime} minutes</span>
+                </div>
+              )}
+              
+              <div className="flex items-center text-sm font-medium text-deep-maroon">
+                <Clock className="w-4 h-4 mr-2" />
+                <span>
+                  Total Estimated Time: {getEstimatedTime(order).totalTime} minutes
+                  {order.order_type === 'delivery' ? ' (including delivery)' : ''}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Order Items */}
         <div className="border-t pt-4 mb-4">
           <h3 className="font-semibold mb-3">Order Items</h3>
           <div className="space-y-2">
-            {console.log('Order items debug:', order.order_items)}
-            {order.order_items && order.order_items.length > 0 ? (
-              order.order_items.map((item: any, index: number) => (
+            {order.items && order.items.length > 0 ? (
+              order.items.map((item: any, index: number) => (
                 <div key={item.id || index} className="flex justify-between items-center">
                   <div>
-                    <span className="font-medium">{item.menu_items?.name || 'Unknown Item'}</span>
+                    <span className="font-medium">{item.menu_item_name || 'Unknown Item'}</span>
                     <span className="text-gray-600 ml-2">× {item.quantity}</span>
+                    {item.special_instructions && (
+                      <div className="text-sm text-gray-500 italic">
+                        Note: {item.special_instructions}
+                      </div>
+                    )}
                   </div>
                   <span className="font-medium">
                     K{item.total_price?.toFixed(0) || '0'}
@@ -129,7 +256,7 @@ const OrderConfirmationPage: React.FC = () => {
               ))
             ) : (
               <div className="text-center py-4 text-gray-500">
-                No items found - Debug: {JSON.stringify(order.order_items)}
+                No items found
               </div>
             )}
           </div>
@@ -149,8 +276,20 @@ const OrderConfirmationPage: React.FC = () => {
         )}
 
         {/* Total */}
-        <div className="border-t pt-4">
-          <div className="flex justify-between items-center text-lg font-bold">
+        <div className="border-t pt-4 space-y-2">
+          {order.delivery_fee && order.delivery_fee > 0 && (
+            <>
+              <div className="flex justify-between items-center">
+                <span>Subtotal:</span>
+                <span>K{((order.total_amount || 0) - (order.delivery_fee || 0)).toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span>Delivery Fee:</span>
+                <span>K{order.delivery_fee.toFixed(0)}</span>
+              </div>
+            </>
+          )}
+          <div className="flex justify-between items-center text-lg font-bold border-t pt-2">
             <span>Total:</span>
             <span className="text-deep-maroon">K{(order.total || order.total_amount || 0).toFixed(0)}</span>
           </div>

@@ -45,6 +45,11 @@ export interface MenuItem {
   is_vegetarian?: boolean;
   is_vegan?: boolean;
   is_gluten_free?: boolean;
+  // Dynamic pricing fields
+  dynamic_pricing?: boolean;
+  packaging_price?: number;
+  listing_preference?: string;
+  pricing_type?: 'fixed' | 'per_gram';
 }
 
 // Order Types
@@ -53,6 +58,7 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  grams?: number; // For per-gram items
   specialInstructions?: string;
   menuItem: MenuItem;
 }

@@ -5,7 +5,10 @@ import { customerService } from './customerService';
 export const orderService = {
   // Create a new order
   createOrder: async (orderData: OrderFormData): Promise<Order> => {
-    const order = await apiService.createOrder(orderData);
+    const response = await apiService.createOrder(orderData);
+    
+    // Extract the order from the API response
+    const order = response.success ? response.order : response;
     
     // Automatically save customer data
     try {
@@ -29,9 +32,14 @@ export const orderService = {
     return await apiService.getAdminOrders(filters);
   },
 
-  // Get order by ID
+  // Get order by ID (admin)
   getOrder: async (id: number): Promise<Order> => {
     return await apiService.getOrderDetails(id);
+  },
+
+  // Get order by token (customers)
+  getOrderByToken: async (token: string): Promise<Order> => {
+    return await apiService.getOrderByToken(token);
   },
 
   // Update order status (admin)

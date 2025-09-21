@@ -1,362 +1,624 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class Database {
   constructor() {
-    this.db = new sqlite3.Database('./restaurant.db');
-    this.initializeTables();
+    this.db = null;
+    this.init();
   }
 
-  initializeTables() {
-    this.db.serialize(() => {
+  async init() {
+    try {
+      // Create database connection with proper path
+      const dbPath = path.join(__dirname, '../../database/restaurant.db');
+      this.db = new sqlite3.Database(dbPath);
+      
+      // Enable foreign key constraints and WAL mode for better performance
+      await this.run('PRAGMA foreign_keys = ON');
+      await this.run('PRAGMA journal_mode = WAL');
+      await this.run('PRAGMA synchronous = NORMAL');
+      await this.run('PRAGMA cache_size = 1000');
+      
+      // Create tables with proper schema
+      await this.createTables();
+      
+      // Insert initial data if needed
+      await this.insertInitialData();
+      
+      console.log('✅ Database initialized successfully');
+    } catch (error) {
+      console.error('❌ Database initialization failed:', error);
+      throw error;
+    }
+  }
+
+  async createTables() {
+    // Drop tables in reverse dependency order if they exist (for clean restart)
+    const dropQueries = [
+      'DROP TABLE IF EXISTS order_items',
+      'DROP TABLE IF EXISTS orders', 
+      'DROP TABLE IF EXISTS reservations',
+      'DROP TABLE IF EXISTS menu_items',
+      'DROP TABLE IF EXISTS categories',
+      'DROP TABLE IF EXISTS customers',
+      'DROP TABLE IF EXISTS admin_users',
+      'DROP TABLE IF EXISTS restaurants'
+    ];
+
+    for (const query of dropQueries) {
+      await this.run(query);
+    }
+
+    // Create tables with consistent, proper schema
+    const createQueries = [
       // Restaurants table
-      this.db.run(`CREATE TABLE IF NOT EXISTS restaurants (
+      `CREATE TABLE restaurants (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name VARCHAR(100) NOT NULL,
         address TEXT NOT NULL,
-        phone TEXT NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        email VARCHAR(100),
         hours TEXT NOT NULL,
-        image TEXT
-      )`);
+        is_active BOOLEAN DEFAULT 1,
+        delivery_fee_per_km DECIMAL(10,2) DEFAULT 10.00,
+        latitude DECIMAL(10,8),
+        longitude DECIMAL(11,8),
+        max_delivery_radius_km INTEGER DEFAULT 15,
+        min_delivery_order DECIMAL(10,2) DEFAULT 25.00,
+        delivery_time_minutes INTEGER DEFAULT 30,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )`,
 
       // Categories table
-      this.db.run(`CREATE TABLE IF NOT EXISTS categories (
+      `CREATE TABLE categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name VARCHAR(100) NOT NULL,
         description TEXT,
-        restaurant_id INTEGER,
-        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
-      )`);
-
-      // Menu items table
-      this.db.run(`CREATE TABLE IF NOT EXISTS menu_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        item_id TEXT UNIQUE,
-        name TEXT NOT NULL,
-        description TEXT,
-        price REAL NOT NULL,
-        image_url TEXT,
-        image_prompt TEXT,
-        category_id INTEGER,
-        item_family TEXT,
-        tags TEXT,
-        availability_status BOOLEAN DEFAULT 1,
-        preparation_time INTEGER,
-        restaurant_id INTEGER,
+        restaurant_id INTEGER NOT NULL,
+        display_order INTEGER DEFAULT 0,
+        is_active BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (category_id) REFERENCES categories (id),
-        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
-      )`);
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+      )`,
 
-      // Orders table
-      this.db.run(`CREATE TABLE IF NOT EXISTS orders (
+      // Menu items table - COMPREHENSIVE SCHEMA
+      `CREATE TABLE menu_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        customer_name TEXT NOT NULL,
-        customer_phone TEXT NOT NULL,
-        items TEXT NOT NULL,
-        total REAL NOT NULL,
-        status TEXT DEFAULT 'received',
-        restaurant_id INTEGER,
-        special_instructions TEXT,
+        name VARCHAR(200) NOT NULL,
+        description TEXT,
+        price DECIMAL(10,2) NOT NULL,
+        category_id INTEGER NOT NULL,
+        restaurant_id INTEGER NOT NULL,
+        image_url VARCHAR(500),
+        available BOOLEAN DEFAULT 1,
+        featured BOOLEAN DEFAULT 0,
+        tags TEXT, -- Comma-separated tags
+        spice_level VARCHAR(20) DEFAULT 'mild',
+        pieces_count INTEGER,
+        preparation_time INTEGER DEFAULT 15, -- in minutes
+        is_vegetarian BOOLEAN DEFAULT 0,
+        is_vegan BOOLEAN DEFAULT 0,
+        is_gluten_free BOOLEAN DEFAULT 0,
+        dynamic_pricing BOOLEAN DEFAULT 0, -- For per-gram pricing on sweets
+        packaging_price DECIMAL(10,2) DEFAULT 0,
+        listing_preference VARCHAR(10) DEFAULT 'mid', -- high, mid, low
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
-      )`);
-
-      // Reservations table
-      this.db.run(`CREATE TABLE IF NOT EXISTS reservations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        customer_name TEXT NOT NULL,
-        customer_phone TEXT NOT NULL,
-        customer_email TEXT,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
-        party_size INTEGER NOT NULL,
-        special_requests TEXT,
-        status TEXT DEFAULT 'pending',
-        restaurant_id INTEGER,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (restaurant_id) REFERENCES restaurants (id)
-      )`);
-
-      // Admin users table
-      this.db.run(`CREATE TABLE IF NOT EXISTS admin_users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+      )`,
 
       // Customers table
-      this.db.run(`CREATE TABLE IF NOT EXISTS customers (
+      `CREATE TABLE customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        phone TEXT,
-        email TEXT,
-        source TEXT NOT NULL CHECK (source IN ('order', 'contact_form', 'whatsapp')),
+        name VARCHAR(100) NOT NULL,
+        phone VARCHAR(20),
+        email VARCHAR(100),
+        total_orders INTEGER DEFAULT 0,
+        total_spent DECIMAL(10,2) DEFAULT 0.00,
+        average_order_value DECIMAL(10,2) DEFAULT 0.00,
+        last_order_date DATETIME,
+        loyalty_points INTEGER DEFAULT 0,
+        preferred_contact_method VARCHAR(20) DEFAULT 'whatsapp',
+        notes TEXT,
+        status VARCHAR(20) DEFAULT 'active',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_activity DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(phone),
+        UNIQUE(email)
+      )`,
 
-      // Blogs table
-      this.db.run(`CREATE TABLE IF NOT EXISTS blogs (
+      // Orders table - COMPREHENSIVE SCHEMA
+      `CREATE TABLE orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT,
-        content TEXT NOT NULL,
-        image_url TEXT,
-        author TEXT NOT NULL,
-        published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        read_time INTEGER DEFAULT 5,
-        category TEXT NOT NULL,
-        tags TEXT,
-        likes INTEGER DEFAULT 0,
-        featured BOOLEAN DEFAULT 0,
-        status TEXT DEFAULT 'published'
-      )`);
-
-      // Events table
-      this.db.run(`CREATE TABLE IF NOT EXISTS events (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT,
-        location TEXT NOT NULL,
-        location_id INTEGER,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
-        duration INTEGER DEFAULT 2,
-        price REAL DEFAULT 0,
-        max_attendees INTEGER DEFAULT 50,
-        current_attendees INTEGER DEFAULT 0,
-        image_url TEXT,
-        category TEXT NOT NULL,
-        featured BOOLEAN DEFAULT 0,
-        status TEXT DEFAULT 'upcoming',
+        order_number VARCHAR(20) UNIQUE NOT NULL,
+        order_token VARCHAR(64) UNIQUE, -- Secure token for customer access
+        customer_name VARCHAR(100) NOT NULL,
+        customer_phone VARCHAR(20) NOT NULL,
+        customer_email VARCHAR(100),
+        restaurant_id INTEGER NOT NULL,
+        total_amount DECIMAL(10,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        order_type VARCHAR(20) DEFAULT 'pickup', -- pickup, delivery
+        payment_method VARCHAR(20) DEFAULT 'cash',
+        special_instructions TEXT,
+        estimated_preparation_time INTEGER DEFAULT 20,
+        delivery_address TEXT, -- For delivery orders
+        delivery_time_estimate INTEGER, -- Additional time for delivery
+        delivery_fee DECIMAL(10,2) DEFAULT 0,
+        delivery_latitude DECIMAL(10,8), -- Customer location for delivery
+        delivery_longitude DECIMAL(11,8), -- Customer location for delivery
+        delivery_distance_km DECIMAL(5,2), -- Distance from restaurant
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (location_id) REFERENCES restaurants (id)
-      )`);
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+      )`,
 
-      // Website branding table
-      this.db.run(`CREATE TABLE IF NOT EXISTS website_branding (
+      // Order items table
+      `CREATE TABLE order_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        logo_url TEXT,
-        primary_color TEXT DEFAULT '#f97316',
-        secondary_color TEXT DEFAULT '#ea580c',
-        tertiary_color TEXT DEFAULT '#dc2626',
-        primary_font TEXT DEFAULT 'Inter',
-        secondary_font TEXT DEFAULT 'Poppins',
-        tertiary_font TEXT DEFAULT 'Roboto',
+        order_id INTEGER NOT NULL,
+        menu_item_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL,
+        unit_price DECIMAL(10,2) NOT NULL,
+        total_price DECIMAL(10,2) NOT NULL,
+        special_instructions TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+        FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
+      )`,
+
+      // Reservations table - UNIFIED SCHEMA
+      `CREATE TABLE reservations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        reservation_number VARCHAR(20) UNIQUE NOT NULL,
+        customer_name VARCHAR(100) NOT NULL,
+        customer_phone VARCHAR(20) NOT NULL,
+        customer_email VARCHAR(100),
+        restaurant_id INTEGER NOT NULL,
+        date_time DATETIME NOT NULL,
+        party_size INTEGER NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        table_preference VARCHAR(100),
+        dietary_requirements TEXT,
+        special_requests TEXT,
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+      )`,
+
+      // Admin users table - with proper password hashing
+      `CREATE TABLE admin_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        email VARCHAR(100),
+        role VARCHAR(20) DEFAULT 'admin',
+        is_active BOOLEAN DEFAULT 1,
+        last_login DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )`);
+      )`
+    ];
 
-      // Insert sample data if tables are empty
-      this.insertSampleData();
-    });
+    // Execute all create queries
+    for (const query of createQueries) {
+      await this.run(query);
+    }
+
+    // Create indexes for better performance
+    const indexQueries = [
+      'CREATE INDEX IF NOT EXISTS idx_menu_items_restaurant ON menu_items(restaurant_id)',
+      'CREATE INDEX IF NOT EXISTS idx_menu_items_category ON menu_items(category_id)',
+      'CREATE INDEX IF NOT EXISTS idx_menu_items_available ON menu_items(available)',
+      'CREATE INDEX IF NOT EXISTS idx_orders_restaurant ON orders(restaurant_id)',
+      'CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)',
+      'CREATE INDEX IF NOT EXISTS idx_orders_date ON orders(created_at)',
+      'CREATE INDEX IF NOT EXISTS idx_reservations_restaurant ON reservations(restaurant_id)',
+      'CREATE INDEX IF NOT EXISTS idx_reservations_date ON reservations(date_time)',
+      'CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations(status)',
+      'CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone)',
+      'CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email)'
+    ];
+
+    for (const query of indexQueries) {
+      await this.run(query);
+    }
   }
 
-  insertSampleData() {
+  async insertInitialData() {
     // Check if data already exists
-    this.db.get("SELECT COUNT(*) as count FROM restaurants", (err, row) => {
-      if (err) {
-        console.error('Error checking restaurants:', err);
-        return;
+    const restaurantCount = await this.get('SELECT COUNT(*) as count FROM restaurants');
+    if (restaurantCount && restaurantCount.count > 0) {
+      console.log('Initial data already exists, skipping...');
+      return;
+    }
+
+    console.log('Inserting initial data...');
+
+    // Insert sample restaurants
+    const restaurants = [
+      {
+        name: 'Taste of India - Manda Hill',
+        address: 'Manda Hill Shopping Centre, Lusaka',
+        phone: '+260 97 123 4567',
+        email: 'manda@tasteofindia.co.zm',
+        hours: JSON.stringify({
+          monday: '11:00-22:00',
+          tuesday: '11:00-22:00', 
+          wednesday: '11:00-22:00',
+          thursday: '11:00-22:00',
+          friday: '11:00-23:00',
+          saturday: '11:00-23:00',
+          sunday: '11:00-21:00'
+        }),
+        delivery_fee_per_km: 10.00,
+        latitude: -15.3875, // Manda Hill Mall coordinates
+        longitude: 28.3228,
+        max_delivery_radius_km: 15,
+        min_delivery_order: 25.00,
+        delivery_time_minutes: 30
+      },
+      {
+        name: 'Taste of India - Parirenyetwa',
+        address: 'Parirenyetwa Rd, Lusaka 10101, Zambia',
+        phone: '+260 77 3219999',
+        email: 'parirenyetwa@tasteofindia.co.zm',
+        hours: JSON.stringify({
+          monday: '11:00-22:00',
+          tuesday: '11:00-22:00',
+          wednesday: '11:00-22:00',
+          thursday: '11:00-22:00',
+          friday: '11:00-23:00',
+          saturday: '11:00-23:00',
+          sunday: '11:00-21:00'
+        }),
+        delivery_fee_per_km: 12.00,
+        latitude: -15.4067, // Parirenyetwa area coordinates
+        longitude: 28.2833,
+        max_delivery_radius_km: 12,
+        min_delivery_order: 20.00,
+        delivery_time_minutes: 25
       }
+    ];
 
-      if (row.count === 0) {
-        console.log('Inserting sample data...');
-        
-        // Insert sample restaurants
-        const restaurants = [
-          {
-            name: 'Taste of India - Lusaka',
-            address: '123 Independence Avenue, Lusaka, Zambia',
-            phone: '+260 211 123456',
-            hours: 'Mon-Sun: 10:00 AM - 10:00 PM',
-            image: '/api/placeholder/400/300'
-          },
-          {
-            name: 'Taste of India - Manda Hill',
-            address: 'Manda Hill Shopping Centre, Lusaka, Zambia',
-            phone: '+260 211 789012',
-            hours: 'Mon-Sun: 10:00 AM - 10:00 PM',
-            image: '/api/placeholder/400/300'
-          }
-        ];
+    for (const restaurant of restaurants) {
+      await this.run(
+        `INSERT INTO restaurants (
+          name, address, phone, email, hours, 
+          delivery_fee_per_km, latitude, longitude, 
+          max_delivery_radius_km, min_delivery_order, delivery_time_minutes
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          restaurant.name, restaurant.address, restaurant.phone, restaurant.email, restaurant.hours,
+          restaurant.delivery_fee_per_km, restaurant.latitude, restaurant.longitude,
+          restaurant.max_delivery_radius_km, restaurant.min_delivery_order, restaurant.delivery_time_minutes
+        ]
+      );
+    }
 
-        const restaurantStmt = this.db.prepare("INSERT INTO restaurants (name, address, phone, hours, image) VALUES (?, ?, ?, ?, ?)");
-        restaurants.forEach(restaurant => {
-          restaurantStmt.run([restaurant.name, restaurant.address, restaurant.phone, restaurant.hours, restaurant.image]);
-        });
-        restaurantStmt.finalize();
+    // Insert categories for both restaurants
+    const categories = [
+      { name: 'Appetizers', description: 'Start your meal with our delicious appetizers', restaurant_id: 1, display_order: 1 },
+      { name: 'Main Courses', description: 'Hearty main dishes to satisfy your hunger', restaurant_id: 1, display_order: 2 },
+      { name: 'Beverages', description: 'Refreshing drinks to complement your meal', restaurant_id: 1, display_order: 3 },
+      { name: 'Desserts', description: 'Sweet endings to your dining experience', restaurant_id: 1, display_order: 4 },
+      { name: 'Appetizers', description: 'Start your meal with our delicious appetizers', restaurant_id: 2, display_order: 1 },
+      { name: 'Main Courses', description: 'Hearty main dishes to satisfy your hunger', restaurant_id: 2, display_order: 2 },
+      { name: 'Beverages', description: 'Refreshing drinks to complement your meal', restaurant_id: 2, display_order: 3 },
+      { name: 'Desserts', description: 'Sweet endings to your dining experience', restaurant_id: 2, display_order: 4 }
+    ];
 
-        // Insert sample categories
-        const categories = [
-          { name: 'drinks', description: 'Refreshing beverages', restaurant_id: 1 },
-          { name: 'appetizers', description: 'Start your meal right', restaurant_id: 1 },
-          { name: 'main course', description: 'Hearty main dishes', restaurant_id: 1 },
-          { name: 'desserts', description: 'Sweet endings', restaurant_id: 1 },
-          { name: 'drinks', description: 'Refreshing beverages', restaurant_id: 2 },
-          { name: 'appetizers', description: 'Start your meal right', restaurant_id: 2 },
-          { name: 'main course', description: 'Hearty main dishes', restaurant_id: 2 },
-          { name: 'desserts', description: 'Sweet endings', restaurant_id: 2 }
-        ];
+    for (const category of categories) {
+      await this.run(
+        'INSERT INTO categories (name, description, restaurant_id, display_order) VALUES (?, ?, ?, ?)',
+        [category.name, category.description, category.restaurant_id, category.display_order]
+      );
+    }
 
-        const categoryStmt = this.db.prepare("INSERT INTO categories (name, description, restaurant_id) VALUES (?, ?, ?)");
-        categories.forEach(category => {
-          categoryStmt.run([category.name, category.description, category.restaurant_id]);
-        });
-        categoryStmt.finalize();
+    // Insert comprehensive sample menu items
+    const menuItems = [
+      // APPETIZERS - High Priority
+      {
+        name: 'Samosas',
+        description: 'Crispy triangular pastries filled with spiced potatoes and peas',
+        price: 8.00,
+        category_id: 1,
+        restaurant_id: 1,
+        image_url: '/images/samosas.jpg',
+        available: 1,
+        featured: 1,
+        tags: 'popular,vegetarian,fried,crunchy,sharable',
+        spice_level: 'mild',
+        pieces_count: 2,
+        preparation_time: 15,
+        is_vegetarian: 1,
+        dynamic_pricing: 0,
+        packaging_price: 2.00,
+        listing_preference: 'high'
+      },
+      {
+        name: 'Chicken Tikka',
+        description: 'Tender marinated chicken pieces grilled to perfection',
+        price: 18.00,
+        category_id: 1,
+        restaurant_id: 1,
+        image_url: '/images/chicken-tikka.jpg',
+        available: 1,
+        featured: 1,
+        tags: 'popular,chicken,grilled,protein,spicy',
+        spice_level: 'medium',
+        pieces_count: 6,
+        preparation_time: 20,
+        is_vegetarian: 0,
+        dynamic_pricing: 0,
+        packaging_price: 2.50,
+        listing_preference: 'high'
+      },
 
-        // Insert sample menu items
-        const menuItems = [
-          // Restaurant 1 (Lusaka) items
-          { name: 'Americano', description: 'Bold and strong coffee, similar to a black coffee but with a richer flavor.', price: 50, category_id: 1, restaurant_id: 1, availability_status: 1 },
-          { name: 'Cappuccino', description: '', price: 60, category_id: 1, restaurant_id: 1, availability_status: 1 },
-          { name: 'Apple Juice', description: 'Crisp and sweet apple juice, a classic choice.', price: 70, category_id: 1, restaurant_id: 1, availability_status: 1 },
-          { name: 'Samosa', description: 'Crispy pastry filled with spiced potatoes and peas.', price: 25, category_id: 2, restaurant_id: 1, availability_status: 1 },
-          { name: 'Butter Chicken', description: 'Tender chicken in a rich, creamy tomato sauce.', price: 180, category_id: 3, restaurant_id: 1, availability_status: 1 },
-          { name: 'Biryani', description: 'Fragrant basmati rice with tender meat and aromatic spices.', price: 200, category_id: 3, restaurant_id: 1, availability_status: 1 },
-          { name: 'Gulab Jamun', description: 'Soft, sweet dumplings in rose-flavored syrup.', price: 80, category_id: 4, restaurant_id: 1, availability_status: 1 },
-          
-          // Restaurant 2 (Manda Hill) items
-          { name: 'Masala Chai', description: 'Spiced tea with milk, a perfect blend of flavors.', price: 40, category_id: 5, restaurant_id: 2, availability_status: 1 },
-          { name: 'Mango Lassi', description: 'Creamy yogurt drink with sweet mango.', price: 60, category_id: 5, restaurant_id: 2, availability_status: 1 },
-          { name: 'Paneer Tikka', description: 'Grilled cottage cheese with aromatic spices.', price: 120, category_id: 6, restaurant_id: 2, availability_status: 1 },
-          { name: 'Dal Makhani', description: 'Creamy black lentils cooked with butter and cream.', price: 150, category_id: 7, restaurant_id: 2, availability_status: 1 },
-          { name: 'Ras Malai', description: 'Soft cheese dumplings in sweetened milk.', price: 90, category_id: 8, restaurant_id: 2, availability_status: 1 }
-        ];
+      // MAIN COURSES - High Priority
+      {
+        name: 'Chicken Biryani',
+        description: 'Fragrant basmati rice cooked with tender chicken and aromatic spices',
+        price: 25.00,
+        category_id: 2,
+        restaurant_id: 1,
+        image_url: '/images/chicken-biryani.jpg',
+        available: 1,
+        featured: 1,
+        tags: 'popular,rice,chicken,aromatic,filling',
+        spice_level: 'medium',
+        pieces_count: 1,
+        preparation_time: 25,
+        is_vegetarian: 0,
+        dynamic_pricing: 0,
+        packaging_price: 3.00,
+        listing_preference: 'high'
+      },
+      {
+        name: 'Butter Chicken',
+        description: 'Tender chicken in a rich tomato and cream sauce',
+        price: 22.00,
+        category_id: 2,
+        restaurant_id: 1,
+        image_url: '/images/butter-chicken.jpg',
+        available: 1,
+        featured: 1,
+        tags: 'popular,chicken,creamy,rich,comfort',
+        spice_level: 'mild',
+        pieces_count: 1,
+        preparation_time: 20,
+        is_vegetarian: 0,
+        dynamic_pricing: 0,
+        packaging_price: 2.50,
+        listing_preference: 'high'
+      },
+      {
+        name: 'Dal Makhani',
+        description: 'Creamy black lentils slow-cooked with butter and spices',
+        price: 16.00,
+        category_id: 2,
+        restaurant_id: 1,
+        image_url: '/images/dal-makhani.jpg',
+        available: 1,
+        featured: 0,
+        tags: 'vegetarian,creamy,protein,comfort,healthy',
+        spice_level: 'mild',
+        pieces_count: 1,
+        preparation_time: 30,
+        is_vegetarian: 1,
+        dynamic_pricing: 0,
+        packaging_price: 2.00,
+        listing_preference: 'mid'
+      },
 
-        const menuStmt = this.db.prepare("INSERT INTO menu_items (name, description, price, category_id, restaurant_id, availability_status) VALUES (?, ?, ?, ?, ?, ?)");
-        menuItems.forEach(item => {
-          menuStmt.run([item.name, item.description, item.price, item.category_id, item.restaurant_id, item.availability_status]);
-        });
-        menuStmt.finalize();
+      // SWEETS - Dynamic Pricing
+      {
+        name: 'Gulab Jamun',
+        description: 'Soft milk dumplings soaked in rose-flavored syrup',
+        price: 2.50, // per piece
+        category_id: 4,
+        restaurant_id: 1,
+        image_url: '/images/gulab-jamun.jpg',
+        available: 1,
+        featured: 0,
+        tags: 'sweet,soft,syrupy,traditional,dessert',
+        spice_level: 'mild',
+        pieces_count: null, // User selects quantity
+        preparation_time: 10,
+        is_vegetarian: 1,
+        dynamic_pricing: 0, // Per piece pricing
+        packaging_price: 1.50,
+        listing_preference: 'mid'
+      },
+      {
+        name: 'Kaju Katli',
+        description: 'Premium cashew fudge with silver leaf',
+        price: 0.80, // per gram
+        category_id: 4,
+        restaurant_id: 1,
+        image_url: '/images/kaju-katli.jpg',
+        available: 1,
+        featured: 0,
+        tags: 'sweet,premium,cashew,rich,traditional',
+        spice_level: 'mild',
+        pieces_count: null, // Weight-based
+        preparation_time: 5,
+        is_vegetarian: 1,
+        dynamic_pricing: 1, // Per gram pricing
+        packaging_price: 2.00,
+        listing_preference: 'low'
+      },
+      {
+        name: 'Rasgulla',
+        description: 'Spongy cottage cheese balls in sugar syrup',
+        price: 0.60, // per gram  
+        category_id: 4,
+        restaurant_id: 1,
+        image_url: '/images/rasgulla.jpg',
+        available: 1,
+        featured: 0,
+        tags: 'sweet,spongy,light,syrupy,traditional',
+        spice_level: 'mild',
+        pieces_count: null,
+        preparation_time: 8,
+        is_vegetarian: 1,
+        dynamic_pricing: 1, // Per gram pricing
+        packaging_price: 1.50,
+        listing_preference: 'low'
+      },
 
-        // Insert admin user
-        this.db.run("INSERT INTO admin_users (username, password) VALUES (?, ?)", ['admin', 'admin123']);
-
-        // Insert sample blogs
-        const blogs = [
-          {
-            title: 'Authentic Butter Chicken Recipe',
-            description: 'Learn to make the perfect butter chicken with our step-by-step guide. This creamy, flavorful dish is a favorite in Indian cuisine.',
-            content: 'Butter chicken, also known as murgh makhani, is a popular Indian dish that originated in Delhi. This recipe combines tender chicken pieces in a rich, creamy tomato-based sauce...',
-            image_url: '/api/placeholder/400/300',
-            author: 'Chef Rajesh Kumar',
-            read_time: 15,
-            category: 'Main Course',
-            tags: 'chicken,butter,indian,curry',
-            likes: 124,
-            featured: 1
-          },
-          {
-            title: 'Perfect Basmati Rice Every Time',
-            description: 'Master the art of cooking fluffy, aromatic basmati rice with our foolproof method.',
-            content: 'Basmati rice is known for its long grains and aromatic fragrance. Here\'s how to cook it perfectly every time...',
-            image_url: '/api/placeholder/400/300',
-            author: 'Chef Priya Sharma',
-            read_time: 8,
-            category: 'Side Dish',
-            tags: 'rice,basmati,indian,side',
-            likes: 89,
-            featured: 0
-          }
-        ];
-
-        const blogStmt = this.db.prepare("INSERT INTO blogs (title, description, content, image_url, author, read_time, category, tags, likes, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        blogs.forEach(blog => {
-          blogStmt.run([blog.title, blog.description, blog.content, blog.image_url, blog.author, blog.read_time, blog.category, blog.tags, blog.likes, blog.featured]);
-        });
-        blogStmt.finalize();
-
-        // Insert sample events
-        const events = [
-          {
-            title: 'Indian Cooking Masterclass',
-            description: 'Join our expert chefs for a hands-on cooking class featuring traditional Indian dishes. Learn the secrets of authentic Indian cuisine.',
-            location: 'Taste of India - Lusaka',
-            location_id: 1,
-            date: '2025-02-15',
-            time: '10:00',
-            duration: 3,
-            price: 50,
-            max_attendees: 20,
-            current_attendees: 15,
-            image_url: '/api/placeholder/400/300',
-            category: 'Cooking Class',
-            featured: 1
-          },
-          {
-            title: 'Spice Tasting Experience',
-            description: 'Discover the world of Indian spices with our guided tasting session. Learn about different spices and their uses in Indian cooking.',
-            location: 'Taste of India - Manda Hill',
-            location_id: 2,
-            date: '2025-02-20',
-            time: '14:00',
-            duration: 2,
-            price: 25,
-            max_attendees: 15,
-            current_attendees: 8,
-            image_url: '/api/placeholder/400/300',
-            category: 'Tasting',
-            featured: 1
-          }
-        ];
-
-        const eventStmt = this.db.prepare("INSERT INTO events (title, description, location, location_id, date, time, duration, price, max_attendees, current_attendees, image_url, category, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        events.forEach(event => {
-          eventStmt.run([event.title, event.description, event.location, event.location_id, event.date, event.time, event.duration, event.price, event.max_attendees, event.current_attendees, event.image_url, event.category, event.featured]);
-        });
-        eventStmt.finalize();
-
-        // Insert default branding
-        this.db.run("INSERT INTO website_branding (logo_url, primary_color, secondary_color, tertiary_color, primary_font, secondary_font, tertiary_font) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-          ['/api/placeholder/200/200', '#f97316', '#ea580c', '#dc2626', 'Inter', 'Poppins', 'Roboto']);
-
-        console.log('Sample data inserted successfully');
-      } else {
-        console.log('Sample data already exists');
+      // BEVERAGES - Mid Priority
+      {
+        name: 'Mango Lassi',
+        description: 'Refreshing yogurt drink with sweet mango',
+        price: 6.00,
+        category_id: 3,
+        restaurant_id: 1,
+        image_url: '/images/mango-lassi.jpg',
+        available: 1,
+        featured: 0,
+        tags: 'drink,sweet,refreshing,mango,creamy',
+        spice_level: 'mild',
+        pieces_count: 1,
+        preparation_time: 5,
+        is_vegetarian: 1,
+        dynamic_pricing: 0,
+        packaging_price: 1.00,
+        listing_preference: 'mid'
+      },
+      {
+        name: 'Masala Chai',
+        description: 'Traditional spiced tea with milk and aromatic spices',
+        price: 4.00,
+        category_id: 3,
+        restaurant_id: 1,
+        image_url: '/images/masala-chai.jpg',
+        available: 1,
+        featured: 0,
+        tags: 'drink,hot,spiced,traditional,warming',
+        spice_level: 'mild',
+        pieces_count: 1,
+        preparation_time: 8,
+        is_vegetarian: 1,
+        dynamic_pricing: 0,
+        packaging_price: 0.50,
+        listing_preference: 'mid'
       }
-    });
+    ];
+
+    for (const item of menuItems) {
+      await this.run(`
+        INSERT INTO menu_items (
+          name, description, price, category_id, restaurant_id, image_url,
+          available, featured, tags, spice_level, pieces_count, preparation_time,
+          is_vegetarian, dynamic_pricing, packaging_price, listing_preference
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        item.name, item.description, item.price, item.category_id, item.restaurant_id,
+        item.image_url, item.available, item.featured, item.tags, item.spice_level,
+        item.pieces_count, item.preparation_time, item.is_vegetarian, 
+        item.dynamic_pricing, item.packaging_price, item.listing_preference
+      ]);
+    }
+
+    // Create default admin user with hashed password
+    const defaultPassword = 'admin123';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    
+    await this.run(
+      'INSERT INTO admin_users (username, password_hash, email, role) VALUES (?, ?, ?, ?)',
+      ['admin', hashedPassword, 'admin@tasteofindia.co.zm', 'admin']
+    );
+
+    console.log('✅ Initial data inserted successfully');
+    console.log('📧 Default admin credentials: admin / admin123');
   }
 
-  // Generic query method
-  query(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows);
-      });
-    });
-  }
-
-  // Generic run method for INSERT/UPDATE/DELETE
+  // Promisified database methods
   run(sql, params = []) {
     return new Promise((resolve, reject) => {
       this.db.run(sql, params, function(err) {
-        if (err) reject(err);
-        else resolve({ id: this.lastID, changes: this.changes });
+        if (err) {
+          console.error('Database run error:', err);
+          reject(err);
+        } else {
+          resolve({ id: this.lastID, changes: this.changes });
+        }
       });
     });
   }
 
-  // Generic get method for single row
   get(sql, params = []) {
     return new Promise((resolve, reject) => {
       this.db.get(sql, params, (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
+        if (err) {
+          console.error('Database get error:', err);
+          reject(err);
+        } else {
+          resolve(row);
+        }
       });
     });
   }
 
+  all(sql, params = []) {
+    return new Promise((resolve, reject) => {
+      this.db.all(sql, params, (err, rows) => {
+        if (err) {
+          console.error('Database all error:', err);
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+  }
+
+  // Transaction support
+  async transaction(queries) {
+    await this.run('BEGIN TRANSACTION');
+    try {
+      const results = [];
+      for (const { sql, params } of queries) {
+        const result = await this.run(sql, params);
+        results.push(result);
+      }
+      await this.run('COMMIT');
+      return results;
+    } catch (error) {
+      await this.run('ROLLBACK');
+      throw error;
+    }
+  }
+
+  // Graceful shutdown
   close() {
-    this.db.close();
+    return new Promise((resolve, reject) => {
+      if (this.db) {
+        this.db.close((err) => {
+          if (err) {
+            console.error('Error closing database:', err);
+            reject(err);
+          } else {
+            console.log('Database connection closed');
+            resolve();
+          }
+        });
+      } else {
+        resolve();
+      }
+    });
   }
 }
 
-export default Database;
+// Export singleton instance
+export default new Database();

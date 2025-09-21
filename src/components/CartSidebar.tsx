@@ -99,12 +99,18 @@ const CartSidebar: React.FC = () => {
                         <h3 className="font-display text-lg font-semibold text-charcoal mb-1">
                           {item.name}
                         </h3>
-                        <p className="text-warm-gray text-sm mb-2 line-clamp-2">
+                        <p className="text-warm-gray text-sm mb-1 line-clamp-2">
                           {item.menuItem.description}
                         </p>
+                        {/* Show gram quantity for dynamic pricing items */}
+                        {item.grams && (
+                          <p className="text-deep-maroon text-xs font-medium mb-2">
+                            {item.grams}g per package
+                          </p>
+                        )}
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-charcoal">
-                            K{(item.price * item.quantity).toFixed(0)}
+                            K{item.price.toFixed(0)}
                           </span>
                           
                           {/* Quantity Controls */}

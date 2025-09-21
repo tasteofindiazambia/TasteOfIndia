@@ -5,30 +5,29 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
-  getCustomersBySource
+  getCustomerStats
 } from '../controllers/customerController.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Add console logs for debugging
-console.log('🔧 Customer routes loaded successfully');
-
-// GET /api/customers - Get all customers
-router.get('/', getAllCustomers);
+// Admin routes (all customer management requires authentication)
+// GET /api/customers - Get all customers with filters
+router.get('/', authenticateToken, getAllCustomers);
 
 // GET /api/customers/:id - Get customer by ID
-router.get('/:id', getCustomerById);
+router.get('/:id', authenticateToken, getCustomerById);
 
 // POST /api/customers - Create new customer
-router.post('/', createCustomer);
+router.post('/', createCustomer); // Public - can be created from orders/reservations
 
 // PUT /api/customers/:id - Update customer
-router.put('/:id', updateCustomer);
+router.put('/:id', authenticateToken, updateCustomer);
 
 // DELETE /api/customers/:id - Delete customer
-router.delete('/:id', deleteCustomer);
+router.delete('/:id', authenticateToken, deleteCustomer);
 
-// GET /api/customers/source/:source - Get customers by source
-router.get('/source/:source', getCustomersBySource);
+// GET /api/customers/:id/stats - Get customer statistics
+router.get('/:id/stats', authenticateToken, getCustomerStats);
 
 export default router;

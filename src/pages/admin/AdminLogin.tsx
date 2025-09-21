@@ -5,24 +5,25 @@ import { useAuth } from '../../context/AuthContext';
 
 const AdminLogin: React.FC = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loading, error } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    const success = await login(credentials.username, credentials.password);
-    if (success) {
-      navigate('/admin/dashboard');
-    } else {
-      setError('Invalid credentials');
-    }
     
-    setLoading(false);
+    console.log('Form submitted with credentials:', credentials);
+    
+    try {
+      const success = await login(credentials.username, credentials.password);
+      console.log('Login success:', success);
+      
+      if (success) {
+        console.log('Redirecting to dashboard...');
+        navigate('/admin/dashboard');
+      }
+    } catch (err) {
+      console.error('Login form error:', err);
+    }
   };
 
   return (
@@ -44,7 +45,7 @@ const AdminLogin: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
               Username
             </label>
             <div className="relative">
@@ -53,6 +54,7 @@ const AdminLogin: React.FC = () => {
                 type="text"
                 id="username"
                 name="username"
+                autoComplete="username"
                 value={credentials.username}
                 onChange={(e) => setCredentials({...credentials, username: e.target.value})}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
@@ -63,7 +65,7 @@ const AdminLogin: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <div className="relative">
@@ -72,6 +74,7 @@ const AdminLogin: React.FC = () => {
                 type="password"
                 id="password"
                 name="password"
+                autoComplete="current-password"
                 value={credentials.password}
                 onChange={(e) => setCredentials({...credentials, password: e.target.value})}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
