@@ -46,6 +46,15 @@ export default async function handler(req, res) {
       });
     }
 
+    // Health endpoint for admin panel
+    if (pathSegments[0] === 'health') {
+      return res.json({ 
+        status: 'ok', 
+        message: 'API is running',
+        timestamp: new Date().toISOString()
+      });
+    }
+
     // Handle order status update (/api/orders/{id}/status) - check this first
     if (pathSegments[0] === 'orders' && pathSegments[2] === 'status' && req.method === 'PUT') {
       const orderId = pathSegments[1];
@@ -93,7 +102,7 @@ export default async function handler(req, res) {
     }
 
     if (pathSegments[0] === 'reservations') {
-      return await handleReservations(req, res, query);
+      return await handleReservations(req, res, query, pathSegments);
     }
 
     if (pathSegments[0] === 'menu-categories') {
@@ -484,9 +493,29 @@ async function handleCustomers(req, res, query) {
 }
 
 // Reservations handler
-async function handleReservations(req, res, query) {
+async function handleReservations(req, res, query, pathSegments) {
   if (req.method === 'GET') {
     try {
+      // Handle individual reservation lookup (/reservations/:id)
+      if (pathSegments.length > 1 && pathSegments[1]) {
+        const reservationId = pathSegments[1];
+        console.log('Looking up reservation ID:', reservationId);
+        
+        const { data: reservation, error } = await supabase
+          .from('reservations')
+          .select('*')
+          .eq('id', reservationId)
+          .single();
+        
+        if (error) {
+          console.log('Reservation lookup error:', error);
+          return res.status(404).json({ error: 'Reservation not found' });
+        }
+        
+        return res.json(reservation);
+      }
+      
+      // Handle list of reservations
       const { restaurant_id } = query;
       
       let queryBuilder = supabase

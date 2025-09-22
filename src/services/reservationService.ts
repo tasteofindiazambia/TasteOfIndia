@@ -31,8 +31,7 @@ export const reservationService = {
 
   // Get reservation by ID
   getReservation: async (id: number): Promise<Reservation> => {
-    const reservations = await apiService.getAdminReservations();
-    return reservations.find((r: Reservation) => r.id === id);
+    return await apiService.getReservationDetails(id);
   },
 
   // Update reservation status (admin)
