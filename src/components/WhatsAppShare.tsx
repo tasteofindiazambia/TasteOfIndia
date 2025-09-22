@@ -11,6 +11,9 @@ const WhatsAppShare: React.FC<WhatsAppShareProps> = ({ order }) => {
   const [generating, setGenerating] = useState(false);
 
   const generateOrderSummary = () => {
+    // Get the order tracking link
+    const trackingLink = `${window.location.origin}/order-confirmation/${order.order_token || order.id}`;
+    
     const orderText = `
 🍛 *Taste of India - Order Summary*
 
@@ -18,17 +21,22 @@ const WhatsAppShare: React.FC<WhatsAppShareProps> = ({ order }) => {
 👤 Customer: ${order.customer_name}
 📞 Phone: ${order.customer_phone}
 📅 Date: ${new Date(order.created_at).toLocaleDateString()}
+${order.order_type === 'pickup' ? '🏪 Pickup Order' : '🚚 Delivery Order'}
 
 🛒 *Items Ordered:*
-${order.order_items && order.order_items.length > 0 
-  ? order.order_items.map((item: any) => `• ${item.menu_items?.name || 'Unknown Item'} × ${item.quantity} - K${item.total_price?.toFixed(0) || '0'}`).join('\n')
+${order.items && order.items.length > 0 
+  ? order.items.map((item: any) => `• ${item.menu_item_name || item.name || 'Unknown Item'} × ${item.quantity} - K${item.total_price?.toFixed(0) || '0'}`).join('\n')
   : 'Items details not available'}
 
 💰 *Total: K${(order.total || order.total_amount || 0).toFixed(0)}*
 
 ${order.special_instructions ? `📝 Special Instructions: ${order.special_instructions}` : ''}
 
+🔗 *Track Your Order:*
+${trackingLink}
+
 🏪 *Taste of India Restaurant*
+${order.order_type === 'pickup' ? 'Ready for pickup in 15-20 minutes!' : 'Delivery time: 30-45 minutes'}
 Thank you for your order! 🙏
     `.trim();
 
@@ -74,8 +82,8 @@ Thank you for your order! 🙏
           ${Array.isArray(order.items) 
             ? order.items.map((item: any) => 
                 `<div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                  <span>${item.name} × ${item.quantity}</span>
-                  <span>K{(item.price * item.quantity).toFixed(0)}</span>
+                  <span>${item.menu_item_name || item.name || 'Unknown Item'} × ${item.quantity}</span>
+                  <span>K${item.total_price?.toFixed(0) || '0'}</span>
                 </div>`
               ).join('')
             : '<div>Items details not available</div>'}
@@ -95,6 +103,10 @@ Thank you for your order! 🙏
         </div>
         
         <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
+          <div style="margin-bottom: 10px;">
+            <strong>Track Your Order:</strong><br>
+            <span style="color: #ea580c; word-break: break-all;">${window.location.origin}/order-confirmation/${order.order_token || order.id}</span>
+          </div>
           Thank you for choosing Taste of India! 🙏
         </div>
       `;
