@@ -52,6 +52,13 @@ const OrderConfirmationPage: React.FC = () => {
         }
         
         console.log('Order data received:', orderData);
+        console.log('Order items:', orderData.items);
+        console.log('Order items type:', typeof orderData.items);
+        console.log('Order items length:', orderData.items?.length);
+        if (orderData.items && orderData.items.length > 0) {
+          console.log('First item:', orderData.items[0]);
+          console.log('First item keys:', Object.keys(orderData.items[0]));
+        }
         setOrder(orderData);
       } catch (err) {
         console.error('Error fetching order:', err);
@@ -241,7 +248,9 @@ const OrderConfirmationPage: React.FC = () => {
               order.items.map((item: any, index: number) => (
                 <div key={item.id || index} className="flex justify-between items-center">
                   <div>
-                    <span className="font-medium">{item.menu_item_name || 'Unknown Item'}</span>
+                    <span className="font-medium">
+                      {item.menu_item_name || item.name || item.menu_items?.name || 'Unknown Item'}
+                    </span>
                     <span className="text-gray-600 ml-2">× {item.quantity}</span>
                     {item.special_instructions && (
                       <div className="text-sm text-gray-500 italic">
@@ -250,13 +259,16 @@ const OrderConfirmationPage: React.FC = () => {
                     )}
                   </div>
                   <span className="font-medium">
-                    K{item.total_price?.toFixed(0) || '0'}
+                    K{item.total_price?.toFixed(0) || (item.price * item.quantity)?.toFixed(0) || '0'}
                   </span>
                 </div>
               ))
             ) : (
               <div className="text-center py-4 text-gray-500">
-                No items found
+                <div>No items found</div>
+                <div className="text-sm mt-2">
+                  Debug: items = {JSON.stringify(order.items)}
+                </div>
               </div>
             )}
           </div>
