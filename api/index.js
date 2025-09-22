@@ -510,7 +510,7 @@ async function handleReservations(req, res, query) {
         return res.status(400).json({ error: 'Missing required fields' });
       }
       
-      const reservationNumber = `RES-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const reservationNumber = `RES-${Math.floor(Math.random() * 9999)}`; // Shorter reservation number
       
       console.log('Creating reservation with data:', {
         reservation_number: reservationNumber,
