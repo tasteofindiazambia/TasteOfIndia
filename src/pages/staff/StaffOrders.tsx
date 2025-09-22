@@ -22,9 +22,12 @@ const StaffOrders: React.FC = () => {
       try {
         setLoading(true);
         const fetchedOrders = await orderService.getOrders();
-        setOrders(fetchedOrders);
+        // Filter out any invalid orders
+        const validOrders = (fetchedOrders || []).filter(order => order && order.id);
+        setOrders(validOrders);
       } catch (error) {
         console.error('Error fetching orders:', error);
+        setOrders([]); // Set empty array on error
       } finally {
         setLoading(false);
       }
@@ -35,7 +38,16 @@ const StaffOrders: React.FC = () => {
 
   const handleStatusUpdate = async (orderId: number, newStatus: string) => {
     try {
-      await orderService.updateOrderStatus(orderId, newStatus);
+      if (!orderId || orderId === undefined) {
+        console.error('Invalid order ID:', orderId);
+        return;
+      }
+      
+      await orderService.updateOrderStatus({ 
+        orderId, 
+        status: newStatus as Order['status'] 
+      });
+      
       setOrders(orders.map(order => 
         order.id === orderId ? { ...order, status: newStatus } : order
       ));
@@ -48,6 +60,11 @@ const StaffOrders: React.FC = () => {
   };
 
   const filteredOrders = orders.filter(order => {
+    // Ensure order has required fields
+    if (!order || !order.id) {
+      return false;
+    }
+    
     const matchesSearch = order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
@@ -188,7 +205,7 @@ const StaffOrders: React.FC = () => {
                         View
                       </button>
                       
-                      {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                      {order.status !== 'delivered' && order.status !== 'cancelled' && order.id && (
                         <select
                           value={order.status}
                           onChange={(e) => handleStatusUpdate(order.id, e.target.value)}

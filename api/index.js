@@ -913,6 +913,10 @@ async function handleReservations(req, res, query, pathSegments) {
         const reservationId = parseInt(pathSegments[1]);
         console.log('Looking up reservation ID:', reservationId);
         
+        if (isNaN(reservationId)) {
+          return res.status(400).json({ error: 'Invalid reservation ID' });
+        }
+        
         // First check mock reservations
         const mockReservation = mockReservations.find(r => r.id === reservationId);
         if (mockReservation) {
@@ -927,9 +931,13 @@ async function handleReservations(req, res, query, pathSegments) {
           .eq('id', reservationId)
           .single();
         
-        if (error) {
+        if (error || !reservation) {
           console.log('Reservation lookup error:', error);
-          return res.status(404).json({ error: 'Reservation not found' });
+          return res.status(404).json({ 
+            error: 'Reservation not found',
+            message: `Reservation with ID ${reservationId} does not exist or has been removed.`,
+            reservationId 
+          });
         }
         
         return res.json(reservation);

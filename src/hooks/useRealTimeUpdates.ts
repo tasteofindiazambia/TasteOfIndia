@@ -92,11 +92,51 @@ export const useRealTimeUpdates = ({
   };
 };
 
+// Global audio context management
+let audioContext: AudioContext | null = null;
+let isAudioInitialized = false;
+
+// Initialize audio context after user interaction
+function initializeAudioContext() {
+  if (isAudioInitialized || !window.AudioContext) {
+    return;
+  }
+  
+  try {
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    isAudioInitialized = true;
+    console.log('🔊 Audio context initialized');
+  } catch (error) {
+    console.error('Failed to initialize audio context:', error);
+  }
+}
+
+// Add user interaction listener to initialize audio
+if (typeof window !== 'undefined') {
+  const initializeOnInteraction = () => {
+    initializeAudioContext();
+    window.removeEventListener('click', initializeOnInteraction);
+    window.removeEventListener('keydown', initializeOnInteraction);
+  };
+  
+  window.addEventListener('click', initializeOnInteraction);
+  window.addEventListener('keydown', initializeOnInteraction);
+}
+
 // Sound alert functions
 function playOrderAlert() {
+  if (!audioContext || audioContext.state === 'suspended') {
+    // Try to resume the audio context
+    if (audioContext) {
+      audioContext.resume().catch(error => {
+        console.warn('Could not resume audio context:', error);
+      });
+    }
+    console.log('🔊 Order notification (audio not available)');
+    return;
+  }
+  
   try {
-    // Create a simple beep sound using Web Audio API
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
@@ -119,9 +159,18 @@ function playOrderAlert() {
 }
 
 function playReservationAlert() {
+  if (!audioContext || audioContext.state === 'suspended') {
+    // Try to resume the audio context
+    if (audioContext) {
+      audioContext.resume().catch(error => {
+        console.warn('Could not resume audio context:', error);
+      });
+    }
+    console.log('🔊 Reservation notification (audio not available)');
+    return;
+  }
+  
   try {
-    // Create a different sound for reservations
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     

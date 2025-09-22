@@ -23,9 +23,13 @@ const ReservationConfirmationPage: React.FC = () => {
         setLoading(true);
         const reservationData = await reservationService.getReservation(parseInt(reservationId));
         setReservation(reservationData);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching reservation:', err);
-        setError('Reservation not found or access denied');
+        if (err.message?.includes('404')) {
+          setError(`Reservation #${reservationId} not found. It may have been cancelled or removed.`);
+        } else {
+          setError('Unable to load reservation details. Please try again later.');
+        }
       } finally {
         setLoading(false);
       }
