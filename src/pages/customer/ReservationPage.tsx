@@ -57,6 +57,11 @@ const ReservationPage: React.FC = () => {
         type: 'success',
         message: 'Reservation sent to admin! We will contact you via WhatsApp to confirm.'
       });
+      
+      // Navigate to reservation confirmation page with proper URL
+      setTimeout(() => {
+        navigate(`/reservation-confirmation/${createdReservation.id}`);
+      }, 2000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to make reservation';
       setError(errorMessage);

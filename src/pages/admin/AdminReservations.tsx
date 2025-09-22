@@ -14,7 +14,7 @@ const AdminReservations: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [filter, setFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('today');
+  const [dateFilter, setDateFilter] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -51,6 +51,10 @@ const AdminReservations: React.FC = () => {
       }
       
       setReservations(reservationsData);
+      console.log('Fetched reservations:', reservationsData);
+      console.log('Date filter:', dateFilter);
+      console.log('Status filter:', filter);
+      console.log('Restaurant ID:', selectedRestaurant?.id);
     } catch (error) {
       console.error('Failed to fetch reservations:', error);
     } finally {
