@@ -966,6 +966,13 @@ async function handleReservations(req, res, query, pathSegments) {
         mockReservationsList = mockReservationsList.filter(r => r.restaurant_id == restaurant_id);
       }
       
+      console.log('Reservations request details:');
+      console.log('  - Restaurant ID filter:', restaurant_id);
+      console.log('  - Database reservations count:', dbReservations?.length || 0);
+      console.log('  - Mock reservations total:', mockReservations.size);
+      console.log('  - Mock reservations filtered:', mockReservationsList.length);
+      console.log('  - Database error:', error?.message || 'none');
+      
       // Combine database and mock reservations
       const allReservations = [
         ...(dbReservations || []),
@@ -977,6 +984,7 @@ async function handleReservations(req, res, query, pathSegments) {
         return res.json(mockReservationsList);
       }
       
+      console.log('Returning combined reservations:', allReservations.length);
       return res.json(allReservations);
   } catch (error) {
       console.log('Reservations error (returning empty):', error);
@@ -1023,7 +1031,39 @@ async function handleReservations(req, res, query, pathSegments) {
       let finalReservation = null;
       let insertError = null;
       
-      // Strategy 1: Try regular supabase client
+      // Strategy 1: Try admin client first (more likely to succeed with RLS)
+      try {
+        console.log('Trying admin client first for reservation creation...');
+        const { data: adminReservations, error: adminError } = await supabaseAdmin
+          .from('reservations')
+          .insert({
+            reservation_number: reservationNumber,
+            customer_name,
+            customer_phone,
+            customer_email,
+            restaurant_id,
+            date_time,
+            party_size,
+            occasion,
+            special_requests,
+            status: 'pending'
+          })
+          .select();
+        
+        if (!adminError && adminReservations && adminReservations.length > 0) {
+          finalReservation = adminReservations[0];
+          console.log('Reservation created successfully with admin client:', finalReservation);
+          return res.status(201).json(finalReservation);
+        } else {
+          console.error('Admin client failed:', adminError);
+          insertError = adminError;
+        }
+      } catch (adminClientError) {
+        console.error('Admin client exception:', adminClientError);
+        insertError = adminClientError;
+      }
+      
+      // Strategy 2: Try regular supabase client as fallback
       const { data: reservations, error } = await supabase
         .from('reservations')
         .insert({
@@ -1045,37 +1085,8 @@ async function handleReservations(req, res, query, pathSegments) {
         console.log('Reservation created successfully with regular client:', finalReservation);
         return res.status(201).json(finalReservation);
       } else {
+        console.error('Regular client also failed:', error);
         insertError = error;
-      }
-      
-      // Strategy 2: Try using admin client as fallback
-      console.error('Regular client failed:', insertError);
-      try {
-        console.log('Trying admin client as fallback...');
-        const { data: adminReservations, error: adminError } = await supabaseAdmin
-          .from('reservations')
-          .insert({
-            reservation_number: reservationNumber,
-            customer_name,
-            customer_phone,
-            customer_email,
-            restaurant_id,
-            date_time,
-            party_size,
-            occasion,
-            special_requests,
-            status: 'pending'
-          })
-          .select();
-        
-        if (!adminError && adminReservations && adminReservations.length > 0) {
-          console.log('Reservation created successfully with admin client:', adminReservations[0]);
-          return res.status(201).json(adminReservations[0]);
-        } else {
-          console.error('Admin client also failed:', adminError);
-        }
-      } catch (adminClientError) {
-        console.error('Admin client exception:', adminClientError);
       }
       
       // Strategy 3: Create a persistent mock reservation as final fallback
@@ -1108,7 +1119,15 @@ async function handleReservations(req, res, query, pathSegments) {
       // Also log to help with debugging
       console.log('Mock reservation will be available at:', `${req.headers.host}/api/reservations/${mockId}`);
       
-      return res.status(201).json(mockReservation);
+      // IMPORTANT: Since this is a mock reservation due to database issues,
+      // we should also try to return it in a way that the frontend can cache it
+      const responseData = {
+        ...mockReservation,
+        _warning: 'This reservation was created as a fallback due to database issues. It may not appear in admin panels until database connectivity is restored.',
+        _persistence_note: 'Please save this confirmation for your records.'
+      };
+      
+      return res.status(201).json(responseData);
   } catch (error) {
       console.error('Reservation error:', error);
       return res.status(500).json({ error: 'Failed to create reservation: ' + error.message });
