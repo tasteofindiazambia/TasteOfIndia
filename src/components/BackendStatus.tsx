@@ -10,7 +10,8 @@ const BackendStatus: React.FC = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      const response = await fetch('http://localhost:3001/api/health', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://www.toi.restaurant/api';
+      const response = await fetch(`${apiUrl}/health`, {
         method: 'GET',
         signal: controller.signal,
       });
@@ -70,7 +71,7 @@ const BackendStatus: React.FC = () => {
           <div>
             <h3 className="text-sm font-medium text-red-800">Backend Server Offline</h3>
             <p className="text-sm text-red-600 mt-1">
-              The backend server is not running. Please start the server on port 3001 to use admin features.
+              Unable to connect to the API server. Please check your internet connection and try again.
             </p>
             <button
               onClick={checkBackendStatus}

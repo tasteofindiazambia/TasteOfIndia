@@ -52,7 +52,7 @@ const ReservationPage: React.FC = () => {
       setSuccess(true);
       showNotification({
         type: 'success',
-        message: 'Reservation confirmed! We will call you to confirm the details.'
+        message: 'Reservation sent to admin! We will contact you via WhatsApp to confirm.'
       });
       
       // Redirect to home after 3 seconds
@@ -78,9 +78,9 @@ const ReservationPage: React.FC = () => {
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar className="w-8 h-8 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-green-800 mb-2">Reservation Confirmed!</h2>
+          <h2 className="text-2xl font-bold text-green-800 mb-2">Reservation Sent!</h2>
           <p className="text-green-700 mb-4">
-            Your table reservation has been successfully booked. We'll call you to confirm the details.
+            Your table reservation has been sent to our admin team. We will contact you via WhatsApp to confirm the details.
           </p>
           <p className="text-sm text-green-600">Redirecting to homepage...</p>
         </div>
