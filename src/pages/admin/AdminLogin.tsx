@@ -15,13 +15,13 @@ const AdminLogin: React.FC = () => {
     console.log('Form submitted with credentials:', credentials);
     
     try {
-      const success = await login(credentials.username, credentials.password);
-      console.log('Login success:', success);
+      const loginResult = await login(credentials.username, credentials.password);
+      console.log('Login result:', loginResult);
       
-      if (success) {
-        console.log('Login successful, checking user role...');
-        // Check user role from context (it should be updated by now)
-        if (user?.role === 'worker') {
+      if (loginResult.success && loginResult.user) {
+        console.log('Login successful, checking user role:', loginResult.user.role);
+        // Check user role from login response
+        if (loginResult.user.role === 'worker') {
           console.log('Worker account, redirecting to staff panel...');
           navigate('/staff');
         } else {

@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<{ success: boolean; user?: User }>;
   logout: () => void;
   loading: boolean;
   error: string | null;
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<{ success: boolean; user?: User }> => {
     try {
       setLoading(true);
       setError(null);
@@ -92,15 +92,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success && response.user) {
         setIsAuthenticated(true);
         setUser(response.user);
-        return true;
+        return { success: true, user: response.user };
       } else {
         setError(response.message || 'Login failed');
-        return false;
+        return { success: false };
       }
     } catch (error: any) {
       console.error('Login error:', error);
       setError(error.message || 'Login failed. Please try again.');
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
     }
