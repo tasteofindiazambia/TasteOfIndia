@@ -492,6 +492,8 @@ async function handleReservations(req, res, query) {
   
   if (req.method === 'POST') {
     try {
+      console.log('Reservation creation request body:', req.body);
+      
       const { 
         customer_name, 
         customer_phone, 
@@ -503,7 +505,25 @@ async function handleReservations(req, res, query) {
         special_requests
       } = req.body;
       
+      // Validate required fields
+      if (!customer_name || !customer_phone || !restaurant_id || !date_time || !party_size) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      
       const reservationNumber = `RES-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      
+      console.log('Creating reservation with data:', {
+        reservation_number: reservationNumber,
+        customer_name,
+        customer_phone,
+        customer_email,
+        restaurant_id,
+        date_time,
+        party_size,
+        occasion,
+        special_requests,
+        status: 'pending'
+      });
       
       const { data: reservation, error } = await supabase
         .from('reservations')
@@ -522,12 +542,16 @@ async function handleReservations(req, res, query) {
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase reservation error:', error);
+        return res.status(500).json({ error: 'Database error: ' + error.message });
+      }
       
+      console.log('Reservation created successfully:', reservation);
       return res.status(201).json(reservation);
     } catch (error) {
       console.error('Reservation error:', error);
-      return res.status(500).json({ error: 'Failed to create reservation' });
+      return res.status(500).json({ error: 'Failed to create reservation: ' + error.message });
     }
   }
   
