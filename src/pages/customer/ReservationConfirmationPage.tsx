@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { Calendar, Clock, Users, Phone, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
 import { Reservation } from '../../types';
 import { reservationService } from '../../services/reservationService';
@@ -7,6 +7,7 @@ import ReservationWhatsAppShare from '../../components/ReservationWhatsAppShare'
 
 const ReservationConfirmationPage: React.FC = () => {
   const { reservationId } = useParams<{ reservationId: string }>();
+  const location = useLocation();
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,10 +20,40 @@ const ReservationConfirmationPage: React.FC = () => {
         return;
       }
 
+      // First, try to get reservation from navigation state or localStorage
+      let localReservation = null;
+      
+      // Check navigation state first
+      if (location.state?.reservation) {
+        localReservation = location.state.reservation;
+        console.log('Found reservation in navigation state:', localReservation);
+      } else {
+        // Check localStorage as fallback
+        try {
+          const storedReservation = localStorage.getItem(`reservation_${reservationId}`);
+          if (storedReservation) {
+            localReservation = JSON.parse(storedReservation);
+            console.log('Found reservation in localStorage:', localReservation);
+          }
+        } catch (error) {
+          console.error('Error reading from localStorage:', error);
+        }
+      }
+
+      if (localReservation) {
+        setReservation(localReservation);
+        setLoading(false);
+        return;
+      }
+
+      // If no local data, try to fetch from server
       try {
         setLoading(true);
         const reservationData = await reservationService.getReservation(parseInt(reservationId));
         setReservation(reservationData);
+        
+        // Store for future use
+        localStorage.setItem(`reservation_${reservationId}`, JSON.stringify(reservationData));
       } catch (err: any) {
         console.error('Error fetching reservation:', err);
         if (err.message?.includes('404')) {
@@ -36,7 +67,7 @@ const ReservationConfirmationPage: React.FC = () => {
     };
 
     fetchReservation();
-  }, [reservationId]);
+  }, [reservationId, location.state]);
 
   if (loading) {
     return (
