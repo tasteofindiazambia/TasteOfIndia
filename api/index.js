@@ -226,7 +226,7 @@ async function handleOrders(req, res, pathSegments, query) {
       // Generate order token
       const crypto = await import('crypto');
       const orderToken = crypto.randomBytes(32).toString('hex');
-      const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const orderNumber = `ORD-${Math.floor(Math.random() * 9999)}`; // Shorter order number
 
       // Calculate total and create order
       let totalAmount = items.reduce((sum, item) => sum + (item.total_price || 0), 0);
