@@ -54,7 +54,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero Section - Auto-scrolling Image Slider */}
-      <section className="relative h-screen overflow-hidden" style={{ backgroundColor: '#532734' }}>
+      <section className="relative h-screen overflow-hidden bg-gradient-to-br from-deep-maroon via-primary to-burgundy">
         {/* Slider Container */}
         <div className="relative w-full h-full">
           {slides.map((slide, index) => (
@@ -74,25 +74,25 @@ const HomePage: React.FC = () => {
                 {/* Slide Content */}
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center text-white px-6 lg:px-8 max-w-4xl">
-                    <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-4 animate-fade-in">
+                    <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-4 animate-slide-in-up">
                       {slide.title}
                     </h1>
-                    <h2 className="font-accent text-xl md:text-2xl lg:text-3xl mb-6 text-light-cream animate-fade-in-delay">
+                    <h2 className="font-accent text-xl md:text-2xl lg:text-3xl mb-6 text-light-cream animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
                       {slide.subtitle}
                     </h2>
-                    <p className="font-accent text-lg md:text-xl text-light-cream/90 mb-8 animate-fade-in-delay-2">
+                    <p className="font-accent text-lg md:text-xl text-light-cream/90 mb-8 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
                       {slide.description}
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-delay-3">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in-up" style={{ animationDelay: '0.6s' }}>
                       <Link
                         to="/menu/1"
-                        className="bg-warm-pink hover:bg-rose text-white px-8 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+                        className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl"
                       >
                         View Menu
                       </Link>
                       <Link
                         to="/reservation"
-                        className="border-2 border-light-cream text-light-cream hover:bg-light-cream hover:text-deep-maroon px-8 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105"
+                        className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md"
                       >
                         Make Reservation
                       </Link>
@@ -139,16 +139,19 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* About Section */}
-      <section className="py-20 bg-pattern">
-        <div className="w-full px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-4xl font-semibold text-charcoal mb-4">
+      <section className="py-20 bg-gradient-to-br from-surface to-warm-beige relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-pattern opacity-30"></div>
+        
+        <div className="w-full px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16 animate-slide-in-up">
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
               A Place Where Cultures Meet
             </h2>
             <p className="font-accent text-xl text-warm-gray mb-8">
               Authentic Indian flavors, Zambian warmth
             </p>
-            <p className="max-w-3xl mx-auto text-warm-gray leading-relaxed">
+            <p className="max-w-3xl mx-auto text-warm-gray leading-relaxed text-lg">
               Taste of India is more than a restaurant—it's a gathering place inspired by the classic Indian verandah. 
               We offer wholesome, mid-range Indian cuisine in a welcoming space where friends become family and every evening feels special.
             </p>
@@ -156,11 +159,11 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Authentic Flavors */}
-            <div className="card-elegant p-8 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-deep-maroon to-burgundy rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="card-floating p-8 text-center group animate-slide-in-left">
+              <div className="w-16 h-16 bg-gradient-to-br from-deep-maroon to-burgundy rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <Utensils className="w-8 h-8 text-light-cream" />
               </div>
-              <h3 className="font-display text-2xl font-semibold text-charcoal mb-4">
+              <h3 className="font-display text-2xl font-bold text-charcoal mb-4">
                 Authentic Flavors
               </h3>
               <p className="text-warm-gray leading-relaxed mb-6">
@@ -169,18 +172,18 @@ const HomePage: React.FC = () => {
               </p>
               <Link 
                 to="/menu/1" 
-                className="btn-primary bg-deep-maroon text-light-cream px-6 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-burgundy hover:shadow-lg inline-block"
+                className="btn-primary inline-block"
               >
                 LEARN MORE
               </Link>
             </div>
 
             {/* Community Gathering */}
-            <div className="card-elegant p-8 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-warm-pink to-rose rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="card-floating p-8 text-center group animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
+              <div className="w-16 h-16 bg-gradient-to-br from-warm-pink to-rose rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <Users className="w-8 h-8 text-light-cream" />
               </div>
-              <h3 className="font-display text-2xl font-semibold text-charcoal mb-4">
+              <h3 className="font-display text-2xl font-bold text-charcoal mb-4">
                 Community Gathering
               </h3>
               <p className="text-warm-gray leading-relaxed mb-6">
@@ -189,18 +192,18 @@ const HomePage: React.FC = () => {
               </p>
               <Link 
                 to="/reservation" 
-                className="btn-primary bg-deep-maroon text-light-cream px-6 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-burgundy hover:shadow-lg inline-block"
+                className="btn-primary inline-block"
               >
                 LEARN MORE
               </Link>
             </div>
 
             {/* Cultural Exchange */}
-            <div className="card-elegant p-8 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-gold to-warm-pink rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="card-floating p-8 text-center group animate-slide-in-right">
+              <div className="w-16 h-16 bg-gradient-to-br from-gold to-warm-pink rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <Calendar className="w-8 h-8 text-light-cream" />
               </div>
-              <h3 className="font-display text-2xl font-semibold text-charcoal mb-4">
+              <h3 className="font-display text-2xl font-bold text-charcoal mb-4">
                 Cultural Exchange
               </h3>
               <p className="text-warm-gray leading-relaxed mb-6">
@@ -209,7 +212,7 @@ const HomePage: React.FC = () => {
               </p>
               <Link 
                 to="/about" 
-                className="btn-primary bg-deep-maroon text-light-cream px-6 py-3 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-burgundy hover:shadow-lg inline-block"
+                className="btn-primary inline-block"
               >
                 LEARN MORE
               </Link>
@@ -219,10 +222,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Menu Highlights */}
-      <section className="py-20 bg-warm-white">
+      <section className="py-20 bg-gradient-to-br from-warm-white to-surface relative">
         <div className="w-full px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-4xl font-semibold text-charcoal mb-4">
+          <div className="text-center mb-16 animate-slide-in-up">
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-charcoal mb-4">
               Savor the Tradition
             </h2>
             <p className="font-accent text-xl text-warm-gray">
@@ -232,11 +235,11 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Appetizers */}
-            <div className="card-elegant p-6 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-deep-maroon to-burgundy rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="card-elegant p-6 text-center group animate-scale-in">
+              <div className="w-12 h-12 bg-gradient-to-br from-deep-maroon to-burgundy rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Utensils className="w-6 h-6 text-light-cream" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-charcoal mb-3">
+              <h3 className="font-display text-lg font-bold text-charcoal mb-3">
                 APPETIZERS
               </h3>
               <p className="text-warm-gray text-sm leading-relaxed">
@@ -245,11 +248,11 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Main Courses */}
-            <div className="card-elegant p-6 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-warm-pink to-rose rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="card-elegant p-6 text-center group animate-scale-in" style={{ animationDelay: '0.1s' }}>
+              <div className="w-12 h-12 bg-gradient-to-br from-warm-pink to-rose rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Utensils className="w-6 h-6 text-light-cream" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-charcoal mb-3">
+              <h3 className="font-display text-lg font-bold text-charcoal mb-3">
                 MAIN COURSES
               </h3>
               <p className="text-warm-gray text-sm leading-relaxed">
@@ -258,11 +261,11 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Beverages */}
-            <div className="card-elegant p-6 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-gold to-warm-pink rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="card-elegant p-6 text-center group animate-scale-in" style={{ animationDelay: '0.2s' }}>
+              <div className="w-12 h-12 bg-gradient-to-br from-gold to-warm-pink rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Utensils className="w-6 h-6 text-light-cream" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-charcoal mb-3">
+              <h3 className="font-display text-lg font-bold text-charcoal mb-3">
                 BEVERAGES
               </h3>
               <p className="text-warm-gray text-sm leading-relaxed">
@@ -271,11 +274,11 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Desserts */}
-            <div className="card-elegant p-6 text-center group hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-burgundy to-deep-maroon rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="card-elegant p-6 text-center group animate-scale-in" style={{ animationDelay: '0.3s' }}>
+              <div className="w-12 h-12 bg-gradient-to-br from-burgundy to-deep-maroon rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Utensils className="w-6 h-6 text-light-cream" />
               </div>
-              <h3 className="font-display text-lg font-semibold text-charcoal mb-3">
+              <h3 className="font-display text-lg font-bold text-charcoal mb-3">
                 DESSERTS
               </h3>
               <p className="text-warm-gray text-sm leading-relaxed">
@@ -284,10 +287,10 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-12 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
             <Link 
               to="/menu/1" 
-              className="btn-primary bg-deep-maroon text-light-cream px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-burgundy hover:shadow-lg inline-block"
+              className="btn-primary inline-block"
             >
               VIEW FULL MENU
             </Link>
@@ -296,32 +299,35 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Experience Section */}
-      <section className="py-20 bg-deep-maroon">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <h2 className="font-display text-4xl font-semibold text-light-cream mb-6">
+      <section className="py-20 bg-gradient-to-br from-deep-maroon via-primary to-burgundy relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-pattern opacity-20"></div>
+        
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center relative z-10">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-light-cream mb-6 animate-slide-in-up">
             More Than a Meal
           </h2>
-          <p className="font-accent text-xl text-light-cream/90 mb-8 leading-relaxed">
+          <p className="font-accent text-xl text-light-cream/90 mb-8 leading-relaxed animate-slide-in-up" style={{ animationDelay: '0.2s' }}>
             Every visit is an occasion to connect. Experience our family-friendly atmosphere, 
             perfect for celebrations and casual dinners. Join our cultural events and special evenings.
           </p>
-          <div className="bg-light-cream/10 p-8 rounded-lg mb-8">
+          <div className="card-glass p-8 mb-8 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
             <p className="font-accent text-lg text-light-cream italic">
               "Where everyone feels at home - this is what genuine hospitality feels like."
             </p>
             <p className="text-light-cream/80 mt-2">- Our valued guest</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in-up" style={{ animationDelay: '0.6s' }}>
             <Link 
               to="/reservation" 
-              className="btn-primary bg-warm-pink text-light-cream px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-rose hover:shadow-lg flex items-center justify-center space-x-2"
+              className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center space-x-2"
             >
               <Calendar className="w-4 h-4" />
               <span>BOOK A TABLE</span>
             </Link>
             <Link 
               to="/menu/1" 
-              className="bg-[#F5F5DC] text-[#532734] border-2 border-[#F5F5DC] hover:bg-[#532734] hover:text-[#F5F5DC] px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 flex items-center justify-center space-x-2"
+              className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md flex items-center justify-center space-x-2"
             >
               <Utensils className="w-4 h-4" />
               <span>EXPLORE OUR MENU</span>

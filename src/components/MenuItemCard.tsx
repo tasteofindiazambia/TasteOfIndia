@@ -45,18 +45,18 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
   }, [item.price, item.packaging_price, grams, quantity, isDynamicPricing]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="card-floating overflow-hidden group">
       {/* Item Image */}
-      <div className="h-64 bg-gray-200 relative">
+      <div className="h-64 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
         {item.image_url ? (
           <img
             src={item.image_url}
             alt={item.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-gray-400 text-lg">No Image</span>
+            <span className="text-gray-400 text-lg group-hover:scale-110 transition-transform duration-300">No Image</span>
           </div>
         )}
         
@@ -69,23 +69,23 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
       </div>
 
       {/* Item Details */}
-      <div className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.name}</h3>
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">{item.description}</p>
+      <div className="p-6">
+        <h3 className="text-xl font-bold text-charcoal mb-3 group-hover:text-deep-maroon transition-colors">{item.name}</h3>
+        <p className="text-warm-gray text-sm mb-4 line-clamp-2 leading-relaxed">{item.description}</p>
         
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             {isDynamicPricing ? (
               <>
-                <span className="text-sm text-gray-600">K{item.price.toFixed(2)}/gram</span>
+                <span className="text-sm text-warm-gray">K{item.price.toFixed(2)}/gram</span>
                 {showQuantitySelector && (
-                  <span className="text-lg font-bold text-deep-maroon">
+                  <span className="text-xl font-bold text-deep-maroon">
                     K{calculatePrice().toFixed(0)}
                   </span>
                 )}
               </>
             ) : (
-              <span className="text-xl font-bold text-deep-maroon">
+              <span className="text-2xl font-bold text-deep-maroon">
                 K{item.price.toFixed(0)}
               </span>
             )}
@@ -107,7 +107,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
                         <span className="text-xs text-gray-600 w-12">Grams:</span>
                         <button
                           onClick={decrementGrams}
-                          className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
@@ -115,13 +115,13 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
                           type="number"
                           value={grams}
                           onChange={(e) => setGrams(Math.max(50, parseInt(e.target.value) || 50))}
-                          className="w-16 text-center text-sm border border-gray-300 rounded px-1 py-1"
+                          className="w-16 text-center text-sm border-2 border-deep-maroon/20 rounded-lg px-2 py-1 focus:border-deep-maroon focus:outline-none transition-colors"
                           min="50"
                           step="50"
                         />
                         <button
                           onClick={incrementGrams}
-                          className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -132,14 +132,14 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
                         <span className="text-xs text-gray-600 w-12">Qty:</span>
                         <button
                           onClick={decrementQuantity}
-                          className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="font-semibold w-8 text-center text-sm">{quantity}</span>
+                        <span className="font-bold w-8 text-center text-sm text-deep-maroon">{quantity}</span>
                         <button
                           onClick={incrementQuantity}
-                          className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -150,14 +150,14 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={decrementQuantity}
-                        className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="font-semibold w-8 text-center">{quantity}</span>
+                      <span className="font-bold w-8 text-center text-deep-maroon">{quantity}</span>
                       <button
                         onClick={incrementQuantity}
-                        className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors"
+                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -165,7 +165,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
                   )}
                   <button
                     onClick={handleAddToCart}
-                    className="bg-deep-maroon text-light-cream px-4 py-2 rounded-lg hover:bg-burgundy transition-colors font-medium text-sm"
+                    className="btn-primary px-6 py-3 text-sm font-semibold"
                   >
                     Add to Cart
                   </button>
@@ -173,7 +173,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
               ) : (
                 <button
                   onClick={() => setShowQuantitySelector(true)}
-                  className="bg-deep-maroon text-light-cream p-2 rounded-lg hover:bg-burgundy transition-colors"
+                  className="btn-primary p-3 rounded-2xl hover:scale-110 transition-all duration-200"
                 >
                   <Plus className="w-5 h-5" />
                 </button>

@@ -21,7 +21,7 @@ const Header: React.FC = () => {
       </div>
       
       {/* Main Header */}
-      <header className="bg-warm-white border-b border-gray-100 sticky top-0 z-50 w-full">
+      <header className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50 w-full shadow-sm">
         <div className="w-full px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             {/* Logo */}
@@ -43,22 +43,22 @@ const Header: React.FC = () => {
             {/* Desktop Navigation - Centered */}
             <div className="hidden lg:flex items-center justify-center flex-1">
               <nav className="flex items-center space-x-8">
-                <Link to="/" className="text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase">
+                <Link to="/" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   Home
                 </Link>
-                <Link to="/menu/1" className="text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase">
+                <Link to="/menu/1" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   Menu
                 </Link>
-                <Link to="/reservation" className="text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase">
+                <Link to="/reservation" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   Reservations
                 </Link>
-                <Link to="/locations" className="text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase">
+                <Link to="/locations" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   Locations
                 </Link>
-                <Link to="/about" className="text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase">
+                <Link to="/about" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   About
                 </Link>
-                <Link to="/admin" className="text-deep-maroon hover:text-maroon transition-colors font-medium tracking-wide text-sm uppercase border border-deep-maroon px-3 py-1 rounded">
+                <Link to="/admin" className="text-deep-maroon hover:text-burgundy transition-all duration-300 font-semibold tracking-wide text-sm uppercase border-2 border-deep-maroon px-4 py-2 rounded-xl hover:bg-deep-maroon hover:text-white hover:scale-105">
                   Admin
                 </Link>
               </nav>
@@ -68,11 +68,11 @@ const Header: React.FC = () => {
             <div className="hidden lg:flex">
               <button 
                 onClick={handleCartClick}
-                className="relative p-2 text-charcoal hover:text-deep-maroon transition-colors"
+                className="relative p-3 text-charcoal hover:text-deep-maroon transition-all duration-300 hover:scale-110 rounded-xl hover:bg-gray-100"
               >
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingCart className="w-6 h-6" />
                 {getCartItemCount() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-deep-maroon text-light-cream text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-deep-maroon to-burgundy text-light-cream text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse-slow">
                     {getCartItemCount()}
                   </span>
                 )}
@@ -82,7 +82,7 @@ const Header: React.FC = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-charcoal hover:text-spice transition-colors"
+              className="lg:hidden p-3 text-charcoal hover:text-deep-maroon transition-all duration-300 hover:scale-110 rounded-xl hover:bg-gray-100"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -91,8 +91,8 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden bg-warm-white border-t border-gray-100">
-            <div className="px-6 py-4 space-y-4">
+          <div className="lg:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/50 shadow-lg">
+            <div className="px-6 py-6 space-y-4 animate-slide-in-up">
               {/* Restaurant Info */}
               {selectedRestaurant && (
                 <div className="flex items-center space-x-4 text-sm text-warm-gray pb-4 border-b border-gray-100">
@@ -108,45 +108,45 @@ const Header: React.FC = () => {
               )}
               
               {/* Mobile Navigation Links */}
-              <nav className="space-y-3">
+              <nav className="space-y-2">
                 <Link 
                   to="/" 
-                  className="block text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2"
+                  className="block text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl hover:bg-gray-100 hover:scale-105"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
                 </Link>
                 <Link 
                   to="/menu/1" 
-                  className="block text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2"
+                  className="block text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl hover:bg-gray-100 hover:scale-105"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Menu
                 </Link>
                 <Link 
                   to="/reservation" 
-                  className="block text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2"
+                  className="block text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl hover:bg-gray-100 hover:scale-105"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Reservations
                 </Link>
                 <Link 
                   to="/locations" 
-                  className="block text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2"
+                  className="block text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl hover:bg-gray-100 hover:scale-105"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Locations
                 </Link>
                 <Link 
                   to="/about" 
-                  className="block text-charcoal hover:text-deep-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2"
+                  className="block text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl hover:bg-gray-100 hover:scale-105"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
                 </Link>
                 <Link 
                   to="/admin" 
-                  className="block text-deep-maroon hover:text-maroon transition-colors font-medium tracking-wide text-sm uppercase py-2 border border-deep-maroon px-3 py-2 rounded"
+                  className="block text-deep-maroon hover:text-burgundy transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl border-2 border-deep-maroon hover:bg-deep-maroon hover:text-white hover:scale-105"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Admin
@@ -154,14 +154,14 @@ const Header: React.FC = () => {
               </nav>
               
               {/* Mobile Cart Button */}
-              <div className="flex justify-end pt-4 border-t border-gray-100">
+              <div className="flex justify-end pt-4 border-t border-gray-200/50">
                 <button 
                   onClick={handleCartClick}
-                  className="relative p-2 text-charcoal hover:text-deep-maroon transition-colors"
+                  className="relative p-3 text-charcoal hover:text-deep-maroon transition-all duration-300 hover:scale-110 rounded-xl hover:bg-gray-100"
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart className="w-6 h-6" />
                   {getCartItemCount() > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-deep-maroon text-light-cream text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-gradient-to-r from-deep-maroon to-burgundy text-light-cream text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse-slow">
                       {getCartItemCount()}
                     </span>
                   )}
