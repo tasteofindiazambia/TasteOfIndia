@@ -11,6 +11,7 @@ import MenuPage from './pages/customer/MenuPage';
 import CartPage from './pages/customer/CartPage';
 import CheckoutPage from './pages/customer/CheckoutPage';
 import ReservationPage from './pages/customer/ReservationPage';
+import ReservationConfirmationPage from './pages/customer/ReservationConfirmationPage';
 import OrderConfirmationPage from './pages/customer/OrderConfirmationPage';
 import AboutPage from './pages/customer/AboutPage';
 import LocationsPage from './pages/customer/LocationsPage';
@@ -44,6 +45,7 @@ function App() {
                   <Route path="cart" element={<CartPage />} />
                   <Route path="checkout" element={<CheckoutPage />} />
                   <Route path="reservation" element={<ReservationPage />} />
+                  <Route path="reservation-confirmation/:reservationId" element={<ReservationConfirmationPage />} />
                   <Route path="order-confirmation/:orderId" element={<OrderConfirmationPage />} />
                   <Route path="about" element={<AboutPage />} />
                   <Route path="locations" element={<LocationsPage />} />

@@ -5,7 +5,8 @@ import { Calendar, Clock, Users, User, Phone, MessageSquare } from 'lucide-react
 import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
 import { reservationService } from '../../services/reservationService';
-import { ReservationFormData } from '../../types';
+import { ReservationFormData, Reservation } from '../../types';
+import ReservationWhatsAppShare from '../../components/ReservationWhatsAppShare';
 
 interface ReservationForm {
   customer_name: string;
@@ -24,6 +25,7 @@ const ReservationPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [reservation, setReservation] = useState<Reservation | null>(null);
 
   const preselectedRestaurant = searchParams.get('restaurant');
   
@@ -48,17 +50,13 @@ const ReservationPage: React.FC = () => {
         date_time: data.date_time
       };
 
-      await reservationService.createReservation(reservationData);
+      const createdReservation = await reservationService.createReservation(reservationData);
+      setReservation(createdReservation);
       setSuccess(true);
       showNotification({
         type: 'success',
         message: 'Reservation sent to admin! We will contact you via WhatsApp to confirm.'
       });
-      
-      // Redirect to home after 3 seconds
-      setTimeout(() => {
-        navigate('/');
-      }, 3000);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to make reservation';
       setError(errorMessage);
@@ -71,10 +69,10 @@ const ReservationPage: React.FC = () => {
     }
   };
 
-  if (success) {
+  if (success && reservation) {
     return (
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center mb-6">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Calendar className="w-8 h-8 text-green-600" />
           </div>
@@ -82,7 +80,60 @@ const ReservationPage: React.FC = () => {
           <p className="text-green-700 mb-4">
             Your table reservation has been sent to our admin team. We will contact you via WhatsApp to confirm the details.
           </p>
-          <p className="text-sm text-green-600">Redirecting to homepage...</p>
+        </div>
+        
+        {/* Reservation Details */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 className="font-semibold text-lg mb-4">Reservation Details</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+            <div>
+              <span className="font-medium">Reservation ID:</span> #{reservation.id}
+            </div>
+            <div>
+              <span className="font-medium">Customer:</span> {reservation.customer_name}
+            </div>
+            <div>
+              <span className="font-medium">Phone:</span> {reservation.customer_phone}
+            </div>
+            <div>
+              <span className="font-medium">Date & Time:</span> {new Date(reservation.date_time).toLocaleString()}
+            </div>
+            <div>
+              <span className="font-medium">Party Size:</span> {reservation.party_size} people
+            </div>
+            <div>
+              <span className="font-medium">Status:</span> <span className="text-yellow-600 font-medium">Pending Confirmation</span>
+            </div>
+            {reservation.occasion && (
+              <div className="md:col-span-2">
+                <span className="font-medium">Occasion:</span> {reservation.occasion}
+              </div>
+            )}
+            {reservation.special_requests && (
+              <div className="md:col-span-2">
+                <span className="font-medium">Special Requests:</span> {reservation.special_requests}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* WhatsApp Sharing */}
+        <ReservationWhatsAppShare reservation={reservation} />
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={() => navigate('/')}
+            className="bg-deep-maroon text-white px-6 py-3 rounded-lg hover:bg-burgundy transition-colors"
+          >
+            Back to Home
+          </button>
+          <button
+            onClick={() => navigate('/reservation')}
+            className="border border-deep-maroon text-deep-maroon px-6 py-3 rounded-lg hover:bg-deep-maroon hover:text-white transition-colors"
+          >
+            Make Another Reservation
+          </button>
         </div>
       </div>
     );
