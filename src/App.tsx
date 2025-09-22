@@ -63,27 +63,27 @@ function App() {
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<AdminLogin />} />
                   <Route path="dashboard" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireOwnerAccess={true}>
                       <AdminDashboard />
                     </ProtectedRoute>
                   } />
                   <Route path="orders" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireOwnerAccess={true}>
                       <AdminOrders />
                     </ProtectedRoute>
                   } />
                   <Route path="menu" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireOwnerAccess={true}>
                       <AdminMenu />
                     </ProtectedRoute>
                   } />
                   <Route path="customers" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireOwnerAccess={true}>
                       <AdminCustomers />
                     </ProtectedRoute>
                   } />
                   <Route path="reservations" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireOwnerAccess={true}>
                       <AdminReservations />
                     </ProtectedRoute>
                   } />

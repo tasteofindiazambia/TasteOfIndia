@@ -1,13 +1,21 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRole?: 'admin' | 'owner' | 'worker';
+  requireOwnerAccess?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRole,
+  requireOwnerAccess = false 
+}) => {
+  const { isAuthenticated, loading, user } = useAuth();
+  const { isOwner, isWorker } = usePermissions();
 
   if (loading) {
     return (
@@ -19,6 +27,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/admin" replace />;
+  }
+
+  // Role-based access control
+  if (requireOwnerAccess && !isOwner()) {
+    // Workers trying to access owner-only features → redirect to staff
+    return <Navigate to="/staff" replace />;
+  }
+
+  if (requiredRole && user?.role !== requiredRole) {
+    // Redirect based on user role
+    if (isWorker()) {
+      return <Navigate to="/staff" replace />;
+    } else {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
   }
 
   return <>{children}</>;

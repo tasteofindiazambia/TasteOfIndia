@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   ClipboardList, 
   Calendar, 
@@ -165,8 +166,8 @@ const StaffDashboard: React.FC = () => {
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <a
-            href="/staff/orders"
+          <Link
+            to="/staff/orders"
             className="flex items-center p-4 border-2 border-dashed border-gray-200 rounded-lg hover:border-deep-maroon hover:bg-gray-50 transition-colors"
           >
             <ClipboardList className="w-6 h-6 text-deep-maroon mr-3" />
@@ -174,10 +175,10 @@ const StaffDashboard: React.FC = () => {
               <h3 className="font-medium text-gray-900">Manage Orders</h3>
               <p className="text-sm text-gray-600">View and update order status</p>
             </div>
-          </a>
+          </Link>
           
-          <a
-            href="/staff/reservations"
+          <Link
+            to="/staff/reservations"
             className="flex items-center p-4 border-2 border-dashed border-gray-200 rounded-lg hover:border-deep-maroon hover:bg-gray-50 transition-colors"
           >
             <Calendar className="w-6 h-6 text-deep-maroon mr-3" />
@@ -185,7 +186,7 @@ const StaffDashboard: React.FC = () => {
               <h3 className="font-medium text-gray-900">Manage Reservations</h3>
               <p className="text-sm text-gray-600">Handle table bookings</p>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
