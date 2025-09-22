@@ -194,6 +194,31 @@ async function handleOrders(req, res, pathSegments, query) {
     }
   }
 
+  // Handle order status update (/api/orders/{id}/status)
+  if (pathSegments[1] === 'status' && pathSegments[0] && req.method === 'PUT') {
+    const orderId = pathSegments[0];
+    const { status } = req.body;
+    
+    try {
+      const { data: order, error } = await supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', orderId)
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Order status update error:', error);
+        return res.status(500).json({ error: 'Failed to update order status' });
+      }
+      
+      return res.json({ success: true, order });
+    } catch (error) {
+      console.error('Order status update exception:', error);
+      return res.status(500).json({ error: 'Failed to update order status' });
+    }
+  }
+
   if (req.method === 'POST') {
     try {
       console.log('Order creation request body:', req.body);
