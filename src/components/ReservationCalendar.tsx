@@ -1,22 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, Clock, Users, MapPin, Phone, MessageSquare } from 'lucide-react';
-
-interface Reservation {
-  id: number;
-  customer_name: string;
-  customer_phone: string;
-  customer_email?: string;
-  location: string;
-  date_time: string;
-  party_size: number;
-  occasion?: string;
-  table_preference?: string;
-  dietary_requirements?: string;
-  confirmation_method: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  notes?: string;
-  created_at: string;
-}
+import { Reservation } from '../types';
 
 interface ReservationCalendarProps {
   reservations: Reservation[];

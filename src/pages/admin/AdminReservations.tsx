@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, Users, Phone, Eye, XCircle, Plus, Filter, Search, Download, MessageSquare } from 'lucide-react';
+import { Calendar, Clock, Users, Phone, Eye, XCircle, Plus, Filter, Search, Download } from 'lucide-react';
 import { Reservation } from '../../types';
 import { reservationService } from '../../services/reservationService';
 import { useRestaurant } from '../../context/RestaurantContext';
@@ -16,7 +16,6 @@ const AdminReservations: React.FC = () => {
   const [filter, setFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
@@ -45,25 +44,80 @@ const AdminReservations: React.FC = () => {
         reservationsData = await reservationService.getReservations(selectedRestaurant?.id);
       }
       
+      // Also check localStorage for any recent reservations that might not be in the database yet
+      const recentReservations = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('reservation_')) {
+          try {
+            const reservationData = JSON.parse(localStorage.getItem(key) || '{}');
+            // Only include reservations from the last 24 hours
+            const reservationTime = new Date(reservationData.created_at || reservationData.date_time);
+            const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            if (reservationTime > twentyFourHoursAgo) {
+              // Check if this reservation is already in the server data
+              const exists = reservationsData.find(r => r.id === reservationData.id);
+              if (!exists) {
+                recentReservations.push({
+                  ...reservationData,
+                  _source: 'localStorage',
+                  _note: 'Recent reservation - may not appear in database yet'
+                });
+              }
+            }
+          } catch (error) {
+            console.error('Error parsing localStorage reservation:', error);
+          }
+        }
+      }
+      
+      // Combine server data with recent localStorage reservations
+      const allReservations = [...reservationsData, ...recentReservations];
+      
       // Apply status filter
       if (filter !== 'all') {
-        reservationsData = reservationsData.filter(r => r.status === filter);
+        reservationsData = allReservations.filter(r => r.status === filter);
+      } else {
+        reservationsData = allReservations;
       }
       
       setReservations(reservationsData);
-      console.log('Fetched reservations:', reservationsData);
+      console.log('Fetched reservations:', reservationsData.length);
+      console.log('Server reservations:', reservationsData.length - recentReservations.length);
+      console.log('Recent localStorage reservations:', recentReservations.length);
       console.log('Date filter:', dateFilter);
       console.log('Status filter:', filter);
       console.log('Restaurant ID:', selectedRestaurant?.id);
+      
+      if (recentReservations.length > 0) {
+        showNotification({
+          type: 'info',
+          message: `Found ${recentReservations.length} recent reservation(s) that may not be synced to database yet.`
+        });
+      }
     } catch (error) {
       console.error('Failed to fetch reservations:', error);
+      showNotification({
+        type: 'error',
+        message: 'Failed to fetch reservations. Please refresh the page.'
+      });
     } finally {
       setLoading(false);
     }
-  }, [selectedRestaurant, filter, dateFilter]);
+  }, [selectedRestaurant, filter, dateFilter, showNotification]);
 
   useEffect(() => {
     fetchReservations();
+  }, [fetchReservations]);
+
+  // Auto-refresh reservations every 30 seconds to catch new ones
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('Auto-refreshing reservations...');
+      fetchReservations();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
   }, [fetchReservations]);
 
   const updateReservationStatus = async (reservationId: number, newStatus: string) => {

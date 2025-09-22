@@ -24,7 +24,42 @@ const StaffReservations: React.FC = () => {
       try {
         setLoading(true);
         const fetchedReservations = await reservationService.getReservations();
-        setReservations(fetchedReservations);
+        
+        // Also check localStorage for any recent reservations that might not be in the database yet
+        const recentReservations = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key?.startsWith('reservation_')) {
+            try {
+              const reservationData = JSON.parse(localStorage.getItem(key) || '{}');
+              // Only include reservations from the last 24 hours
+              const reservationTime = new Date(reservationData.created_at || reservationData.date_time);
+              const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+              if (reservationTime > twentyFourHoursAgo) {
+                // Check if this reservation is already in the server data
+                const exists = fetchedReservations.find(r => r.id === reservationData.id);
+                if (!exists) {
+                  recentReservations.push({
+                    ...reservationData,
+                    _source: 'localStorage',
+                    _note: 'Recent reservation - may not appear in database yet'
+                  });
+                }
+              }
+            } catch (error) {
+              console.error('Error parsing localStorage reservation:', error);
+            }
+          }
+        }
+        
+        // Combine server data with recent localStorage reservations
+        const allReservations = [...fetchedReservations, ...recentReservations];
+        setReservations(allReservations);
+        
+        console.log('Staff reservations loaded:', allReservations.length);
+        console.log('Server reservations:', fetchedReservations.length);
+        console.log('Recent localStorage reservations:', recentReservations.length);
+        
       } catch (error) {
         console.error('Error fetching reservations:', error);
       } finally {
@@ -33,6 +68,52 @@ const StaffReservations: React.FC = () => {
     };
 
     fetchReservations();
+  }, []);
+
+  // Auto-refresh reservations every 30 seconds to catch new ones
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('Auto-refreshing staff reservations...');
+      const fetchReservations = async () => {
+        try {
+          const fetchedReservations = await reservationService.getReservations();
+          
+          // Also check localStorage for any recent reservations
+          const recentReservations = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key?.startsWith('reservation_')) {
+              try {
+                const reservationData = JSON.parse(localStorage.getItem(key) || '{}');
+                const reservationTime = new Date(reservationData.created_at || reservationData.date_time);
+                const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                if (reservationTime > twentyFourHoursAgo) {
+                  const exists = fetchedReservations.find(r => r.id === reservationData.id);
+                  if (!exists) {
+                    recentReservations.push({
+                      ...reservationData,
+                      _source: 'localStorage',
+                      _note: 'Recent reservation - may not appear in database yet'
+                    });
+                  }
+                }
+              } catch (error) {
+                console.error('Error parsing localStorage reservation:', error);
+              }
+            }
+          }
+          
+          const allReservations = [...fetchedReservations, ...recentReservations];
+          setReservations(allReservations);
+        } catch (error) {
+          console.error('Error auto-refreshing reservations:', error);
+        }
+      };
+      
+      fetchReservations();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleStatusUpdate = async (reservationId: number, newStatus: string) => {
