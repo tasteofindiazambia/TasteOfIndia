@@ -97,8 +97,9 @@ async function verifyToken(req) {
 
 // Check if endpoint requires authentication
 function requiresAuth(path) {
-  const publicEndpoints = ['/health', '/auth/login'];
-  return !publicEndpoints.includes(path);
+  const publicEndpoints = ['/health', '/auth/login', '/auth', '/'];
+  console.log('Checking auth for path:', path, 'requires auth:', !publicEndpoints.some(p => path.startsWith(p)));
+  return !publicEndpoints.some(p => path.startsWith(p));
 }
 
 export default async function handler(req, res) {
