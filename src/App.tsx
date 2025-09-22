@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { RestaurantProvider } from './context/RestaurantContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -83,6 +85,8 @@ function App() {
                 </Route>
               </Routes>
             </Router>
+            <Analytics />
+            <SpeedInsights />
           </CartProvider>
         </RestaurantProvider>
       </AuthProvider>
