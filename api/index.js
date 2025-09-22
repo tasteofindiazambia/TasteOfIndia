@@ -104,6 +104,41 @@ export default async function handler(req, res) {
       return await handleCustomers(req, res, query);
     }
 
+    // Handle reservation status update (/api/reservations/{id}/status) - check this first
+    if (pathSegments[0] === 'reservations' && pathSegments[2] === 'status' && req.method === 'PUT') {
+      const reservationId = pathSegments[1];
+      const { status, notes } = req.body;
+      
+      try {
+        // First check mock reservations
+        const mockReservationIndex = mockReservations.findIndex(r => r.id == reservationId);
+        if (mockReservationIndex !== -1) {
+          mockReservations[mockReservationIndex].status = status;
+          if (notes) mockReservations[mockReservationIndex].notes = notes;
+          console.log('Updated mock reservation status:', mockReservations[mockReservationIndex]);
+          return res.json(mockReservations[mockReservationIndex]);
+        }
+        
+        // Then try database update
+        const { data: reservation, error } = await supabase
+          .from('reservations')
+          .update({ status, notes })
+          .eq('id', reservationId)
+          .select()
+          .single();
+        
+        if (error) {
+          console.error('Reservation status update error:', error);
+          return res.status(500).json({ error: 'Failed to update reservation status' });
+        }
+        
+        return res.json(reservation);
+      } catch (error) {
+        console.error('Reservation status update exception:', error);
+        return res.status(500).json({ error: 'Failed to update reservation status' });
+      }
+    }
+
     if (pathSegments[0] === 'reservations') {
       return await handleReservations(req, res, query, pathSegments);
     }
@@ -432,6 +467,16 @@ async function handleAuth(req, res, pathSegments) {
 
 // Customers handler
 async function handleCustomers(req, res, query) {
+  if (req.method === 'GET') {
+    try {
+      // Return empty array for now - customers are managed through orders/reservations
+      return res.json([]);
+    } catch (error) {
+      console.error('Customers GET error:', error);
+      return res.json([]);
+    }
+  }
+  
   if (req.method === 'POST') {
     try {
       const { name, phone, email } = req.body;
