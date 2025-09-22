@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const AdminLogin: React.FC = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const navigate = useNavigate();
-  const { login, loading, error } = useAuth();
+  const { login, loading, error, user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +19,15 @@ const AdminLogin: React.FC = () => {
       console.log('Login success:', success);
       
       if (success) {
-        console.log('Redirecting to dashboard...');
-        navigate('/admin/dashboard');
+        console.log('Login successful, checking user role...');
+        // Check user role from context (it should be updated by now)
+        if (user?.role === 'worker') {
+          console.log('Worker account, redirecting to staff panel...');
+          navigate('/staff');
+        } else {
+          console.log('Owner/Admin account, redirecting to admin dashboard...');
+          navigate('/admin/dashboard');
+        }
       }
     } catch (err) {
       console.error('Login form error:', err);
@@ -94,9 +102,19 @@ const AdminLogin: React.FC = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Demo credentials:</p>
-          <p>Username: <strong>admin</strong></p>
-          <p>Password: <strong>admin123</strong></p>
+          <p className="mb-2">Demo credentials:</p>
+          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+            <div>
+              <p className="font-semibold text-gray-700">Owner Account:</p>
+              <p>Username: <strong>admin</strong></p>
+              <p>Password: <strong>admin123</strong></p>
+            </div>
+            <div>
+              <p className="font-semibold text-gray-700">Staff Account:</p>
+              <p>Username: <strong>worker</strong></p>
+              <p>Password: <strong>worker123</strong></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

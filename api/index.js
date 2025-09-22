@@ -472,6 +472,16 @@ async function handleAuth(req, res, pathSegments) {
         });
       }
       
+      // Temporary worker account for testing
+      if (username === 'worker' && password === 'worker123') {
+        return res.json({
+          success: true,
+          token: 'simple-worker-token',
+          user: { id: 2, username: 'worker', role: 'worker', fullName: 'Test Worker' },
+          message: 'Login successful (temp worker)'
+        });
+      }
+      
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -487,6 +497,15 @@ async function handleAuth(req, res, pathSegments) {
           token: 'simple-admin-token',
           user: { id: 1, username: 'admin', role: 'admin' },
           message: 'Login successful (fallback)'
+        });
+      }
+      
+      if (username === 'worker' && password === 'worker123') {
+        return res.json({
+          success: true,
+          token: 'simple-worker-token',
+          user: { id: 2, username: 'worker', role: 'worker', fullName: 'Test Worker' },
+          message: 'Login successful (temp worker fallback)'
         });
       }
       
@@ -539,6 +558,14 @@ async function handleAuth(req, res, pathSegments) {
         });
       }
       
+      // Temporary worker token
+      if (token === 'simple-worker-token') {
+        return res.json({
+          success: true,
+          user: { id: 2, username: 'worker', role: 'worker', fullName: 'Test Worker' }
+        });
+      }
+      
       return res.status(401).json({ error: 'Invalid token' });
       
     } catch (error) {
@@ -549,6 +576,13 @@ async function handleAuth(req, res, pathSegments) {
         return res.json({
           success: true,
           user: { id: 1, username: 'admin', role: 'admin' }
+        });
+      }
+      
+      if (token === 'simple-worker-token') {
+        return res.json({
+          success: true,
+          user: { id: 2, username: 'worker', role: 'worker', fullName: 'Test Worker' }
         });
       }
       
