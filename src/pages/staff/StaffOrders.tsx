@@ -1,0 +1,265 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Eye,
+  Clock,
+  CheckCircle,
+  Package,
+  Search,
+  Filter
+} from 'lucide-react';
+import { orderService } from '../../services/orderService';
+import { Order } from '../../types';
+
+const StaffOrders: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const fetchedOrders = await orderService.getOrders();
+        setOrders(fetchedOrders);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const handleStatusUpdate = async (orderId: number, newStatus: string) => {
+    try {
+      await orderService.updateOrderStatus(orderId, newStatus);
+      setOrders(orders.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: newStatus });
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+    }
+  };
+
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'preparing': return 'bg-orange-100 text-orange-800';
+      case 'ready': return 'bg-green-100 text-green-800';
+      case 'delivered': return 'bg-gray-100 text-gray-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending': return Clock;
+      case 'confirmed': return CheckCircle;
+      case 'preparing': return Package;
+      case 'ready': return CheckCircle;
+      case 'delivered': return CheckCircle;
+      default: return Clock;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="bg-white p-4 rounded-lg shadow h-20"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Orders Management</h1>
+        <p className="mt-1 text-gray-600">
+          View and update order status
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white shadow rounded-lg p-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search by order number or customer name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon appearance-none bg-white"
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="preparing">Preparing</option>
+              <option value="ready">Ready</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Orders List */}
+      <div className="space-y-4">
+        {filteredOrders.length === 0 ? (
+          <div className="bg-white shadow rounded-lg p-8 text-center">
+            <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+            <p className="text-gray-600">
+              {searchTerm || statusFilter !== 'all' 
+                ? 'Try adjusting your search or filter criteria.'
+                : 'No orders available at the moment.'
+              }
+            </p>
+          </div>
+        ) : (
+          filteredOrders.map((order) => {
+            const StatusIcon = getStatusIcon(order.status);
+            return (
+              <div key={order.id} className="bg-white shadow rounded-lg p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        <StatusIcon className="w-8 h-8 text-deep-maroon" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Order #{order.order_number}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Customer: {order.customer_name || 'N/A'}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Total: K{order.total?.toFixed(2) || '0.00'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(order.created_at || '').toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                    
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => setSelectedOrder(order)}
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View
+                      </button>
+                      
+                      {order.status !== 'delivered' && order.status !== 'cancelled' && (
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                          className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="preparing">Preparing</option>
+                          <option value="ready">Ready</option>
+                          <option value="delivered">Delivered</option>
+                        </select>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Order #{selectedOrder.order_number}
+                </h3>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p><strong>Customer:</strong> {selectedOrder.customer_name}</p>
+                  <p><strong>Phone:</strong> {selectedOrder.customer_phone}</p>
+                  <p><strong>Status:</strong> 
+                    <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(selectedOrder.status)}`}>
+                      {selectedOrder.status}
+                    </span>
+                  </p>
+                  <p><strong>Total:</strong> K{selectedOrder.total?.toFixed(2)}</p>
+                  <p><strong>Order Time:</strong> {new Date(selectedOrder.created_at || '').toLocaleString()}</p>
+                </div>
+                
+                {selectedOrder.items && selectedOrder.items.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Order Items:</h4>
+                    <div className="space-y-2">
+                      {selectedOrder.items.map((item, index) => (
+                        <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                          <span>{item.menu_item_name || 'Unknown Item'}</span>
+                          <span>Qty: {item.quantity} × K{item.price?.toFixed(2)} = K{((item.quantity || 0) * (item.price || 0)).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StaffOrders;

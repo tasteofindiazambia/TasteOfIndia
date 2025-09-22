@@ -26,11 +26,16 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminReservations from './pages/admin/AdminReservations';
-// Removed: LocationManagement, AdminBlogs, AdminEvents, AdminBranding features
+
+// Staff Pages
+import StaffDashboard from './pages/staff/StaffDashboard';
+import StaffOrders from './pages/staff/StaffOrders';
+import StaffReservations from './pages/staff/StaffReservations';
 
 // Shared Components
 import Layout from './components/Layout';
 import AdminLayout from './components/AdminLayout';
+import StaffLayout from './components/StaffLayout';
 // okay
 function App() {
   return (
@@ -82,6 +87,14 @@ function App() {
                       <AdminReservations />
                     </ProtectedRoute>
                   } />
+                </Route>
+
+                {/* Staff Routes */}
+                <Route path="/staff" element={<StaffLayout />}>
+                  <Route index element={<StaffDashboard />} />
+                  <Route path="dashboard" element={<StaffDashboard />} />
+                  <Route path="orders" element={<StaffOrders />} />
+                  <Route path="reservations" element={<StaffReservations />} />
                 </Route>
               </Routes>
             </Router>
