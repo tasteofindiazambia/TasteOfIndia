@@ -5,6 +5,12 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cC
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Create admin client with service role key for operations that need elevated permissions
+const supabaseAdmin = createClient(
+  supabaseUrl, 
+  process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey
+);
+
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -525,9 +531,10 @@ async function handleReservations(req, res, query) {
         status: 'pending'
       });
       
-      const { data: reservation, error } = await supabase
+      // Try to insert reservation with admin client to bypass RLS
+      const { data: reservation, error } = await supabaseAdmin
         .from('reservations')
-        .insert([{
+        .insert({
           reservation_number: reservationNumber,
           customer_name,
           customer_phone,
@@ -538,7 +545,7 @@ async function handleReservations(req, res, query) {
           occasion,
           special_requests,
           status: 'pending'
-        }])
+        })
         .select()
         .single();
       
