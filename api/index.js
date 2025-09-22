@@ -428,19 +428,68 @@ async function handleMenu(req, res, pathSegments, query) {
   return res.status(405).json({ error: 'Method not allowed' });
 }
 
-// Auth handler
+// Auth handler (Enhanced with database support + backward compatibility)
 async function handleAuth(req, res, pathSegments) {
   if (pathSegments[1] === 'login' && req.method === 'POST') {
     const { username, password } = req.body;
     
-    if (username === 'admin' && password === 'admin123') {
-      return res.json({
-        success: true,
-        token: 'simple-admin-token',
-        user: { id: 1, username: 'admin', role: 'admin' },
-        message: 'Login successful'
+    try {
+      // First, try database authentication (new system)
+      const { data: users, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('username', username)
+        .eq('is_active', true)
+        .limit(1);
+      
+      if (!error && users && users.length > 0) {
+        const user = users[0];
+        
+        // For now, we'll use simple password comparison
+        // TODO: Implement bcrypt comparison in next iteration
+        if (password === 'admin123' && username === 'admin') {
+          return res.json({
+            success: true,
+            token: `token-${user.id}-${Date.now()}`, // More dynamic token
+            user: { 
+              id: user.id, 
+              username: user.username, 
+              role: user.role === 'owner' ? 'admin' : user.role, // Backward compatibility
+              fullName: user.full_name 
+            },
+            message: 'Login successful'
+          });
+        }
+      }
+      
+      // Fallback to hardcoded system (backward compatibility)
+      if (username === 'admin' && password === 'admin123') {
+        return res.json({
+          success: true,
+          token: 'simple-admin-token',
+          user: { id: 1, username: 'admin', role: 'admin' },
+          message: 'Login successful (fallback)'
+        });
+      }
+      
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
       });
-    } else {
+      
+    } catch (error) {
+      console.error('Database auth error, falling back to hardcoded:', error);
+      
+      // Fallback to hardcoded system if database fails
+      if (username === 'admin' && password === 'admin123') {
+        return res.json({
+          success: true,
+          token: 'simple-admin-token',
+          user: { id: 1, username: 'admin', role: 'admin' },
+          message: 'Login successful (fallback)'
+        });
+      }
+      
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -452,12 +501,57 @@ async function handleAuth(req, res, pathSegments) {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '');
     
-    if (token === 'simple-admin-token') {
-      return res.json({
-        success: true,
-        user: { id: 1, username: 'admin', role: 'admin' }
-      });
-    } else {
+    try {
+      // Handle new dynamic tokens (format: token-{userId}-{timestamp})
+      if (token && token.startsWith('token-')) {
+        const tokenParts = token.split('-');
+        if (tokenParts.length >= 3) {
+          const userId = parseInt(tokenParts[1]);
+          
+          // Try to get user from database
+          const { data: users, error } = await supabase
+            .from('admin_users')
+            .select('*')
+            .eq('id', userId)
+            .eq('is_active', true)
+            .limit(1);
+          
+          if (!error && users && users.length > 0) {
+            const user = users[0];
+            return res.json({
+              success: true,
+              user: { 
+                id: user.id, 
+                username: user.username, 
+                role: user.role === 'owner' ? 'admin' : user.role, // Backward compatibility
+                fullName: user.full_name 
+              }
+            });
+          }
+        }
+      }
+      
+      // Fallback to simple token (backward compatibility)
+      if (token === 'simple-admin-token') {
+        return res.json({
+          success: true,
+          user: { id: 1, username: 'admin', role: 'admin' }
+        });
+      }
+      
+      return res.status(401).json({ error: 'Invalid token' });
+      
+    } catch (error) {
+      console.error('Token verification error, trying fallback:', error);
+      
+      // Fallback to simple token verification
+      if (token === 'simple-admin-token') {
+        return res.json({
+          success: true,
+          user: { id: 1, username: 'admin', role: 'admin' }
+        });
+      }
+      
       return res.status(401).json({ error: 'Invalid token' });
     }
   }

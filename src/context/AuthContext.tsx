@@ -5,7 +5,8 @@ interface User {
   id: number;
   username: string;
   email?: string;
-  role: string;
+  role: 'admin' | 'owner' | 'worker'; // Enhanced role types
+  fullName?: string; // New field for full name
 }
 
 interface AuthContextType {
@@ -15,6 +16,10 @@ interface AuthContextType {
   logout: () => void;
   loading: boolean;
   error: string | null;
+  // New role-based helper functions
+  isOwner: () => boolean;
+  isWorker: () => boolean;
+  hasFullAccess: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -113,13 +118,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Role-based helper functions
+  const isOwner = () => {
+    return user?.role === 'admin' || user?.role === 'owner'; // 'admin' for backward compatibility
+  };
+
+  const isWorker = () => {
+    return user?.role === 'worker';
+  };
+
+  const hasFullAccess = () => {
+    return isOwner(); // Only owners have full access
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     user,
     login,
     logout,
     loading,
-    error
+    error,
+    isOwner,
+    isWorker,
+    hasFullAccess
   };
 
   return (
