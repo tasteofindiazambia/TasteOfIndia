@@ -69,6 +69,10 @@ export default async function handler(req, res) {
       return await handleMenuCategories(req, res, pathSegments, query);
     }
 
+    if (pathSegments[0] === 'admin') {
+      return await handleAdmin(req, res, query);
+    }
+
     return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
 
   } catch (error) {
@@ -192,6 +196,8 @@ async function handleOrders(req, res, pathSegments, query) {
 
   if (req.method === 'POST') {
     try {
+      console.log('Order creation request body:', req.body);
+      
       const { 
         customer_name, 
         customer_phone, 
@@ -207,6 +213,15 @@ async function handleOrders(req, res, pathSegments, query) {
         delivery_distance_km,
         delivery_fee = 0
       } = req.body;
+
+      // Validate required fields
+      if (!customer_name || !customer_phone || !restaurant_id || !items || !Array.isArray(items)) {
+        console.error('Missing required fields:', { customer_name, customer_phone, restaurant_id, items });
+        return res.status(400).json({ 
+          error: 'Missing required fields',
+          details: 'customer_name, customer_phone, restaurant_id, and items are required'
+        });
+      }
 
       // Generate order token
       const crypto = await import('crypto');
@@ -551,5 +566,59 @@ async function handleMenuCategories(req, res, pathSegments, query) {
     }
   }
 
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Admin handler - for dashboard data
+async function handleAdmin(req, res, query) {
+  if (req.method === 'GET') {
+    try {
+      const { type, restaurant_id, limit = 10 } = query;
+      
+      if (type === 'orders') {
+        const { data: orders, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('restaurant_id', restaurant_id)
+          .order('created_at', { ascending: false })
+          .limit(parseInt(limit));
+        
+        if (error) {
+          console.error('Admin orders error:', error);
+          return res.json([]);
+        }
+        
+        return res.json(orders || []);
+      }
+      
+      if (type === 'reservations') {
+        const { data: reservations, error } = await supabase
+          .from('reservations')
+          .select('*')
+          .eq('restaurant_id', restaurant_id)
+          .order('date_time', { ascending: false })
+          .limit(parseInt(limit));
+        
+        if (error) {
+          console.error('Admin reservations error:', error);
+          return res.json([]);
+        }
+        
+        return res.json(reservations || []);
+      }
+      
+      // Default admin data
+      return res.json({
+        orders: [],
+        reservations: [],
+        message: 'Admin endpoint working'
+      });
+      
+    } catch (error) {
+      console.error('Admin handler error:', error);
+      return res.json([]);
+    }
+  }
+  
   return res.status(405).json({ error: 'Method not allowed' });
 }
