@@ -162,25 +162,41 @@ export default async function handler(req, res) {
     // Handle order status update (/api/orders/{id}/status) - check this first
     if (pathSegments[0] === 'orders' && pathSegments[2] === 'status' && req.method === 'PUT') {
       const orderId = pathSegments[1];
-      const { status } = req.body;
+      const { status, estimated_preparation_time } = req.body;
+      
+      console.log('Order status update request:', { orderId, status, estimated_preparation_time, pathSegments });
+      
+      if (!orderId || orderId === 'undefined' || isNaN(parseInt(orderId))) {
+        return res.status(400).json({ error: 'Invalid order ID' });
+      }
+      
+      if (!status) {
+        return res.status(400).json({ error: 'Status is required' });
+      }
       
       try {
+        const updateData = { status };
+        if (estimated_preparation_time !== undefined) {
+          updateData.estimated_preparation_time = estimated_preparation_time;
+        }
+        
         const { data: order, error } = await supabase
           .from('orders')
-          .update({ status })
-          .eq('id', orderId)
+          .update(updateData)
+          .eq('id', parseInt(orderId))
           .select()
           .single();
         
         if (error) {
           console.error('Order status update error:', error);
-          return res.status(500).json({ error: 'Failed to update order status' });
+          return res.status(500).json({ error: 'Failed to update order status', details: error.message });
         }
         
+        console.log('Order status updated successfully:', order);
         return res.json({ success: true, order });
       } catch (error) {
         console.error('Order status update exception:', error);
-        return res.status(500).json({ error: 'Failed to update order status' });
+        return res.status(500).json({ error: 'Failed to update order status', details: error.message });
       }
     }
 
@@ -614,6 +630,20 @@ async function handleAuth(req, res, pathSegments) {
         success: false,
         error: 'Invalid credentials'
       });
+    }
+  }
+
+  if (pathSegments[1] === 'logout') {
+    if (req.method === 'POST') {
+      // Simple logout - just return success (token invalidation would be handled client-side)
+      return res.json({
+        success: true,
+        message: 'Logged out successfully'
+      });
+    } else {
+      // Return 405 with allowed methods
+      res.setHeader('Allow', 'POST');
+      return res.status(405).json({ error: 'Method not allowed. Only POST is supported for logout.' });
     }
   }
 

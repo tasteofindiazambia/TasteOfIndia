@@ -26,19 +26,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin" replace />;
+    // Determine login page based on current route
+    const isStaffRoute = window.location.pathname.startsWith('/staff');
+    return <Navigate to={isStaffRoute ? "/staff" : "/admin"} replace />;
   }
 
   // Role-based access control
   if (requireOwnerAccess && !isOwner()) {
     // Workers trying to access owner-only features → redirect to staff
-    return <Navigate to="/staff" replace />;
+    return <Navigate to="/staff/dashboard" replace />;
   }
 
   if (requiredRole && user?.role !== requiredRole) {
     // Redirect based on user role
     if (isWorker()) {
-      return <Navigate to="/staff" replace />;
+      return <Navigate to="/staff/dashboard" replace />;
     } else {
       return <Navigate to="/admin/dashboard" replace />;
     }

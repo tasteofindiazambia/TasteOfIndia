@@ -10,17 +10,32 @@ class ApiService {
 
   // Get JWT token from localStorage
   getAuthToken(): string | null {
-    return localStorage.getItem('jwtToken');
+    try {
+      return localStorage.getItem('jwtToken');
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      return null;
+    }
   }
 
   // Set JWT token in localStorage
   setAuthToken(token: string): void {
-    localStorage.setItem('jwtToken', token);
+    try {
+      localStorage.setItem('jwtToken', token);
+      console.log('Auth token stored successfully');
+    } catch (error) {
+      console.error('Error storing auth token:', error);
+    }
   }
 
   // Remove JWT token from localStorage
   removeAuthToken(): void {
-    localStorage.removeItem('jwtToken');
+    try {
+      localStorage.removeItem('jwtToken');
+      console.log('Auth token removed successfully');
+    } catch (error) {
+      console.error('Error removing auth token:', error);
+    }
   }
 
   // Make authenticated request

@@ -43,29 +43,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if user is already authenticated - only for admin routes
+    // Check if user is already authenticated for both admin and staff routes
     const checkAuth = async () => {
       try {
         const token = apiService.getAuthToken();
-        if (token && window.location.pathname.startsWith('/admin')) {
-          // Verify the token with the backend only for admin routes
+        const isAdminRoute = window.location.pathname.startsWith('/admin');
+        const isStaffRoute = window.location.pathname.startsWith('/staff');
+        
+        if (token && (isAdminRoute || isStaffRoute)) {
+          // Verify the token with the backend for authenticated routes
           const response = await apiService.verifyToken();
           if (response.success && response.user) {
             setIsAuthenticated(true);
             setUser(response.user);
+            console.log('Auth restored on page refresh:', response.user);
+            
+            // Check if user is on wrong route and redirect accordingly
+            if (isAdminRoute && response.user.role === 'worker') {
+              console.log('Worker user on admin route, redirecting to staff');
+              window.location.href = '/staff/dashboard';
+              return;
+            } else if (isStaffRoute && (response.user.role === 'admin' || response.user.role === 'owner')) {
+              console.log('Admin/Owner user on staff route, redirecting to admin');
+              window.location.href = '/admin/dashboard';
+              return;
+            }
           } else {
             // Token is invalid, remove it
             apiService.removeAuthToken();
             setIsAuthenticated(false);
             setUser(null);
+            console.log('Invalid token on page refresh, redirecting to login');
           }
-        } else if (token && !window.location.pathname.startsWith('/admin')) {
-          // For non-admin routes, just check if token exists without verification
+        } else if (token && !isAdminRoute && !isStaffRoute) {
+          // For non-authenticated routes, just check if token exists
           setIsAuthenticated(!!token);
         }
       } catch (error) {
-        // Only log auth errors for admin routes to avoid console spam
-        if (window.location.pathname.startsWith('/admin')) {
+        // Log auth errors for authenticated routes
+        if (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/staff')) {
           console.error('Auth check failed:', error);
         }
         apiService.removeAuthToken();
@@ -92,6 +108,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success && response.user) {
         setIsAuthenticated(true);
         setUser(response.user);
+        
+        // Log successful authentication
+        console.log('User authenticated successfully:', response.user);
+        
         return { success: true, user: response.user };
       } else {
         setError(response.message || 'Login failed');
@@ -115,6 +135,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
       setUser(null);
       setError(null);
+      // Force redirect to login page based on current route
+      const isStaffRoute = window.location.pathname.startsWith('/staff');
+      window.location.href = isStaffRoute ? '/staff' : '/admin';
     }
   };
 
