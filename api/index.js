@@ -531,8 +531,9 @@ async function handleReservations(req, res, query) {
         status: 'pending'
       });
       
-      // Try to insert reservation with admin client to bypass RLS
-      const { data: reservation, error } = await supabaseAdmin
+      // Try to insert reservation with a workaround for RLS
+      // First, let's try to insert without the .single() method
+      const { data: reservations, error } = await supabase
         .from('reservations')
         .insert({
           reservation_number: reservationNumber,
@@ -546,13 +547,14 @@ async function handleReservations(req, res, query) {
           special_requests,
           status: 'pending'
         })
-        .select()
-        .single();
+        .select();
       
       if (error) {
         console.error('Supabase reservation error:', error);
         return res.status(500).json({ error: 'Database error: ' + error.message });
       }
+      
+      const reservation = reservations && reservations.length > 0 ? reservations[0] : null;
       
       console.log('Reservation created successfully:', reservation);
       return res.status(201).json(reservation);
