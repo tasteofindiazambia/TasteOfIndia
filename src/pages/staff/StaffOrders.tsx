@@ -289,7 +289,7 @@ const StaffOrders: React.FC = () => {
                       {selectedOrder.status}
                     </span>
                   </p>
-                  <p><strong>Total:</strong> K{selectedOrder.total?.toFixed(2)}</p>
+                  <p><strong>Total:</strong> {formatMoney((selectedOrder as any).total_amount ?? selectedOrder.total)}</p>
                   <p><strong>Order Time:</strong> {new Date(selectedOrder.created_at || '').toLocaleString()}</p>
                 </div>
                 
