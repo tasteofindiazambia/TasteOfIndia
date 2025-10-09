@@ -5,7 +5,8 @@ import {
   CheckCircle,
   Package,
   Search,
-  Filter
+  Filter,
+  MessageSquare
 } from 'lucide-react';
 import { orderService } from '../../services/orderService';
 import { Order } from '../../types';
@@ -100,6 +101,16 @@ const StaffOrders: React.FC = () => {
     const num = Number(n || 0);
     if (Number.isNaN(num)) return 'K0';
     return `K${num.toFixed(0)}`; // match app style (no decimals)
+  };
+
+  const buildWhatsAppLink = (phone: string | undefined, orderNumber?: string) => {
+    if (!phone) return '#';
+    // Strip non-digits and keep leading + if present
+    const cleaned = phone.replace(/[^\d+]/g, '');
+    const text = orderNumber 
+      ? `Hello, this is Taste of India staff regarding order ${orderNumber}.`
+      : `Hello, this is Taste of India staff regarding your order.`;
+    return `https://wa.me/${encodeURIComponent(cleaned)}?text=${encodeURIComponent(text)}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -233,6 +244,15 @@ const StaffOrders: React.FC = () => {
                     </span>
                     
                     <div className="flex items-center space-x-2">
+                      <a
+                        href={buildWhatsAppLink(order.customer_phone, (order as any).order_number)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center px-3 py-1.5 border border-green-500 text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
+                      >
+                        <MessageSquare className="w-4 h-4 mr-1" />
+                        Message
+                      </a>
                       <button
                         onClick={() => setSelectedOrder(order)}
                         className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
@@ -283,7 +303,17 @@ const StaffOrders: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <p><strong>Customer:</strong> {selectedOrder.customer_name}</p>
-                  <p><strong>Phone:</strong> {selectedOrder.customer_phone}</p>
+                  <p className="flex items-center gap-2">
+                    <span><strong>Phone:</strong> {selectedOrder.customer_phone}</span>
+                    <a
+                      href={buildWhatsAppLink(selectedOrder.customer_phone, selectedOrder.order_number)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-2 py-1 border border-green-500 text-xs font-medium rounded text-green-700 bg-white hover:bg-green-50"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-1" /> Message customer
+                    </a>
+                  </p>
                   <p><strong>Status:</strong> 
                     <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(selectedOrder.status)}`}>
                       {selectedOrder.status}
