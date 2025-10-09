@@ -77,6 +77,7 @@ export interface Order {
   items: CartItem[] | string; // Can be array or JSON string
   total: number;
   total_amount?: number; // Backend field name
+  order_number?: string;
   status: 'received' | 'preparing' | 'ready' | 'completed';
   restaurant_id: number;
   created_at: string;

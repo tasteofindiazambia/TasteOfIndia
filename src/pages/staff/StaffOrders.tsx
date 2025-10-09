@@ -11,11 +11,11 @@ import { orderService } from '../../services/orderService';
 import { Order } from '../../types';
 
 const StaffOrders: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -23,7 +23,7 @@ const StaffOrders: React.FC = () => {
         setLoading(true);
         const fetchedOrders = await orderService.getOrders();
         // Filter out any invalid orders
-        const validOrders = (fetchedOrders || []).filter(order => order && order.id);
+        const validOrders = (fetchedOrders || []).filter((order: any) => order && order.id);
         setOrders(validOrders);
       } catch (error) {
         console.error('Error fetching orders:', error);
@@ -45,10 +45,10 @@ const StaffOrders: React.FC = () => {
       
       await orderService.updateOrderStatus({ 
         orderId, 
-        status: newStatus as Order['status'] 
+        status: newStatus as any
       });
       
-      setOrders(orders.map(order => 
+      setOrders(orders.map((order: any) => 
         order.id === orderId ? { ...order, status: newStatus } : order
       ));
       if (selectedOrder?.id === orderId) {
@@ -94,6 +94,12 @@ const StaffOrders: React.FC = () => {
     });
     const more = items.length > 3 ? ` +${items.length - 3} more` : '';
     return parts.join(', ') + more;
+  };
+
+  const formatMoney = (n: number | string | undefined): string => {
+    const num = Number(n || 0);
+    if (Number.isNaN(num)) return 'K0';
+    return `K${num.toFixed(0)}`; // match app style (no decimals)
   };
 
   const getStatusColor = (status: string) => {
@@ -207,7 +213,7 @@ const StaffOrders: React.FC = () => {
                           Customer: {order.customer_name || 'N/A'}
                         </p>
                         <p className="text-sm text-gray-600">
-                          Total: K{(order.total || (order as any).total_amount || 0).toFixed(2)}
+                          Total: {formatMoney((order as any).total_amount || order.total)}
                         </p>
                         {buildItemsSummary(order) && (
                           <p className="text-xs text-gray-500 truncate">
@@ -294,12 +300,21 @@ const StaffOrders: React.FC = () => {
                       {getOrderItems(selectedOrder).map((item: any, index: number) => {
                         const name = item.menu_item_name || item.name || 'Unknown Item';
                         const qty = item.quantity || 1;
-                        const unit = item.unit_price ?? item.price ?? 0;
-                        const line = (qty * unit).toFixed(2);
+                        // Prefer total_price/qty for accurate unit when item is per-gram
+                        const computedUnit = item.total_price && qty ? (Number(item.total_price) / qty) : undefined;
+                        const unit = computedUnit ?? item.unit_price ?? item.price ?? 0;
+                        const line = (qty * Number(unit));
                         return (
-                          <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                            <span>{name}</span>
-                            <span>Qty: {qty} × K{Number(unit).toFixed(2)} = K{line}</span>
+                          <div key={index} className="p-2 bg-gray-50 rounded">
+                            <div className="flex justify-between items-center">
+                              <span>{name}</span>
+                              <span>Qty: {qty} × {formatMoney(unit)} = {formatMoney(line)}</span>
+                            </div>
+                            {(item.special_instructions || item.note) && (
+                              <div className="text-xs text-gray-500 mt-1">
+                                Note: {item.special_instructions || item.note}
+                              </div>
+                            )}
                           </div>
                         );
                       })}
