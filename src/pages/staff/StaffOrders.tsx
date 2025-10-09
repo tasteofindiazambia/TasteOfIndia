@@ -71,6 +71,31 @@ const StaffOrders: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Helpers to render item details coming from API (or fallback)
+  const getOrderItems = (order: Order): any[] => {
+    const raw = (order as any).items;
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw as any[];
+    try {
+      const parsed = JSON.parse(raw as unknown as string);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const buildItemsSummary = (order: Order): string => {
+    const items = getOrderItems(order);
+    if (!items.length) return "";
+    const parts = items.slice(0, 3).map((it: any) => {
+      const name = it.menu_item_name || it.name || 'Item';
+      const qty = it.quantity || 1;
+      return `${name} × ${qty}`;
+    });
+    const more = items.length > 3 ? ` +${items.length - 3} more` : '';
+    return parts.join(', ') + more;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
@@ -182,8 +207,13 @@ const StaffOrders: React.FC = () => {
                           Customer: {order.customer_name || 'N/A'}
                         </p>
                         <p className="text-sm text-gray-600">
-                          Total: K{order.total?.toFixed(2) || '0.00'}
+                          Total: K{(order.total || (order as any).total_amount || 0).toFixed(2)}
                         </p>
+                        {buildItemsSummary(order) && (
+                          <p className="text-xs text-gray-500 truncate">
+                            {buildItemsSummary(order)}
+                          </p>
+                        )}
                         <p className="text-xs text-gray-500">
                           {new Date(order.created_at || '').toLocaleString()}
                         </p>
@@ -257,17 +287,40 @@ const StaffOrders: React.FC = () => {
                   <p><strong>Order Time:</strong> {new Date(selectedOrder.created_at || '').toLocaleString()}</p>
                 </div>
                 
-                {selectedOrder.items && selectedOrder.items.length > 0 && (
+                {getOrderItems(selectedOrder).length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-2">Order Items:</h4>
                     <div className="space-y-2">
-                      {selectedOrder.items.map((item, index) => (
-                        <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                          <span>{item.menu_item_name || 'Unknown Item'}</span>
-                          <span>Qty: {item.quantity} × K{item.price?.toFixed(2)} = K{((item.quantity || 0) * (item.price || 0)).toFixed(2)}</span>
-                        </div>
-                      ))}
+                      {getOrderItems(selectedOrder).map((item: any, index: number) => {
+                        const name = item.menu_item_name || item.name || 'Unknown Item';
+                        const qty = item.quantity || 1;
+                        const unit = item.unit_price ?? item.price ?? 0;
+                        const line = (qty * unit).toFixed(2);
+                        return (
+                          <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span>{name}</span>
+                            <span>Qty: {qty} × K{Number(unit).toFixed(2)} = K{line}</span>
+                          </div>
+                        );
+                      })}
                     </div>
+                  </div>
+                )}
+
+                {/* Delivery details */}
+                {(selectedOrder as any).order_type === 'delivery' && (
+                  <div className="pt-2 border-t">
+                    <h4 className="font-semibold mb-2">Delivery</h4>
+                    <p><strong>Address:</strong> {(selectedOrder as any).delivery_address || '—'}</p>
+                    <p><strong>Distance:</strong> {(selectedOrder as any).delivery_distance_km ? `${(selectedOrder as any).delivery_distance_km} km` : '—'}</p>
+                    <p><strong>Fee:</strong> K{((selectedOrder as any).delivery_fee || 0).toFixed(2)}</p>
+                  </div>
+                )}
+
+                {(selectedOrder as any).special_instructions && (
+                  <div className="pt-2 border-t">
+                    <h4 className="font-semibold mb-2">Special Instructions</h4>
+                    <p className="text-sm text-gray-700">{(selectedOrder as any).special_instructions}</p>
                   </div>
                 )}
               </div>
