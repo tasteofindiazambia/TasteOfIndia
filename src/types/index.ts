@@ -6,6 +6,13 @@ export interface Restaurant {
   phone: string;
   hours: string;
   image?: string;
+  // Delivery/location fields (present in API/DB)
+  latitude?: number;
+  longitude?: number;
+  delivery_fee_per_km?: number;
+  delivery_time_minutes?: number;
+  min_delivery_order?: number;
+  max_delivery_radius_km?: number;
 }
 
 // Menu Types

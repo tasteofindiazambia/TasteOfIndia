@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Phone, User, MessageSquare } from 'lucide-react';
@@ -25,7 +25,8 @@ const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orderType, setOrderType] = useState<'pickup' | 'delivery'>('pickup');
+  // Deprecated local state; using react-hook-form watch instead
+  const [orderType] = useState<'pickup' | 'delivery'>('pickup');
   const [deliverySettings, setDeliverySettings] = useState({
     delivery_fee_per_km: 10,
     delivery_time_minutes: 30,
@@ -38,6 +39,40 @@ const CheckoutPage: React.FC = () => {
   const [distance, setDistance] = useState<number>(0);
   const [calculatedDeliveryFee, setCalculatedDeliveryFee] = useState<number>(0);
   const [locationLoading, setLocationLoading] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+  const [addressPinned, setAddressPinned] = useState(false);
+  const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const deliveryAddressRef = useRef<HTMLTextAreaElement | null>(null);
+  const googleAutocompleteRef = useRef<any>(null);
+  const mapsApiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_KEY as string | undefined;
+  
+  // Generic geocode with multi-provider fallback (free, no key)
+  const geocodeAddress = async (text: string): Promise<{ lat: number; lng: number } | null> => {
+    const q = encodeURIComponent(text);
+    const providers = [
+      `https://geocode.maps.co/search?q=${q}`, // OSM mirror
+      `https://photon.komoot.io/api/?q=${q}`,   // Photon (Komoot)
+      `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=0&limit=1&q=${q}`
+    ];
+    for (const url of providers) {
+      try {
+        const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+        const data = await res.json();
+        // Normalize result
+        if (Array.isArray(data) && data.length > 0 && data[0].lat && data[0].lon) {
+          return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        }
+        if (data && data.features && data.features.length > 0) {
+          const f = data.features[0];
+          const [lng, lat] = f.geometry?.coordinates || [];
+          if (!isNaN(lat) && !isNaN(lng)) return { lat, lng };
+        }
+      } catch (_e) {
+        // try next provider
+      }
+    }
+    return null;
+  };
 
   const {
     register,
@@ -53,6 +88,11 @@ const CheckoutPage: React.FC = () => {
 
   const watchOrderType = watch('order_type');
   const watchRestaurantId = watch('restaurant_id');
+  const watchDeliveryAddress = watch('delivery_address');
+  // Register for delivery_address with a combined ref so RHF still tracks value
+  const addressRegister = register('delivery_address', {
+    required: watchOrderType === 'delivery' ? 'Delivery address is required' : false
+  });
 
   // Haversine formula to calculate distance between two coordinates
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -66,6 +106,123 @@ const CheckoutPage: React.FC = () => {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c; // Distance in km
   };
+
+  // Load Google Maps JS API (Places)
+  const loadGoogleMaps = async (): Promise<any> => {
+    if ((window as any).google?.maps?.places) return (window as any).google;
+    if (!mapsApiKey) return null;
+    return new Promise((resolve, reject) => {
+      const existing = document.getElementById('google-maps-js');
+      if (existing) {
+        (window as any).initMap = () => resolve((window as any).google);
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = 'google-maps-js';
+      script.async = true;
+      script.defer = true;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${mapsApiKey}&libraries=places&callback=initMap`;
+      (window as any).initMap = () => resolve((window as any).google);
+      script.onerror = reject as any;
+      document.body.appendChild(script);
+    });
+  };
+
+  // Attach Google Places Autocomplete to Delivery Address when Delivery is selected
+  useEffect(() => {
+    let listener: any;
+    (async () => {
+      if (watchOrderType !== 'delivery') return;
+      if (!deliveryAddressRef.current) return;
+      const google = await loadGoogleMaps();
+      if (!google) return; // no key configured
+      if (googleAutocompleteRef.current) return; // already attached
+      const options: any = {
+        componentRestrictions: { country: 'zm' },
+        fields: ['geometry', 'formatted_address', 'name'],
+        types: ['geocode']
+      };
+      const ac = new google.maps.places.Autocomplete(deliveryAddressRef.current, options);
+      googleAutocompleteRef.current = ac;
+      listener = ac.addListener('place_changed', () => {
+        const place = ac.getPlace();
+        const loc = place?.geometry?.location;
+        if (loc) {
+          const coords = { lat: loc.lat(), lng: loc.lng() };
+          setUserLocation(coords);
+          setAddressPinned(true);
+          setGeocoding(false);
+          setGeocodeError(null);
+          if (place.formatted_address && deliveryAddressRef.current) {
+            deliveryAddressRef.current.value = place.formatted_address;
+          }
+          const currentRestaurant = restaurants.find(r => r.id === watchRestaurantId);
+          if (currentRestaurant?.latitude && currentRestaurant?.longitude) {
+            const dist = calculateDistance(
+              coords.lat, coords.lng,
+              currentRestaurant.latitude, currentRestaurant.longitude
+            );
+            setDistance(Math.round(dist * 10) / 10);
+            setCalculatedDeliveryFee(Math.ceil(dist * (currentRestaurant.delivery_fee_per_km || 10)));
+          }
+        } else {
+          setAddressPinned(false);
+          setGeocodeError('Could not read this place. Please pick a suggestion.');
+        }
+      });
+    })();
+
+    return () => {
+      try {
+        if (listener) listener.remove();
+      } catch { /* ignore */ }
+    };
+  }, [watchOrderType, restaurants, watchRestaurantId]);
+
+  // Geocode manually entered address and auto-pin
+  useEffect(() => {
+    if (watchOrderType !== 'delivery') {
+      setAddressPinned(false);
+      return;
+    }
+    const text = (watchDeliveryAddress || '').trim();
+    if (text.length < 6) {
+      setAddressPinned(false);
+      setGeocodeError(null);
+      return;
+    }
+
+    setGeocoding(true);
+    const handle = setTimeout(async () => {
+      try {
+        const coords = await geocodeAddress(text);
+        if (coords) {
+          setUserLocation(coords);
+          setAddressPinned(true);
+          setGeocodeError(null);
+          const currentRestaurant = restaurants.find(r => r.id === watchRestaurantId);
+          if (currentRestaurant?.latitude && currentRestaurant?.longitude) {
+            const dist = calculateDistance(
+              coords.lat, coords.lng,
+              currentRestaurant.latitude, currentRestaurant.longitude
+            );
+            setDistance(Math.round(dist * 10) / 10);
+            setCalculatedDeliveryFee(Math.ceil(dist * (currentRestaurant.delivery_fee_per_km || 10)));
+          }
+        } else {
+          setAddressPinned(false);
+          setGeocodeError('Address not found. Try a nearby landmark.');
+        }
+      } catch (_e) {
+        setAddressPinned(false);
+        setGeocodeError('Network error while looking up the address.');
+      } finally {
+        setGeocoding(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(handle);
+  }, [watchDeliveryAddress, watchOrderType, restaurants, watchRestaurantId]);
 
   // Get user's current location
   const getCurrentLocation = () => {
@@ -90,7 +247,7 @@ const CheckoutPage: React.FC = () => {
             setCalculatedDeliveryFee(Math.ceil(dist * deliverySettings.delivery_fee_per_km));
           }
         },
-        (error) => {
+        (_err) => {
           setLocationLoading(false);
           showNotification({
             type: 'error',
@@ -170,11 +327,15 @@ const CheckoutPage: React.FC = () => {
       
       const totalWithDelivery = getCartTotal() + deliveryFee;
 
-      // Check minimum delivery order
-      if (data.order_type === 'delivery' && getCartTotal() < deliverySettings.min_delivery_order) {
-        setError(`Minimum delivery order is K${deliverySettings.min_delivery_order.toFixed(0)}`);
-        setLoading(false);
-        return;
+      // Soft minimum delivery order check (warn but do not block)
+      if (
+        data.order_type === 'delivery' &&
+        (getCartTotal() + deliveryFee) < (deliverySettings.min_delivery_order || 0)
+      ) {
+        showNotification({
+          type: 'info',
+          message: `Below minimum delivery order of K${(deliverySettings.min_delivery_order || 0).toFixed(0)}. Proceeding anyway.`
+        });
       }
 
       const orderData = {
@@ -236,7 +397,7 @@ Thank you for your order! 🙏
         type: 'success',
         message: 'Order placed successfully! WhatsApp message sent.'
       });
-      navigate(`/order-confirmation/${order.order_token || order.id}`);
+      navigate(`/order-confirmation/${(order as any).order_token || order.id}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to place order';
       setError(errorMessage);
@@ -366,15 +527,25 @@ Thank you for your order! 🙏
                   </label>
                   <textarea
                     id="delivery_address"
-                    {...register('delivery_address', { 
-                      required: watchOrderType === 'delivery' ? 'Delivery address is required' : false 
-                    })}
+                    {...addressRegister}
                     rows={3}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
                     placeholder="Enter your full delivery address including landmarks..."
+                    ref={(el) => { deliveryAddressRef.current = el; addressRegister.ref(el); }}
                   />
                   {errors.delivery_address && (
                     <p className="text-red-600 text-sm mt-1">{errors.delivery_address.message}</p>
+                  )}
+                  {watchOrderType === 'delivery' && (
+                    <div className="text-xs mt-2">
+                      {geocoding && <span className="text-gray-600">Pinning address…</span>}
+                      {!geocoding && addressPinned && userLocation && (
+                        <span className="text-green-700">✅ Address pinned: {userLocation.lat.toFixed(5)}, {userLocation.lng.toFixed(5)}</span>
+                      )}
+                      {!geocoding && !addressPinned && watchDeliveryAddress && (
+                        <span className="text-gray-500">{geocodeError || 'Tip: add road, area and city for better accuracy.'}</span>
+                      )}
+                    </div>
                   )}
                 </div>
 
@@ -385,24 +556,56 @@ Thank you for your order! 🙏
                   </label>
                   
                   <div className="space-y-3">
-                    <button
-                      type="button"
-                      onClick={getCurrentLocation}
-                      disabled={locationLoading}
-                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center space-x-2"
-                    >
-                      {locationLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Getting Location...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>📱</span>
-                          <span>Use My Current Location</span>
-                        </>
-                      )}
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={getCurrentLocation}
+                        disabled={locationLoading}
+                        className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+                      >
+                        {locationLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Getting Location...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📱</span>
+                            <span>Use My Current Location</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const addr = (deliveryAddressRef.current?.value || '').trim();
+                          if (!addr) return;
+                          setGeocoding(true);
+                          const coords = await geocodeAddress(addr);
+                          if (coords) {
+                            setUserLocation(coords);
+                            setAddressPinned(true);
+                            setGeocodeError(null);
+                            const currentRestaurant = restaurants.find(r => r.id === watchRestaurantId);
+                            if (currentRestaurant?.latitude && currentRestaurant?.longitude) {
+                              const dist = calculateDistance(
+                                coords.lat, coords.lng,
+                                currentRestaurant.latitude, currentRestaurant.longitude
+                              );
+                              setDistance(Math.round(dist * 10) / 10);
+                              setCalculatedDeliveryFee(Math.ceil(dist * (currentRestaurant.delivery_fee_per_km || 10)));
+                            }
+                          } else {
+                            setAddressPinned(false);
+                            setGeocodeError('Address not found. Try a nearby landmark.');
+                          }
+                          setGeocoding(false);
+                        }}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50"
+                      >
+                        Pin Address
+                      </button>
+                    </div>
 
                     {userLocation && (
                       <div className="bg-green-50 border border-green-200 rounded-lg p-3">
@@ -517,7 +720,7 @@ Thank you for your order! 🙏
                   <li>• Order will be prepared and delivered</li>
                   <li>• Estimated preparation time: 15-20 minutes</li>
                   <li>• Estimated delivery time: {deliverySettings.delivery_time_minutes} minutes total</li>
-                  <li>• Delivery fee: K{deliverySettings.delivery_fee}</li>
+                  <li>• Delivery fee: K{calculatedDeliveryFee || '—'}</li>
                   {deliverySettings.min_delivery_order > 0 && (
                     <li>• Minimum order: K{deliverySettings.min_delivery_order.toFixed(0)}</li>
                   )}
