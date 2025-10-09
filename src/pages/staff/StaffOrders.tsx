@@ -103,6 +103,19 @@ const StaffOrders: React.FC = () => {
     return `K${num.toFixed(0)}`; // match app style (no decimals)
   };
 
+  const computeOrderTotal = (order: any): number => {
+    const apiTotal = Number(order.total_amount ?? order.total);
+    if (!Number.isNaN(apiTotal) && apiTotal > 0) return apiTotal;
+    const items = getOrderItems(order);
+    const itemsSum = items.reduce((sum: number, it: any) => {
+      const qty = Number(it.quantity || 1);
+      const unit = it.total_price && qty ? Number(it.total_price) / qty : Number(it.unit_price ?? it.price ?? 0);
+      return sum + qty * (Number.isNaN(unit) ? 0 : unit);
+    }, 0);
+    const fee = Number(order.delivery_fee || 0);
+    return itemsSum + (Number.isNaN(fee) ? 0 : fee);
+  };
+
   const buildWhatsAppLink = (phone: string | undefined, orderNumber?: string) => {
     if (!phone) return '#';
     // Strip non-digits and keep leading + if present
@@ -224,7 +237,7 @@ const StaffOrders: React.FC = () => {
                           Customer: {order.customer_name || 'N/A'}
                         </p>
                         <p className="text-sm text-gray-600">
-                          Total: {formatMoney((order as any).total_amount || order.total)}
+                          Total: {formatMoney(computeOrderTotal(order))}
                         </p>
                         {buildItemsSummary(order) && (
                           <p className="text-xs text-gray-500 truncate">
@@ -319,7 +332,7 @@ const StaffOrders: React.FC = () => {
                       {selectedOrder.status}
                     </span>
                   </p>
-                  <p><strong>Total:</strong> {formatMoney((selectedOrder as any).total_amount ?? selectedOrder.total)}</p>
+                  <p><strong>Total:</strong> {formatMoney(computeOrderTotal(selectedOrder))}</p>
                   <p><strong>Order Time:</strong> {new Date(selectedOrder.created_at || '').toLocaleString()}</p>
                 </div>
                 
