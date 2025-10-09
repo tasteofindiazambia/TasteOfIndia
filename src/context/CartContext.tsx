@@ -67,7 +67,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const unit = Number(item.price) || 0; // product unit price
+      const pack = Number((item as any).menuItem?.packaging_price || 0);
+      return total + (unit + pack) * (item.quantity || 0);
+    }, 0);
   };
 
   const getCartItemCount = () => {
