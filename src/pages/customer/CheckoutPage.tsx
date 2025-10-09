@@ -295,16 +295,25 @@ const CheckoutPage: React.FC = () => {
       setError(null);
 
       // Transform cart items to match backend expectations
-      const transformedItems = cartItems.map(item => ({
-        menu_item_id: item.menuItem.id,
-        quantity: item.quantity,
-        grams: item.grams,
-        unit_price: item.grams ? item.menuItem.price : item.price / item.quantity, // Per gram or per unit price
-        total_price: item.price, // Already calculated total price from cart
-        special_instructions: item.grams 
-          ? `${item.grams}g per package - ${item.specialInstructions || ''}`.trim()
-          : item.specialInstructions || ''
-      }));
+      const transformedItems = cartItems.map(item => {
+        const baseUnit = item.grams ? item.menuItem.price : (item.price / item.quantity);
+        const packagingPerUnit = Number(item.menuItem.packaging_price || 0);
+        const linePackaging = packagingPerUnit * item.quantity;
+        const baseLine = Number(item.price);
+        const totalWithPackaging = baseLine + linePackaging;
+
+        return {
+          menu_item_id: item.menuItem.id,
+          quantity: item.quantity,
+          grams: item.grams,
+          unit_price: baseUnit, // product unit price
+          total_price: totalWithPackaging, // include packaging
+          packaging_fee: linePackaging, // optional, for transparency
+          special_instructions: item.grams 
+            ? `${item.grams}g per package - ${item.specialInstructions || ''}`.trim()
+            : item.specialInstructions || ''
+        };
+      });
 
       // Calculate delivery fee if applicable
       let deliveryFee = 0;
