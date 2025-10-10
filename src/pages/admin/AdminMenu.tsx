@@ -186,14 +186,18 @@ const AdminMenu: React.FC = () => {
     try {
       let result: any;
       if (modalMode === 'create') {
+        // Remove availability_status field as it's not a database column
+        const { availability_status, ...cleanItemData } = itemData;
         // Ensure restaurant_id
-        const payload = { ...itemData, restaurant_id: selectedRestaurant?.id };
+        const payload = { ...cleanItemData, restaurant_id: selectedRestaurant?.id };
         console.log('🔄 [AdminMenu] Creating item with payload:', payload);
         result = await apiService.createMenuItem(payload);
         console.log('🔄 [AdminMenu] createMenuItem response:', result);
       } else {
-        console.log('🔄 [AdminMenu] Updating item with id:', editingItem?.id, 'data:', itemData);
-        result = await apiService.updateMenuItem(editingItem?.id as number, itemData);
+        // Remove availability_status field as it's not a database column
+        const { availability_status, ...cleanItemData } = itemData;
+        console.log('🔄 [AdminMenu] Updating item with id:', editingItem?.id, 'data:', cleanItemData);
+        result = await apiService.updateMenuItem(editingItem?.id as number, cleanItemData);
         console.log('🔄 [AdminMenu] updateMenuItem response:', result);
       }
 
