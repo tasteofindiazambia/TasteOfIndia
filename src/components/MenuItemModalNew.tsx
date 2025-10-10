@@ -190,8 +190,8 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
         featured: formData.featured ? 1 : 0,
         is_vegetarian: formData.is_vegetarian ? 1 : 0,
         is_vegan: formData.is_vegan ? 1 : 0,
-        is_gluten_free: formData.is_gluten_free ? 1 : 0,
-        availability_status: formData.available ? 1 : 0
+        is_gluten_free: formData.is_gluten_free ? 1 : 0
+        // Note: availability_status is not a database column, removed
       };
       
       console.log('🔄 [MenuItemModal] Submitting data:', submitData);
