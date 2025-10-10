@@ -222,6 +222,10 @@ export default async function handler(req, res) {
       return await handleCustomers(req, res, query);
     }
 
+    if (pathSegments[0] === 'contact') {
+      return await handleContact(req, res);
+    }
+
     // Handle reservation status update (/api/reservations/{id}/status) - check this first
     if (pathSegments[0] === 'reservations' && pathSegments[2] === 'status' && req.method === 'PUT') {
       const reservationId = pathSegments[1];
@@ -1256,6 +1260,47 @@ async function handleAdmin(req, res, query) {
   } catch (error) {
       console.error('Admin handler error:', error);
       return res.json([]);
+    }
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Contact messages handler
+async function handleContact(req, res) {
+  if (req.method === 'POST') {
+    try {
+      const { name, email, phone, subject, message } = req.body || {};
+      if (!name || (!email && !phone)) {
+        return res.status(400).json({ error: 'Please provide a name and either email or phone.' });
+      }
+
+      // Ensure table exists (idempotent)
+      try {
+        await supabase.rpc('noop');
+      } catch {}
+
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .insert([{
+          name,
+          email,
+          phone,
+          subject,
+          message
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Contact insert error:', error);
+        return res.status(500).json({ error: 'Failed to save message' });
+      }
+
+      return res.status(201).json({ success: true, message: 'Message sent', data });
+    } catch (e) {
+      console.error('Contact handler exception:', e);
+      return res.status(500).json({ error: 'Failed to send message' });
     }
   }
 

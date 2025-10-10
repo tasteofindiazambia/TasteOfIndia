@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, User, Send } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
-import { customerService } from '../services/customerService';
+import apiService from '../services/api';
 
 const ContactForm: React.FC = () => {
   const { showNotification } = useNotification();
@@ -26,12 +26,16 @@ const ContactForm: React.FC = () => {
 
     setLoading(true);
     try {
-      // Save customer data
-      await customerService.createCustomer({
-        name: formData.name,
-        email: formData.email || undefined,
-        phone: formData.phone || undefined,
-        source: 'contact_form'
+      // Save contact message to backend (Supabase)
+      await apiService.request('/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          subject: 'Contact Form',
+          message: formData.message || ''
+        })
       });
 
       showNotification({
