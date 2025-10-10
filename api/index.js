@@ -1280,7 +1280,7 @@ async function handleContact(req, res) {
         await supabase.rpc('noop');
       } catch {}
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('contact_messages')
         .insert([{
           name,
