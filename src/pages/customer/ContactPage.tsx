@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Clock, Phone, Mail, Send, MessageCircle } from 'lucide-react';
+import apiService from '../../services/api';
 
 const ContactPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -19,18 +20,40 @@ const ContactPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+
+    // Basic validation: require name and at least one contact method
+    if (!formData.name || (!formData.email && !formData.phone)) {
+      alert('Please provide your name and either email or phone.');
+      return;
+    }
+
+    try {
+      await apiService.request('/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email || undefined,
+          phone: formData.phone || undefined,
+          subject: formData.subject || 'Contact Form',
+          message: formData.message || ''
+        })
+      });
+
+      alert('Thank you! We received your message.');
+
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (err) {
+      console.error('Contact submit failed:', err);
+      alert('Failed to submit your information. Please try again.');
+    }
   };
 
   return (
