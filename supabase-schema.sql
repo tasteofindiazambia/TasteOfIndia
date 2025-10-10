@@ -243,6 +243,16 @@ CREATE POLICY "Allow public read order_items" ON order_items FOR SELECT USING (t
 CREATE POLICY "Allow admin read all orders" ON orders FOR SELECT USING (true);
 CREATE POLICY "Allow admin update orders" ON orders FOR UPDATE USING (true);
 
+-- Menu items admin policies
+CREATE POLICY "Allow admin insert menu_items" ON menu_items FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow admin update menu_items" ON menu_items FOR UPDATE USING (true);
+CREATE POLICY "Allow admin delete menu_items" ON menu_items FOR DELETE USING (true);
+
+-- Categories admin policies  
+CREATE POLICY "Allow admin insert categories" ON categories FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow admin update categories" ON categories FOR UPDATE USING (true);
+CREATE POLICY "Allow admin delete categories" ON categories FOR DELETE USING (true);
+
 -- Note: Custom functions can be added later if needed
 -- For now, we'll use direct SQL queries in the application code
 
