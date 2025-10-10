@@ -107,19 +107,10 @@ const AdminMenu: React.FC = () => {
       
       const newAvailability = !item.available;
       
-      // Update in database
-      const response = await fetch(`https://taste-of-india-es8m05ywg-raeskaas-projects.vercel.app/api/menu/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: itemId,
-          available: newAvailability
-        }),
-      });
+      // Update via same-origin API to avoid CORS
+      const updated = await apiService.updateMenuItem(itemId, { available: newAvailability });
 
-      if (response.ok) {
+      if (updated) {
         // Update local state
         setMenuItems(prev => prev.map(menuItem => 
           menuItem.id === itemId ? { ...menuItem, available: newAvailability } : menuItem
@@ -129,8 +120,6 @@ const AdminMenu: React.FC = () => {
           type: 'success',
           message: `Item ${newAvailability ? 'enabled' : 'disabled'} successfully`
         });
-      } else {
-        throw new Error('Failed to update availability');
       }
     } catch (error) {
       console.error('Error toggling availability:', error);
@@ -177,22 +166,16 @@ const AdminMenu: React.FC = () => {
 
   const handleMenuItemSave = async (itemData: MenuItem) => {
     try {
-      const url = modalMode === 'create' 
-        ? `https://taste-of-india-es8m05ywg-raeskaas-projects.vercel.app/api/menu/${selectedRestaurant?.id}`
-        : `https://taste-of-india-es8m05ywg-raeskaas-projects.vercel.app/api/menu/update`;
-      
-      const method = modalMode === 'create' ? 'POST' : 'PUT';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(itemData),
-      });
+      let result: any;
+      if (modalMode === 'create') {
+        // Ensure restaurant_id
+        const payload = { ...itemData, restaurant_id: selectedRestaurant?.id };
+        result = await apiService.createMenuItem(payload);
+      } else {
+        result = await apiService.updateMenuItem(editingItem?.id as number, itemData);
+      }
 
-      if (response.ok) {
-        const result = await response.json();
+      if (result) {
         
         if (modalMode === 'create') {
           setMenuItems(prev => [result, ...prev]);
