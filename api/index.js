@@ -558,43 +558,87 @@ async function handleMenu(req, res, pathSegments, query) {
 // Admin Menu CRUD (create/update/toggle availability)
 async function handleAdminMenu(req, res, pathSegments, query) {
   try {
+    // Use regular supabase client (works with RLS policies)
+    const client = supabase;
+    
     // POST /api/admin/menu -> create item
     if (req.method === 'POST') {
       const payload = req.body || {};
-      const { data, error } = await supabaseAdmin
+      console.log('Creating menu item:', payload);
+      
+      const { data, error } = await client
         .from('menu_items')
         .insert([payload])
-        .select()
+        .select(`
+          *,
+          categories (id, name, description),
+          restaurants (id, name)
+        `)
         .single();
+        
       if (error) {
         console.error('Admin menu create error:', error);
-        return res.status(500).json({ error: 'Failed to create menu item' });
+        return res.status(500).json({ error: 'Failed to create menu item', details: error.message });
       }
-      return res.status(201).json(data);
+      
+      // Format response to match frontend expectations
+      const formattedItem = {
+        ...data,
+        category_name: data.categories?.name,
+        restaurant_name: data.restaurants?.name,
+        availability_status: data.available ? 1 : 0
+      };
+      
+      return res.status(201).json({ 
+        success: true, 
+        item: formattedItem, 
+        message: 'Menu item created successfully' 
+      });
     }
 
     // PUT /api/admin/menu/:id -> update item
     if (req.method === 'PUT') {
       const id = pathSegments[2];
       if (!id) return res.status(400).json({ error: 'Missing menu item id' });
+      
       const payload = req.body || {};
-      const { data, error } = await supabaseAdmin
+      console.log('Updating menu item:', id, payload);
+      
+      const { data, error } = await client
         .from('menu_items')
         .update(payload)
         .eq('id', parseInt(id))
-        .select()
+        .select(`
+          *,
+          categories (id, name, description),
+          restaurants (id, name)
+        `)
         .single();
+        
       if (error) {
         console.error('Admin menu update error:', error);
-        return res.status(500).json({ error: 'Failed to update menu item' });
+        return res.status(500).json({ error: 'Failed to update menu item', details: error.message });
       }
-      return res.json(data);
+      
+      // Format response to match frontend expectations
+      const formattedItem = {
+        ...data,
+        category_name: data.categories?.name,
+        restaurant_name: data.restaurants?.name,
+        availability_status: data.available ? 1 : 0
+      };
+      
+      return res.json({ 
+        success: true, 
+        item: formattedItem, 
+        message: 'Menu item updated successfully' 
+      });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (e) {
     console.error('Admin menu exception:', e);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', details: e.message });
   }
 }
 
