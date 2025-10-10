@@ -10,6 +10,7 @@ const ContactForm: React.FC = () => {
     name: '',
     email: '',
     phone: '',
+    subject: '',
     message: ''
   });
 
@@ -33,7 +34,7 @@ const ContactForm: React.FC = () => {
           name: formData.name,
           email: formData.email || undefined,
           phone: formData.phone || undefined,
-          subject: 'Contact Form',
+          subject: formData.subject || 'Contact Form',
           message: formData.message || ''
         })
       });
@@ -48,6 +49,7 @@ const ContactForm: React.FC = () => {
         name: '',
         email: '',
         phone: '',
+        subject: '',
         message: ''
       });
     } catch (error) {
@@ -129,6 +131,21 @@ const ContactForm: React.FC = () => {
               placeholder="+260 97 123 4567"
             />
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+            Subject
+          </label>
+          <input
+            type="text"
+            id="subject"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon focus:border-transparent"
+            placeholder="Reservation, Catering, Feedback..."
+          />
         </div>
 
         <div>
