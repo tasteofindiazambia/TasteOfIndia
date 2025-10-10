@@ -57,6 +57,8 @@ export interface MenuItem {
   packaging_price?: number;
   listing_preference?: string;
   pricing_type?: 'fixed' | 'per_gram';
+  // Legacy field for compatibility
+  availability_status?: number;
 }
 
 // Order Types

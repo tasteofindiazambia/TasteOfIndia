@@ -34,6 +34,9 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
     is_vegetarian: false,
     is_vegan: false,
     is_gluten_free: false,
+    dynamic_pricing: false,
+    packaging_price: 0,
+    listing_preference: 'mid',
     availability_status: 1
   });
 
@@ -63,6 +66,9 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
         is_vegetarian: item.is_vegetarian || false,
         is_vegan: item.is_vegan || false,
         is_gluten_free: item.is_gluten_free || false,
+        dynamic_pricing: item.dynamic_pricing || false,
+        packaging_price: item.packaging_price || 0,
+        listing_preference: item.listing_preference || 'mid',
         availability_status: item.availability_status || 1
       });
     } else {
@@ -83,6 +89,9 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
         is_vegetarian: false,
         is_vegan: false,
         is_gluten_free: false,
+        dynamic_pricing: false,
+        packaging_price: 0,
+        listing_preference: 'mid',
         availability_status: 1
       });
     }
@@ -212,6 +221,9 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
       is_vegetarian: false,
       is_vegan: false,
       is_gluten_free: false,
+      dynamic_pricing: false,
+      packaging_price: 0,
+      listing_preference: 'mid',
       availability_status: 1
     });
   };
@@ -400,6 +412,73 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
                   </label>
                 </div>
               </div>
+
+              {/* Pricing & Packaging Information */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-4">Pricing & Packaging</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Base Price (Kwacha) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.price}
+                      onChange={(e) => handleInputChange('price', parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Packaging Price (Kwacha)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.packaging_price}
+                      onChange={(e) => handleInputChange('packaging_price', parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Listing Preference
+                    </label>
+                    <select
+                      value={formData.listing_preference}
+                      onChange={(e) => handleInputChange('listing_preference', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                    >
+                      <option value="high">High Priority</option>
+                      <option value="mid">Medium Priority</option>
+                      <option value="low">Low Priority</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.dynamic_pricing}
+                      onChange={(e) => handleInputChange('dynamic_pricing', e.target.checked)}
+                      className="w-4 h-4 text-deep-maroon border-gray-300 rounded focus:ring-deep-maroon"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Enable Dynamic Pricing (per-gram pricing for sweets)</span>
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    When enabled, customers can order by weight (e.g., 100g, 250g) instead of fixed portions
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Right Column - Image & Settings */}
@@ -490,14 +569,27 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-gray-900">{formData.name || 'Item Name'}</h4>
-                    <span className="font-bold text-deep-maroon">
-                      K{formData.price.toFixed(0)}
-                    </span>
+                    <div className="text-right">
+                      <span className="font-bold text-deep-maroon">
+                        K{formData.price.toFixed(2)}
+                      </span>
+                      {formData.packaging_price > 0 && (
+                        <div className="text-xs text-gray-500">
+                          +K{formData.packaging_price.toFixed(2)} packaging
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
                   <p className="text-sm text-gray-600">
                     {formData.description || 'Item description...'}
                   </p>
+                  
+                  {formData.dynamic_pricing && (
+                    <div className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                      Per-gram pricing available
+                    </div>
+                  )}
                   
                   {formData.tags && (
                     <div className="flex flex-wrap gap-1">
@@ -527,6 +619,10 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <span>{formData.spice_level} • {formData.pieces_count} pieces</span>
                     <span>{formData.preparation_time} min</span>
+                  </div>
+                  
+                  <div className="text-xs text-gray-500">
+                    Priority: {formData.listing_preference}
                   </div>
                 </div>
               </div>
