@@ -296,17 +296,19 @@ const CheckoutPage: React.FC = () => {
 
       // Transform cart items to match backend expectations
       const transformedItems = cartItems.map(item => {
-        const baseUnit = item.grams ? item.menuItem.price : (item.price / item.quantity);
+        // Base unit price (per unit or per gram)
+        const baseUnit = item.grams ? Number(item.menuItem.price) : Number(item.menuItem.price);
         const packagingPerUnit = Number(item.menuItem.packaging_price || 0);
-        const linePackaging = packagingPerUnit * item.quantity;
-        const baseLine = Number(item.price);
+        const linePackaging = packagingPerUnit * (item.quantity || 0);
+        const baseLineUnit = item.grams ? (baseUnit * Number(item.grams || 0)) : baseUnit;
+        const baseLine = baseLineUnit * (item.quantity || 0);
         const totalWithPackaging = baseLine + linePackaging;
 
         return {
           menu_item_id: item.menuItem.id,
           quantity: item.quantity,
           grams: item.grams,
-          unit_price: baseUnit, // product unit price
+          unit_price: item.grams ? baseUnit : baseUnit, // per gram or per unit
           total_price: totalWithPackaging, // include packaging
           packaging_fee: linePackaging, // optional, for transparency
           special_instructions: item.grams 
