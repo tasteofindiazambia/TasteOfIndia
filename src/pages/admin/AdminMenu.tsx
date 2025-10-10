@@ -205,16 +205,35 @@ const AdminMenu: React.FC = () => {
         console.log('✅ [AdminMenu] Save successful, updating UI');
         
         if (modalMode === 'create') {
-          setMenuItems(prev => [result, ...prev]);
+          // Handle API response structure - result might be wrapped in an object
+          const newItem = result.item || result;
+          console.log('🔄 [AdminMenu] Using new item:', newItem);
+          
+          setMenuItems(prev => [newItem, ...prev]);
           showNotification({
             type: 'success',
             message: 'Menu item created successfully!'
           });
           console.log('✅ [AdminMenu] Item added to list and notification shown');
         } else {
-          setMenuItems(prev => prev.map(item => 
-            item.id === editingItem?.id ? result : item
-          ));
+          // Handle API response structure - result might be wrapped in an object
+          const updatedItem = result.item || result;
+          console.log('🔄 [AdminMenu] Using updated item:', updatedItem);
+          
+          setMenuItems(prev => prev.map(item => {
+            if (item.id === editingItem?.id) {
+              // Ensure numeric fields are properly handled
+              const mergedItem = { 
+                ...item, 
+                ...updatedItem,
+                price: Number(updatedItem.price) || item.price,
+                packaging_price: Number(updatedItem.packaging_price) || item.packaging_price || 0
+              };
+              console.log('🔄 [AdminMenu] Merged item:', mergedItem);
+              return mergedItem;
+            }
+            return item;
+          }));
           showNotification({
             type: 'success',
             message: 'Menu item updated successfully!'
