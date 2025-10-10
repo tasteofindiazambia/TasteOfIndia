@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, Upload, Download, Search, Filter } from 'lucide-react';
 import { MenuItem, Category } from '../../types';
 import { restaurantService } from '../../services/restaurantService';
+import { apiService } from '../../services/api';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
 import CSVUploadModal from '../../components/CSVUploadModal';
