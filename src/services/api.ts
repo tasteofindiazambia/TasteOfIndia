@@ -1,5 +1,9 @@
 // API service for connecting frontend to backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Use same-origin '/api' in the browser (works on production with Vercel rewrites),
+// and fall back to localhost for server-side tools or local scripts.
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' ? '/api' : 'http://localhost:3001/api');
 
 class ApiService {
   private baseURL: string;
