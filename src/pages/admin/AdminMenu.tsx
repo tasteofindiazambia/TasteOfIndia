@@ -101,16 +101,25 @@ const AdminMenu: React.FC = () => {
   };
 
   const toggleAvailability = async (itemId: number) => {
+    console.log('🔄 [AdminMenu] toggleAvailability called for itemId:', itemId);
     try {
       const item = menuItems.find(i => i.id === itemId);
-      if (!item) return;
+      console.log('🔄 [AdminMenu] Found item:', item);
+      if (!item) {
+        console.error('❌ [AdminMenu] Item not found for id:', itemId);
+        return;
+      }
       
       const newAvailability = !item.available;
+      console.log('🔄 [AdminMenu] Toggling availability from', item.available, 'to', newAvailability);
       
       // Update via same-origin API to avoid CORS
+      console.log('🔄 [AdminMenu] Calling apiService.updateMenuItem...');
       const updated = await apiService.updateMenuItem(itemId, { available: newAvailability });
+      console.log('🔄 [AdminMenu] apiService.updateMenuItem response:', updated);
 
       if (updated) {
+        console.log('✅ [AdminMenu] Update successful, updating local state');
         // Update local state
         setMenuItems(prev => prev.map(menuItem => 
           menuItem.id === itemId ? { ...menuItem, available: newAvailability } : menuItem
@@ -120,9 +129,12 @@ const AdminMenu: React.FC = () => {
           type: 'success',
           message: `Item ${newAvailability ? 'enabled' : 'disabled'} successfully`
         });
+        console.log('✅ [AdminMenu] Local state updated and notification shown');
+      } else {
+        console.error('❌ [AdminMenu] Update failed - no response from apiService');
       }
     } catch (error) {
-      console.error('Error toggling availability:', error);
+      console.error('❌ [AdminMenu] Error toggling availability:', error);
       showNotification({
         type: 'error',
         message: 'Failed to update item availability'
@@ -165,17 +177,27 @@ const AdminMenu: React.FC = () => {
   };
 
   const handleMenuItemSave = async (itemData: MenuItem) => {
+    console.log('🔄 [AdminMenu] handleMenuItemSave called with:', itemData);
+    console.log('🔄 [AdminMenu] modalMode:', modalMode);
+    console.log('🔄 [AdminMenu] editingItem:', editingItem);
+    console.log('🔄 [AdminMenu] selectedRestaurant:', selectedRestaurant);
+    
     try {
       let result: any;
       if (modalMode === 'create') {
         // Ensure restaurant_id
         const payload = { ...itemData, restaurant_id: selectedRestaurant?.id };
+        console.log('🔄 [AdminMenu] Creating item with payload:', payload);
         result = await apiService.createMenuItem(payload);
+        console.log('🔄 [AdminMenu] createMenuItem response:', result);
       } else {
+        console.log('🔄 [AdminMenu] Updating item with id:', editingItem?.id, 'data:', itemData);
         result = await apiService.updateMenuItem(editingItem?.id as number, itemData);
+        console.log('🔄 [AdminMenu] updateMenuItem response:', result);
       }
 
       if (result) {
+        console.log('✅ [AdminMenu] Save successful, updating UI');
         
         if (modalMode === 'create') {
           setMenuItems(prev => [result, ...prev]);
@@ -183,6 +205,7 @@ const AdminMenu: React.FC = () => {
             type: 'success',
             message: 'Menu item created successfully!'
           });
+          console.log('✅ [AdminMenu] Item added to list and notification shown');
         } else {
           setMenuItems(prev => prev.map(item => 
             item.id === editingItem?.id ? result : item
@@ -191,14 +214,18 @@ const AdminMenu: React.FC = () => {
             type: 'success',
             message: 'Menu item updated successfully!'
           });
+          console.log('✅ [AdminMenu] Item updated in list and notification shown');
         }
         
         setShowMenuItemModal(false);
         setEditingItem(null);
+        console.log('✅ [AdminMenu] Modal closed and editing item cleared');
       } else {
+        console.error('❌ [AdminMenu] Save failed - no result from apiService');
         throw new Error('Failed to save menu item');
       }
     } catch (error) {
+      console.error('❌ [AdminMenu] Error in handleMenuItemSave:', error);
       showNotification({
         type: 'error',
         message: `Failed to ${modalMode === 'create' ? 'create' : 'update'} menu item`

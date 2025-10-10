@@ -172,7 +172,14 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    console.log('🔄 [MenuItemModal] handleSubmit called');
+    console.log('🔄 [MenuItemModal] Current formData:', formData);
+    console.log('🔄 [MenuItemModal] Mode:', mode);
+    
+    if (!validateForm()) {
+      console.log('❌ [MenuItemModal] Form validation failed');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -187,13 +194,19 @@ const MenuItemModalNew: React.FC<MenuItemModalProps> = ({
         availability_status: formData.available ? 1 : 0
       };
       
+      console.log('🔄 [MenuItemModal] Submitting data:', submitData);
+      console.log('🔄 [MenuItemModal] Calling onSave...');
+      
       onSave(submitData);
+      
+      console.log('✅ [MenuItemModal] onSave called successfully');
       showNotification({
         type: 'success',
         message: `Menu item ${mode === 'create' ? 'created' : 'updated'} successfully!`
       });
       onClose();
     } catch (error) {
+      console.error('❌ [MenuItemModal] Error in handleSubmit:', error);
       showNotification({
         type: 'error',
         message: `Failed to ${mode === 'create' ? 'create' : 'update'} menu item`

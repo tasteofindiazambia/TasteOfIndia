@@ -47,6 +47,10 @@ class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     const token = this.getAuthToken();
     
+    console.log('🔄 [apiService] Making request to:', url);
+    console.log('🔄 [apiService] Request options:', options);
+    console.log('🔄 [apiService] Auth token present:', !!token);
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -56,11 +60,16 @@ class ApiService {
       ...options,
     };
 
+    console.log('🔄 [apiService] Request config:', config);
+
     try {
       const response = await fetch(url, config);
+      console.log('🔄 [apiService] Response status:', response.status);
+      console.log('🔄 [apiService] Response headers:', Object.fromEntries(response.headers.entries()));
       
       // Handle authentication errors
       if (response.status === 401) {
+        console.error('❌ [apiService] Authentication failed (401)');
         this.removeAuthToken();
         // Redirect to login if needed
         if (window.location.pathname.startsWith('/admin')) {
@@ -70,13 +79,17 @@ class ApiService {
       }
       
       if (!response.ok) {
+        console.error('❌ [apiService] Response not OK:', response.status, response.statusText);
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ [apiService] Error response body:', errorData);
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
       
-      return await response.json();
+      const responseData = await response.json();
+      console.log('✅ [apiService] Response data:', responseData);
+      return responseData;
     } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error);
+      console.error(`❌ [apiService] API request failed for ${endpoint}:`, error);
       throw error;
     }
   }
@@ -164,17 +177,23 @@ class ApiService {
   }
 
   async createMenuItem(menuItem: any) {
-    return this.request('/admin/menu', {
+    console.log('🔄 [apiService] createMenuItem called with:', menuItem);
+    const result = await this.request('/admin/menu', {
       method: 'POST',
       body: JSON.stringify(menuItem),
     });
+    console.log('🔄 [apiService] createMenuItem response:', result);
+    return result;
   }
 
   async updateMenuItem(id: number, menuItem: any) {
-    return this.request(`/admin/menu/${id}`, {
+    console.log('🔄 [apiService] updateMenuItem called with id:', id, 'data:', menuItem);
+    const result = await this.request(`/admin/menu/${id}`, {
       method: 'PUT',
       body: JSON.stringify(menuItem),
     });
+    console.log('🔄 [apiService] updateMenuItem response:', result);
+    return result;
   }
 
   async deleteMenuItem(id: number) {
