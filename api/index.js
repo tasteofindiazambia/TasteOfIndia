@@ -271,6 +271,10 @@ export default async function handler(req, res) {
     }
 
     if (pathSegments[0] === 'admin') {
+      // Admin sub-routes
+      if (pathSegments[1] === 'menu') {
+        return await handleAdminMenu(req, res, pathSegments, query);
+      }
       return await handleAdmin(req, res, query);
     }
 
@@ -549,6 +553,49 @@ async function handleMenu(req, res, pathSegments, query) {
   }
   
   return res.status(405).json({ error: 'Method not allowed' });
+}
+
+// Admin Menu CRUD (create/update/toggle availability)
+async function handleAdminMenu(req, res, pathSegments, query) {
+  try {
+    // POST /api/admin/menu -> create item
+    if (req.method === 'POST') {
+      const payload = req.body || {};
+      const { data, error } = await supabaseAdmin
+        .from('menu_items')
+        .insert([payload])
+        .select()
+        .single();
+      if (error) {
+        console.error('Admin menu create error:', error);
+        return res.status(500).json({ error: 'Failed to create menu item' });
+      }
+      return res.status(201).json(data);
+    }
+
+    // PUT /api/admin/menu/:id -> update item
+    if (req.method === 'PUT') {
+      const id = pathSegments[2];
+      if (!id) return res.status(400).json({ error: 'Missing menu item id' });
+      const payload = req.body || {};
+      const { data, error } = await supabaseAdmin
+        .from('menu_items')
+        .update(payload)
+        .eq('id', parseInt(id))
+        .select()
+        .single();
+      if (error) {
+        console.error('Admin menu update error:', error);
+        return res.status(500).json({ error: 'Failed to update menu item' });
+      }
+      return res.json(data);
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (e) {
+    console.error('Admin menu exception:', e);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 // Auth handler (Enhanced with database support + backward compatibility)
