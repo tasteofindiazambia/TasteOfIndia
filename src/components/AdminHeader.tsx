@@ -1,13 +1,11 @@
 import React from 'react';
 import { Bell, Settings, User, Menu } from 'lucide-react';
-import { useRestaurant } from '../context/RestaurantContext';
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
 }
 
 const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
-  const { restaurants, selectedRestaurant, setSelectedRestaurant } = useRestaurant();
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -23,24 +21,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
             Restaurant Management
           </h1>
           
-          {/* Location Switcher */}
-          <select
-            id="admin_location_switcher"
-            name="admin_location_switcher"
-            value={selectedRestaurant?.id || ''}
-            onChange={(e) => {
-              const restaurant = restaurants.find(r => r.id === parseInt(e.target.value));
-              setSelectedRestaurant(restaurant || null);
-            }}
-            className="hidden md:block px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-          >
-            <option value="">All Locations</option>
-            {restaurants.map((restaurant) => (
-              <option key={restaurant.id} value={restaurant.id}>
-                {restaurant.name}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="flex items-center space-x-4">

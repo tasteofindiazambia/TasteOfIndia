@@ -216,6 +216,17 @@ const OrderConfirmationPage: React.FC = () => {
               </div>
             )}
             
+            {order.order_type === 'pickup' && (
+              <div className="ml-8">
+                <p className="text-sm text-gray-600">Pickup Location:</p>
+                <p className="text-gray-700">
+                  {order.restaurant_id === 1 ? 'Taste of India - Manda Hill' : 
+                   order.restaurant_id === 2 ? 'Taste of India - Parirenyetwa' : 
+                   `Restaurant ${order.restaurant_id}`}
+                </p>
+              </div>
+            )}
+            
             <div className="ml-8 space-y-1">
               <div className="flex items-center text-sm">
                 <Clock className="w-4 h-4 mr-2 text-gray-400" />

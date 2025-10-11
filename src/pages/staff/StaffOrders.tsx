@@ -446,6 +446,18 @@ const StaffOrders: React.FC = () => {
                   </div>
                 )}
 
+                {/* Pickup details */}
+                {(selectedOrder as any).order_type === 'pickup' && (
+                  <div className="pt-2 border-t">
+                    <h4 className="font-semibold mb-2">Pickup</h4>
+                    <p><strong>Location:</strong> {
+                      (selectedOrder as any).restaurant_id === 1 ? 'Taste of India - Manda Hill' : 
+                      (selectedOrder as any).restaurant_id === 2 ? 'Taste of India - Parirenyetwa' : 
+                      `Restaurant ${(selectedOrder as any).restaurant_id}`
+                    }</p>
+                  </div>
+                )}
+
                 {(selectedOrder as any).special_instructions && (
                   <div className="pt-2 border-t">
                     <h4 className="font-semibold mb-2">Special Instructions</h4>

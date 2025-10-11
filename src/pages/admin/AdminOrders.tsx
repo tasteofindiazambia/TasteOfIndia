@@ -43,16 +43,16 @@ const AdminOrders: React.FC = () => {
       setLoading(true);
       let ordersData: Order[];
       
-      console.log('🔄 [AdminOrders] Fetching orders for restaurant:', selectedRestaurant?.id, 'filter:', filter);
+      console.log('🔄 [AdminOrders] Fetching all orders, filter:', filter);
       
       if (filter === 'all') {
-        ordersData = await orderService.getOrders(selectedRestaurant?.id);
+        ordersData = await orderService.getOrders(); // Fetch all orders from all restaurants
       } else {
-        ordersData = await orderService.getOrdersByStatus(filter, selectedRestaurant?.id);
+        ordersData = await orderService.getOrdersByStatus(filter); // Fetch all orders with this status
       }
       
-      console.log(`📋 [AdminOrders] Fetched ${ordersData.length} orders for restaurant ${selectedRestaurant?.id}`);
-      console.log('📋 [AdminOrders] Order IDs:', ordersData.map(o => ({ id: o.id, order_number: o.order_number, status: o.status })));
+      console.log(`📋 [AdminOrders] Fetched ${ordersData.length} orders from all restaurants`);
+      console.log('📋 [AdminOrders] Order IDs:', ordersData.map(o => ({ id: o.id, order_number: o.order_number, status: o.status, restaurant_id: o.restaurant_id })));
       setOrders(ordersData);
     } catch (error) {
       console.error('❌ [AdminOrders] Failed to fetch orders:', error);
@@ -63,14 +63,12 @@ const AdminOrders: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedRestaurant?.id, filter, showNotification]);
+  }, [filter, showNotification]);
 
-  // Only fetch orders on initial load and when restaurant/filter changes
+  // Fetch orders on initial load and when filter changes
   useEffect(() => {
-    if (selectedRestaurant?.id) {
-      fetchOrders();
-    }
-  }, [selectedRestaurant?.id, filter]); // Removed fetchOrders dependency to prevent infinite loops
+    fetchOrders();
+  }, [filter]); // Removed fetchOrders dependency to prevent infinite loops
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {
     try {
@@ -432,6 +430,9 @@ const AdminOrders: React.FC = () => {
                       Customer
                     </th>
                     <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                      Restaurant
+                    </th>
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                       Items
                     </th>
                     <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -440,7 +441,7 @@ const AdminOrders: React.FC = () => {
                     <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
                       Time
                     </th>
                     <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -465,6 +466,11 @@ const AdminOrders: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden md:table-cell">
+                          <div className="text-sm text-gray-900">
+                            {order.restaurant_id === 1 ? 'Manda Hill' : order.restaurant_id === 2 ? 'Parirenyetwa' : `Restaurant ${order.restaurant_id}`}
+                          </div>
+                        </td>
+                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden lg:table-cell">
                           <div className="text-sm text-gray-900">{orderItems.length} items</div>
                         </td>
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
@@ -476,7 +482,7 @@ const AdminOrders: React.FC = () => {
                             <span className="ml-1 hidden sm:inline">{order.status}</span>
                           </span>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
+                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-500 hidden xl:table-cell">
                           {formatDate(order.created_at)}
                         </td>
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-sm font-medium">
@@ -731,6 +737,18 @@ const AdminOrders: React.FC = () => {
                         {selectedOrder?.order_type === 'delivery' ? '🚚 Delivery' : '🏪 Pickup'}
                       </span>
                     </div>
+                    
+                    {/* Pickup Location */}
+                    {selectedOrder?.order_type === 'pickup' && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Pickup Location:</span>
+                        <span className="text-gray-900">
+                          {selectedOrder.restaurant_id === 1 ? 'Taste of India - Manda Hill' : 
+                           selectedOrder.restaurant_id === 2 ? 'Taste of India - Parirenyetwa' : 
+                           `Restaurant ${selectedOrder.restaurant_id}`}
+                        </span>
+                      </div>
+                    )}
                     
                     {/* Preparation Time */}
                     <div className="flex justify-between items-center">
