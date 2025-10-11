@@ -283,16 +283,16 @@ const AdminOrders: React.FC = () => {
     <div className="flex h-full">
       {/* Main Content */}
       <div className={`flex-1 transition-all duration-300 ${showOrderSidebar ? 'lg:mr-96' : ''}`}>
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Orders Management</h1>
-              <p className="text-gray-600 mt-1">Manage and track all customer orders</p>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Orders Management</h1>
+              <p className="text-sm sm:text-base text-gray-600 mt-1">Manage and track all customer orders</p>
             </div>
             <button
               onClick={handleRefreshOrders}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-deep-maroon text-white rounded-lg hover:bg-burgundy transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-deep-maroon text-white rounded-lg hover:bg-burgundy transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               title="Refresh orders"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -300,49 +300,50 @@ const AdminOrders: React.FC = () => {
             </button>
           </div>
           
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {/* Create Order Button */}
             <button
               onClick={handleRefreshOrders}
-              className="flex items-center gap-2 px-4 py-2 border border-deep-maroon text-deep-maroon rounded-lg hover:bg-deep-maroon hover:text-white transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-deep-maroon text-deep-maroon rounded-lg hover:bg-deep-maroon hover:text-white transition-colors text-sm sm:text-base"
             >
               <RefreshCw className="w-4 h-4" />
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </button>
             <button
               onClick={() => setShowCreateOrderModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-deep-maroon text-light-cream rounded-lg hover:bg-burgundy transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-deep-maroon text-light-cream rounded-lg hover:bg-burgundy transition-colors text-sm sm:text-base"
             >
               <Plus className="w-4 h-4" />
-              Create Order
+              <span className="hidden sm:inline">Create Order</span>
+              <span className="sm:hidden">Create</span>
             </button>
             
             {/* Export Button */}
             <button
               onClick={() => handleBulkAction('export', [])}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
             >
               <Download className="w-4 h-4" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </button>
           </div>
         </div>
 
         {/* Enhanced Filter Section */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-900">Advanced Filters</h3>
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4">
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Advanced Filters</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Status Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Status</label>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
               >
                 <option value="all">All Orders</option>
                 <option value="preparing">Preparing</option>
@@ -354,22 +355,22 @@ const AdminOrders: React.FC = () => {
 
             {/* Date Range */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date From</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Date From</label>
               <input
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Date To</label>
+              <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Date To</label>
               <input
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                className="w-full px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
               />
             </div>
 
@@ -377,11 +378,11 @@ const AdminOrders: React.FC = () => {
         </div>
 
         {/* Search and Sort Controls */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <div className="flex flex-col gap-4">
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex flex-col gap-3 sm:gap-4">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 id="order_search"
@@ -389,19 +390,19 @@ const AdminOrders: React.FC = () => {
                 placeholder="Search by customer name, phone, or order ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
               />
             </div>
             
             {/* Sort */}
             <div className="relative">
-              <ArrowUpDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <ArrowUpDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <select
                 id="order_sort"
                 name="order_sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'total')}
-                className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon appearance-none bg-white"
+                className="w-full pl-9 sm:pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon appearance-none bg-white text-sm sm:text-base"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -414,37 +415,37 @@ const AdminOrders: React.FC = () => {
         {/* Orders List */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {filteredAndSortedOrders().length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>{searchQuery ? 'No orders match your search' : 'No orders found'}</p>
+            <div className="p-6 sm:p-8 text-center text-gray-500">
+              <Clock className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+              <p className="text-sm sm:text-base">{searchQuery ? 'No orders match your search' : 'No orders found'}</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Order
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Customer
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                       Restaurant
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                       Items
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Total
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
                       Time
                     </th>
-                    <th className="px-2 sm:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
@@ -454,59 +455,59 @@ const AdminOrders: React.FC = () => {
                     const orderItems = order.order_items || [];
                     return (
                       <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">#{order.id}</div>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900">#{order.id}</div>
                           <div className="text-xs text-gray-500 sm:hidden">{order.customer_name}</div>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden sm:table-cell">
-                          <div className="text-sm text-gray-900">{order.customer_name}</div>
-                          <div className="text-sm text-gray-500 flex items-center">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
+                          <div className="text-xs sm:text-sm text-gray-900">{order.customer_name}</div>
+                          <div className="text-xs sm:text-sm text-gray-500 flex items-center">
                             <Phone className="w-3 h-3 mr-1" />
                             {order.customer_phone}
                           </div>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden md:table-cell">
-                          <div className="text-sm text-gray-900">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap hidden md:table-cell">
+                          <div className="text-xs sm:text-sm text-gray-900">
                             {order.restaurant_id === 1 ? 'Manda Hill' : order.restaurant_id === 2 ? 'Parirenyetwa' : `Restaurant ${order.restaurant_id}`}
                           </div>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden lg:table-cell">
-                          <div className="text-sm text-gray-900">{orderItems.length} items</div>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap hidden lg:table-cell">
+                          <div className="text-xs sm:text-sm text-gray-900">{orderItems.length} items</div>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">K{(order.total || order.total_amount || 0).toFixed(0)}</div>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900">K{(order.total || order.total_amount || 0).toFixed(0)}</div>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-0.5 sm:px-2.5 sm:py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                             {getStatusIcon(order.status)}
                             <span className="ml-1 hidden sm:inline">{order.status}</span>
                           </span>
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-sm text-gray-500 hidden xl:table-cell">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden xl:table-cell">
                           {formatDate(order.created_at)}
                         </td>
-                        <td className="px-2 sm:px-4 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
                           <div className="flex space-x-1 sm:space-x-2">
                             <button
                               onClick={() => handleViewOrder(order)}
                               className="text-deep-maroon hover:text-deep-maroon p-1 rounded hover:bg-light-cream"
                               title="View Details"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                             <button
                               onClick={() => handlePrintOrder(order)}
                               className="text-gray-600 hover:text-gray-900 hidden sm:inline-block"
                               title="Print Order"
                             >
-                              <Printer className="w-4 h-4" />
+                              <Printer className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                             <button
                               onClick={() => window.open(`tel:${order.customer_phone}`)}
                               className="text-green-600 hover:text-green-900"
                               title="Call Customer"
                             >
-                              <Phone className="w-4 h-4" />
+                              <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                           </div>
                         </td>
