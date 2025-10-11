@@ -14,7 +14,6 @@ interface MenuItemCardProps {
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
   const [grams, setGrams] = useState(100); // Default 100g for dynamic pricing items
-  const [showQuantitySelector, setShowQuantitySelector] = useState(false);
   
   const isDynamicPricing = item.dynamic_pricing || item.pricing_type === 'per_gram';
 
@@ -42,7 +41,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
       totalPrice
     });
     
-    setShowQuantitySelector(false);
+    // Keep quantity selector visible, just reset quantities
     setQuantity(1);
     setGrams(100);
   }, [onAddToCart, item, quantity, grams, isDynamicPricing]);
@@ -104,11 +103,9 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
             {isDynamicPricing ? (
               <>
                 <span className="text-sm text-warm-gray">K{item.price.toFixed(2)}/gram</span>
-                {showQuantitySelector && (
-                  <span className="text-xl font-bold text-deep-maroon">
-                    K{calculatePrice().toFixed(0)}
-                  </span>
-                )}
+                <span className="text-xl font-bold text-deep-maroon">
+                  K{calculatePrice().toFixed(0)}
+                </span>
               </>
             ) : (
               <span className="text-2xl font-bold text-deep-maroon">
@@ -124,66 +121,57 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
           
           {item.available ? (
             <div className="flex items-center space-x-2">
-              {showQuantitySelector ? (
-                <div className="flex flex-col space-y-2">
-                  {isDynamicPricing ? (
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={decrementGrams}
-                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <input
-                        type="number"
-                        value={grams}
-                        onChange={(e) => setGrams(Math.max(50, Math.min(1000, parseInt(e.target.value) || 50)))}
-                        className="w-20 text-center text-sm border-2 border-deep-maroon/20 rounded-lg px-2 py-1 focus:border-deep-maroon focus:outline-none transition-colors"
-                        min="50"
-                        max="1000"
-                        step="50"
-                      />
-                      <button
-                        onClick={incrementGrams}
-                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                      <span className="text-xs text-gray-600 ml-1">g</span>
-                    </div>
-                  ) : (
-                    /* Regular quantity selector */
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={decrementQuantity}
-                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="font-bold w-8 text-center text-deep-maroon">{quantity}</span>
-                      <button
-                        onClick={incrementQuantity}
-                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                  <button
-                    onClick={handleAddToCart}
-                    className="btn-primary px-6 py-3 text-sm font-semibold"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              ) : (
+              <div className="flex flex-col space-y-2">
+                {isDynamicPricing ? (
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={decrementGrams}
+                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <input
+                      type="number"
+                      value={grams}
+                      onChange={(e) => setGrams(Math.max(50, Math.min(1000, parseInt(e.target.value) || 50)))}
+                      className="w-20 text-center text-sm border-2 border-deep-maroon/20 rounded-lg px-2 py-1 focus:border-deep-maroon focus:outline-none transition-colors"
+                      min="50"
+                      max="1000"
+                      step="50"
+                    />
+                    <button
+                      onClick={incrementGrams}
+                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs text-gray-600 ml-1">g</span>
+                  </div>
+                ) : (
+                  /* Regular quantity selector */
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={decrementQuantity}
+                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="font-bold w-8 text-center text-deep-maroon">{quantity}</span>
+                    <button
+                      onClick={incrementQuantity}
+                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
                 <button
-                  onClick={() => setShowQuantitySelector(true)}
-                  className="btn-primary p-3 rounded-2xl hover:scale-110 transition-all duration-200"
+                  onClick={handleAddToCart}
+                  className="btn-primary px-6 py-3 text-sm font-semibold"
                 >
-                  <Plus className="w-5 h-5" />
+                  Add to Cart
                 </button>
-              )}
+              </div>
             </div>
           ) : (
             <button
