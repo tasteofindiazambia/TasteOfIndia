@@ -22,12 +22,15 @@ const StaffOrders: React.FC = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
+        console.log('🔄 [StaffOrders] Fetching orders...');
         const fetchedOrders = await orderService.getOrders();
         // Filter out any invalid orders
         const validOrders = (fetchedOrders || []).filter((order: any) => order && order.id);
+        console.log(`📋 [StaffOrders] Fetched ${validOrders.length} orders`);
+        console.log('📋 [StaffOrders] Order IDs:', validOrders.map(o => ({ id: o.id, order_number: o.order_number, status: o.status })));
         setOrders(validOrders);
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error('❌ [StaffOrders] Error fetching orders:', error);
         setOrders([]); // Set empty array on error
       } finally {
         setLoading(false);

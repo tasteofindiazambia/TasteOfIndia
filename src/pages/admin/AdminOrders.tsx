@@ -47,16 +47,19 @@ const AdminOrders: React.FC = () => {
       setLoading(true);
       let ordersData: Order[];
       
+      console.log('🔄 [AdminOrders] Fetching orders for restaurant:', selectedRestaurant?.id, 'filter:', filter);
+      
       if (filter === 'all') {
         ordersData = await orderService.getOrders(selectedRestaurant?.id);
       } else {
         ordersData = await orderService.getOrdersByStatus(filter, selectedRestaurant?.id);
       }
       
-      console.log(`📋 Fetched ${ordersData.length} orders for restaurant ${selectedRestaurant?.id}`);
+      console.log(`📋 [AdminOrders] Fetched ${ordersData.length} orders for restaurant ${selectedRestaurant?.id}`);
+      console.log('📋 [AdminOrders] Order IDs:', ordersData.map(o => ({ id: o.id, order_number: o.order_number, status: o.status })));
       setOrders(ordersData);
     } catch (error) {
-      console.error('❌ Failed to fetch orders:', error);
+      console.error('❌ [AdminOrders] Failed to fetch orders:', error);
       showNotification({
         type: 'error',
         message: 'Failed to load orders. Please try refreshing.'
@@ -480,7 +483,7 @@ const AdminOrders: React.FC = () => {
                     return (
                       <tr key={order.id} className="hover:bg-gray-50">
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">#{order.id}</div>
+                          <div className="text-sm font-medium text-gray-900">#{order.order_number || order.id}</div>
                           <div className="text-xs text-gray-500 sm:hidden">{order.customer_name}</div>
                         </td>
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden sm:table-cell">
