@@ -128,20 +128,20 @@ const OrderConfirmationPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'received': return 'text-deep-maroon bg-light-cream';
-      case 'preparing': return 'text-burgundy bg-light-cream';
-      case 'ready': return 'text-deep-maroon bg-light-cream';
-      case 'completed': return 'text-warm-gray bg-light-cream';
-      default: return 'text-warm-gray bg-light-cream';
+      case 'preparing': return 'text-orange-800 bg-orange-100';
+      case 'ready': return 'text-green-800 bg-green-100';
+      case 'delivered': return 'text-gray-800 bg-gray-100';
+      case 'out for delivery': return 'text-blue-800 bg-blue-100';
+      default: return 'text-gray-800 bg-gray-100';
     }
   };
 
   const getStatusText = (status: string, orderType?: string) => {
     switch (status) {
-      case 'received': return 'Order Received';
       case 'preparing': return 'Preparing Your Order';
       case 'ready': return orderType === 'delivery' ? 'Ready for Delivery' : 'Ready for Pickup';
-      case 'completed': return 'Order Completed';
+      case 'delivered': return 'Order Delivered';
+      case 'out for delivery': return 'Out for Delivery';
       default: return status;
     }
   };
@@ -315,21 +315,23 @@ const OrderConfirmationPage: React.FC = () => {
           Order Status
         </h3>
         <div className="space-y-3">
-          <div className={`flex items-center ${order.status === 'received' ? 'text-deep-maroon' : 'text-gray-400'}`}>
-            <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'received' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
-            <span>Order Received</span>
-          </div>
           <div className={`flex items-center ${order.status === 'preparing' ? 'text-deep-maroon' : 'text-gray-400'}`}>
             <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'preparing' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
             <span>Preparing Your Order</span>
           </div>
           <div className={`flex items-center ${order.status === 'ready' ? 'text-deep-maroon' : 'text-gray-400'}`}>
             <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'ready' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
-            <span>Ready for Pickup</span>
+            <span>{order.order_type === 'delivery' ? 'Ready for Delivery' : 'Ready for Pickup'}</span>
           </div>
-          <div className={`flex items-center ${order.status === 'completed' ? 'text-deep-maroon' : 'text-gray-400'}`}>
-            <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'completed' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
-            <span>Order Completed</span>
+          {order.order_type === 'delivery' && (
+            <div className={`flex items-center ${order.status === 'out for delivery' ? 'text-deep-maroon' : 'text-gray-400'}`}>
+              <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'out for delivery' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
+              <span>Out for Delivery</span>
+            </div>
+          )}
+          <div className={`flex items-center ${order.status === 'delivered' ? 'text-deep-maroon' : 'text-gray-400'}`}>
+            <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'delivered' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
+            <span>Delivered</span>
           </div>
         </div>
       </div>

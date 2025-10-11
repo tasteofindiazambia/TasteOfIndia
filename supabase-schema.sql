@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS orders (
     customer_email VARCHAR(100),
     restaurant_id INTEGER NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
     total_amount DECIMAL(10,2) NOT NULL,
-    status VARCHAR(20) DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'preparing',
     order_type VARCHAR(20) DEFAULT 'pickup', -- pickup, delivery
     payment_method VARCHAR(20) DEFAULT 'cash',
     special_instructions TEXT,
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS reservations (
     restaurant_id INTEGER NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
     date_time TIMESTAMP WITH TIME ZONE NOT NULL,
     party_size INTEGER NOT NULL,
-    status VARCHAR(20) DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'preparing',
     occasion VARCHAR(100),
     table_preference VARCHAR(100),
     dietary_requirements TEXT,

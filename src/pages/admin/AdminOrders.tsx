@@ -260,20 +260,20 @@ const AdminOrders: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'received': return 'bg-light-cream text-deep-maroon';
-      case 'preparing': return 'bg-light-cream text-burgundy';
-      case 'ready': return 'bg-light-cream text-deep-maroon';
-      case 'completed': return 'bg-light-cream text-warm-gray';
-      default: return 'bg-light-cream text-warm-gray';
+      case 'preparing': return 'bg-orange-100 text-orange-800';
+      case 'ready': return 'bg-green-100 text-green-800';
+      case 'delivered': return 'bg-gray-100 text-gray-800';
+      case 'out for delivery': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'received': return <Clock className="w-4 h-4" />;
       case 'preparing': return <Clock className="w-4 h-4" />;
       case 'ready': return <CheckCircle className="w-4 h-4" />;
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
+      case 'delivered': return <CheckCircle className="w-4 h-4" />;
+      case 'out for delivery': return <Clock className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
   };
@@ -356,9 +356,10 @@ const AdminOrders: React.FC = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
               >
                 <option value="all">All Orders</option>
-                <option value="received">Received</option>
                 <option value="preparing">Preparing</option>
                 <option value="ready">Ready</option>
+                <option value="delivered">Delivered</option>
+                <option value="out for delivery">Out for Delivery</option>
                 <option value="completed">Completed</option>
               </select>
             </div>
@@ -718,7 +719,7 @@ const AdminOrders: React.FC = () => {
                 <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="space-y-2">
-                    {['received', 'preparing', 'ready', 'completed'].map((status) => (
+                    {['preparing', 'ready', 'delivered', 'out for delivery'].map((status) => (
                       <button
                         key={status}
                         onClick={() => {

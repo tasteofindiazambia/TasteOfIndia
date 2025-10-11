@@ -451,7 +451,7 @@ async function handleOrders(req, res, pathSegments, query) {
           customer_email,
           restaurant_id,
           total_amount: totalAmount,
-          status: 'pending',
+          status: 'preparing',
           order_type,
           payment_method,
           special_instructions,
