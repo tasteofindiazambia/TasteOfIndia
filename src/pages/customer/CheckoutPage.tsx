@@ -469,38 +469,38 @@ const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-40">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-8 pb-32 sm:pb-40">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">Checkout</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Order Form */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-6">Order Information</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">Order Information</h2>
           
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-3 sm:mb-4 text-sm sm:text-base">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
             {/* Customer Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Full Name *
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="text"
                   id="customer_name"
                   {...register('customer_name', { required: 'Name is required' })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
                   placeholder="Enter your full name"
                 />
               </div>
               {errors.customer_name && (
-                <p className="text-red-600 text-sm mt-1">{errors.customer_name.message}</p>
+                <p className="text-red-600 text-xs sm:text-sm mt-1">{errors.customer_name.message}</p>
               )}
             </div>
 
@@ -515,16 +515,16 @@ const CheckoutPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                    className="flex items-center px-3 py-2 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-deep-maroon focus:z-10"
+                    className="flex items-center px-2 sm:px-3 py-2 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-deep-maroon focus:z-10"
                   >
-                    <span className="text-sm font-medium">
+                    <span className="text-xs sm:text-sm font-medium">
                       {countryCodes.find(c => c.code === selectedCountryCode)?.flag} {selectedCountryCode}
                     </span>
-                    <ChevronDown className="ml-1 w-4 h-4 text-gray-500" />
+                    <ChevronDown className="ml-1 w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
                   </button>
                   
                   {isCountryDropdownOpen && (
-                    <div className="absolute top-full left-0 z-50 w-64 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <div className="absolute top-full left-0 z-50 w-56 sm:w-64 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                       {countryCodes.map((country) => (
                         <button
                           key={country.code}
@@ -533,11 +533,11 @@ const CheckoutPage: React.FC = () => {
                             setSelectedCountryCode(country.code);
                             setIsCountryDropdownOpen(false);
                           }}
-                          className="w-full flex items-center px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                          className="w-full flex items-center px-2 sm:px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                         >
-                          <span className="mr-2">{country.flag}</span>
-                          <span className="font-medium mr-2">{country.code}</span>
-                          <span className="text-sm text-gray-600">{country.country}</span>
+                          <span className="mr-2 text-sm sm:text-base">{country.flag}</span>
+                          <span className="font-medium mr-2 text-xs sm:text-sm">{country.code}</span>
+                          <span className="text-xs sm:text-sm text-gray-600">{country.country}</span>
                         </button>
                       ))}
                     </div>
@@ -546,7 +546,7 @@ const CheckoutPage: React.FC = () => {
                 
                 {/* Phone Number Input */}
                 <div className="relative flex-1">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                   <input
                     type="tel"
                     id="customer_phone"
@@ -557,13 +557,13 @@ const CheckoutPage: React.FC = () => {
                         message: 'Please enter a valid phone number (6-15 digits)'
                       }
                     })}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                    className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
                     placeholder="Enter your phone number"
                   />
                 </div>
               </div>
               {errors.customer_phone && (
-                <p className="text-red-600 text-sm mt-1">{errors.customer_phone.message}</p>
+                <p className="text-red-600 text-xs sm:text-sm mt-1">{errors.customer_phone.message}</p>
               )}
             </div>
 
@@ -575,7 +575,7 @@ const CheckoutPage: React.FC = () => {
               <select
                 id="order_type"
                 {...register('order_type', { required: 'Please select order type' })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
               >
                 <option value="pickup">🏪 Pickup (Ready in 15-20 minutes)</option>
                 <option value="delivery">
@@ -583,7 +583,7 @@ const CheckoutPage: React.FC = () => {
                 </option>
               </select>
               {errors.order_type && (
-                <p className="text-red-600 text-sm mt-1">{errors.order_type.message}</p>
+                <p className="text-red-600 text-xs sm:text-sm mt-1">{errors.order_type.message}</p>
               )}
             </div>
 
@@ -596,7 +596,7 @@ const CheckoutPage: React.FC = () => {
                 <select
                   id="restaurant_id"
                   {...register('restaurant_id', { required: 'Please select a location' })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                  className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
                 >
                   {restaurants.map((restaurant) => (
                     <option key={restaurant.id} value={restaurant.id}>
@@ -605,7 +605,7 @@ const CheckoutPage: React.FC = () => {
                   ))}
                 </select>
                 {errors.restaurant_id && (
-                  <p className="text-red-600 text-sm mt-1">{errors.restaurant_id.message}</p>
+                  <p className="text-red-600 text-xs sm:text-sm mt-1">{errors.restaurant_id.message}</p>
                 )}
               </div>
             )}
@@ -630,12 +630,12 @@ const CheckoutPage: React.FC = () => {
                     id="delivery_address"
                     {...addressRegister}
                     rows={3}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
                     placeholder="Enter your full delivery address including landmarks..."
                     ref={(el) => { deliveryAddressRef.current = el; addressRegister.ref(el); }}
                   />
                   {errors.delivery_address && (
-                    <p className="text-red-600 text-sm mt-1">{errors.delivery_address.message}</p>
+                    <p className="text-red-600 text-xs sm:text-sm mt-1">{errors.delivery_address.message}</p>
                   )}
                   {watchOrderType === 'delivery' && (
                     <div className="text-xs mt-2">
@@ -651,28 +651,30 @@ const CheckoutPage: React.FC = () => {
                 </div>
 
                 {/* Location Input */}
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="bg-gray-50 p-3 sm:p-4 rounded-lg">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     📍 Your Location (for delivery fee calculation)
                   </label>
                   
-                  <div className="space-y-3">
-                    <div className="flex gap-3">
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex gap-2 sm:gap-3">
                       <button
                         type="button"
                         onClick={getCurrentLocation}
                         disabled={locationLoading}
-                        className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+                        className="flex-1 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center space-x-1 sm:space-x-2 text-sm sm:text-base"
                       >
                         {locationLoading ? (
                           <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                            <span>Getting Location...</span>
+                            <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
+                            <span className="hidden sm:inline">Getting Location...</span>
+                            <span className="sm:hidden">Getting...</span>
                           </>
                         ) : (
                           <>
                             <span>📱</span>
-                            <span>Use My Current Location</span>
+                            <span className="hidden sm:inline">Use My Current Location</span>
+                            <span className="sm:hidden">Current Location</span>
                           </>
                         )}
                       </button>
@@ -702,24 +704,24 @@ const CheckoutPage: React.FC = () => {
                           }
                           setGeocoding(false);
                         }}
-                        className="px-4 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50"
+                        className="px-3 sm:px-4 py-2 rounded-lg border border-gray-300 text-xs sm:text-sm hover:bg-gray-50"
                       >
                         Pin Address
                       </button>
                     </div>
 
                     {userLocation && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <div className="text-sm text-green-800">
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-2 sm:p-3">
+                        <div className="text-xs sm:text-sm text-green-800">
                           ✅ Location detected: {userLocation.lat.toFixed(6)}, {userLocation.lng.toFixed(6)}
                         </div>
                         {distance > 0 && (
-                          <div className="text-sm text-green-700 mt-1">
+                          <div className="text-xs sm:text-sm text-green-700 mt-1">
                             📏 Distance: {distance}km • 💰 Delivery Fee: K{calculatedDeliveryFee}
                           </div>
                         )}
                         {distance > deliverySettings.max_delivery_radius_km && (
-                          <div className="text-sm text-red-600 mt-1">
+                          <div className="text-xs sm:text-sm text-red-600 mt-1">
                             ⚠️ Outside delivery radius ({deliverySettings.max_delivery_radius_km}km max)
                           </div>
                         )}
@@ -736,12 +738,12 @@ const CheckoutPage: React.FC = () => {
                 Special Instructions (Optional)
               </label>
               <div className="relative">
-                <MessageSquare className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                <MessageSquare className="absolute left-3 top-3 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
                 <textarea
                   id="special_instructions"
                   {...register('special_instructions')}
                   rows={3}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
                   placeholder="Any special requests or dietary restrictions..."
                 />
               </div>
@@ -751,7 +753,7 @@ const CheckoutPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-deep-maroon text-light-cream py-3 px-6 rounded-lg hover:bg-burgundy transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-deep-maroon text-light-cream py-3 px-4 sm:px-6 rounded-lg hover:bg-burgundy transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {loading ? 'Placing Order...' : 'Place Order'}
             </button>
@@ -759,24 +761,24 @@ const CheckoutPage: React.FC = () => {
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-6">Order Summary</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6">Order Summary</h2>
           
-          <div className="space-y-4 mb-6">
+          <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
             {cartItems.map((item) => (
-              <div key={item.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-3">
+              <div key={item.id} className="border border-gray-200 rounded-lg p-3 sm:p-4">
+                <div className="flex justify-between items-start mb-2 sm:mb-3">
                   <div className="flex-1">
-                    <h4 className="font-medium text-lg">{item.name}</h4>
-                    <p className="text-sm text-gray-600">
+                    <h4 className="font-medium text-base sm:text-lg">{item.name}</h4>
+                    <p className="text-xs sm:text-sm text-gray-600">
                       Qty: {item.quantity} {item.grams ? `(${item.grams}g per packet)` : 'item(s)'}
                     </p>
                   </div>
-                  <span className="font-bold text-deep-maroon text-lg">
+                  <span className="font-bold text-deep-maroon text-base sm:text-lg">
                     K{item.totalPrice.toFixed(0)}
                   </span>
                 </div>
-                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
+                <div className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-2 sm:p-3 rounded border">
                   {item.grams ? (
                     // Dynamic pricing breakdown
                     <div className="space-y-1">
@@ -807,7 +809,7 @@ const CheckoutPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="border-t pt-4 space-y-2">
+          <div className="border-t pt-3 sm:pt-4 space-y-1 sm:space-y-2">
             {/* Detailed breakdown */}
             {(() => {
               const itemsTotal = cartItems.reduce((total, item) => total + item.itemTotal, 0);
@@ -816,17 +818,17 @@ const CheckoutPage: React.FC = () => {
               
               return (
                 <>
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex justify-between items-center text-xs sm:text-sm">
                     <span className="text-gray-600">Items Total:</span>
                     <span className="text-gray-600">K{itemsTotal.toFixed(0)}</span>
                   </div>
                   {packagingTotal > 0 && (
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-xs sm:text-sm">
                       <span className="text-gray-600">Packaging:</span>
                       <span className="text-gray-600">K{packagingTotal.toFixed(0)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center font-medium">
+                  <div className="flex justify-between items-center font-medium text-sm sm:text-base">
                     <span>Subtotal:</span>
                     <span>K{subtotal.toFixed(0)}</span>
                   </div>
@@ -834,7 +836,7 @@ const CheckoutPage: React.FC = () => {
               );
             })()}
             {watchOrderType === 'delivery' && (
-              <div className="flex justify-between items-center text-sm">
+              <div className="flex justify-between items-center text-xs sm:text-sm">
                 <span>Delivery Fee:</span>
                 <span>
                   {userLocation && distance > 0 ? (
@@ -850,7 +852,7 @@ const CheckoutPage: React.FC = () => {
                 Minimum delivery order: K{deliverySettings.min_delivery_order.toFixed(0)}
               </div>
             )}
-            <div className="flex justify-between items-center text-lg font-bold border-t pt-2">
+            <div className="flex justify-between items-center text-base sm:text-lg font-bold border-t pt-2">
               <span>Total:</span>
               <span className="text-deep-maroon">
                 K{(getCartTotal() + (watchOrderType === 'delivery' ? calculatedDeliveryFee : 0)).toFixed(0)}
