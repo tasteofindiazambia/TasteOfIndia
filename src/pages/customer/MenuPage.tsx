@@ -196,31 +196,33 @@ const MenuPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <div className="flex flex-wrap gap-2 mb-4 sm:mb-6">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-3 sm:px-4 py-2 rounded-full font-medium transition-colors text-sm sm:text-base ${
-              selectedCategory === 'all'
-                ? 'bg-deep-maroon text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            All
-          </button>
-          {categories.map((category) => (
+        {/* Category Tabs - Sticky */}
+        <div className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 py-3 sm:py-4 mb-4 sm:mb-6">
+          <div className="flex flex-wrap gap-2">
             <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id.toString())}
+              onClick={() => setSelectedCategory('all')}
               className={`px-3 sm:px-4 py-2 rounded-full font-medium transition-colors text-sm sm:text-base ${
-                selectedCategory === category.id.toString()
+                selectedCategory === 'all'
                   ? 'bg-deep-maroon text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              {category.name}
+              All
             </button>
-          ))}
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id.toString())}
+                className={`px-3 sm:px-4 py-2 rounded-full font-medium transition-colors text-sm sm:text-base ${
+                  selectedCategory === category.id.toString()
+                    ? 'bg-deep-maroon text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
