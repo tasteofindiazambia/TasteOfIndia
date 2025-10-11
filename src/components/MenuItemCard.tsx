@@ -72,7 +72,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
   return (
     <div className="card-floating overflow-hidden group">
       {/* Item Image */}
-      <div className="h-64 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+      <div className="h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
         {item.image_url ? (
           <img
             src={item.image_url}
@@ -81,34 +81,34 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="text-gray-400 text-lg group-hover:scale-110 transition-transform duration-300">No Image</span>
+            <span className="text-gray-400 text-sm sm:text-lg group-hover:scale-110 transition-transform duration-300">No Image</span>
           </div>
         )}
         
         {/* Availability Badge */}
         {!item.available && (
-          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-sm">
+          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs sm:text-sm">
             Out of Stock
           </div>
         )}
       </div>
 
       {/* Item Details */}
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-charcoal mb-3 group-hover:text-deep-maroon transition-colors">{item.name}</h3>
-        <p className="text-warm-gray text-sm mb-4 line-clamp-2 leading-relaxed">{item.description}</p>
+      <div className="p-4 sm:p-6">
+        <h3 className="text-lg sm:text-xl font-bold text-charcoal mb-2 sm:mb-3 group-hover:text-deep-maroon transition-colors">{item.name}</h3>
+        <p className="text-warm-gray text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 leading-relaxed">{item.description}</p>
         
         <div className="flex items-center justify-between">
           <div className="flex flex-col">
             {isDynamicPricing ? (
               <>
-                <span className="text-sm text-warm-gray">K{item.price.toFixed(2)}/gram</span>
-                <span className="text-xl font-bold text-deep-maroon">
+                <span className="text-xs sm:text-sm text-warm-gray">K{item.price.toFixed(2)}/gram</span>
+                <span className="text-lg sm:text-xl font-bold text-deep-maroon">
                   K{calculatePrice().toFixed(0)}
                 </span>
               </>
             ) : (
-              <span className="text-2xl font-bold text-deep-maroon">
+              <span className="text-xl sm:text-2xl font-bold text-deep-maroon">
                 K{item.price.toFixed(0)}
               </span>
             )}
@@ -123,51 +123,51 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
             <div className="flex items-center space-x-2">
               <div className="flex flex-col space-y-2">
                 {isDynamicPricing ? (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <button
                       onClick={decrementGrams}
-                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                     <input
                       type="number"
                       value={grams}
                       onChange={(e) => setGrams(Math.max(50, Math.min(1000, parseInt(e.target.value) || 50)))}
-                      className="w-20 text-center text-sm border-2 border-deep-maroon/20 rounded-lg px-2 py-1 focus:border-deep-maroon focus:outline-none transition-colors"
+                      className="w-16 sm:w-20 text-center text-xs sm:text-sm border-2 border-deep-maroon/20 rounded-lg px-1 sm:px-2 py-1 focus:border-deep-maroon focus:outline-none transition-colors"
                       min="50"
                       max="1000"
                       step="50"
                     />
                     <button
                       onClick={incrementGrams}
-                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                     <span className="text-xs text-gray-600 ml-1">g</span>
                   </div>
                 ) : (
                   /* Regular quantity selector */
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <button
                       onClick={decrementQuantity}
-                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
-                    <span className="font-bold w-8 text-center text-deep-maroon">{quantity}</span>
+                    <span className="font-bold w-6 sm:w-8 text-center text-deep-maroon text-sm sm:text-base">{quantity}</span>
                     <button
                       onClick={incrementQuantity}
-                      className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 )}
                 <button
                   onClick={handleAddToCart}
-                  className="btn-primary px-6 py-3 text-sm font-semibold"
+                  className="btn-primary px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold"
                 >
                   Add to Cart
                 </button>
@@ -176,7 +176,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
           ) : (
             <button
               disabled
-              className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed"
+              className="bg-gray-300 text-gray-500 px-3 sm:px-4 py-2 rounded-lg cursor-not-allowed text-xs sm:text-sm"
             >
               Unavailable
             </button>
