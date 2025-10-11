@@ -65,58 +65,90 @@ Thank you for your order! 🙏
       const tempDiv = document.createElement('div');
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
-      tempDiv.style.width = '400px';
-      tempDiv.style.padding = '20px';
+      tempDiv.style.width = '450px';
+      tempDiv.style.padding = '0';
       tempDiv.style.backgroundColor = 'white';
-      tempDiv.style.fontFamily = 'Arial, sans-serif';
+      tempDiv.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+      tempDiv.style.borderRadius = '12px';
+      tempDiv.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
+      tempDiv.style.overflow = 'hidden';
       
       tempDiv.innerHTML = `
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #ea580c; margin: 0;">🍛 Taste of India</h2>
-          <p style="margin: 5px 0; color: #666;">Order Summary</p>
+        <div style="padding: 25px;">
+          <div style="text-align: center; margin-bottom: 25px; padding: 20px; background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%); border-radius: 10px;">
+          <img src="${window.location.origin}/logo.png" alt="Taste of India" style="width: 60px; height: 60px; margin-bottom: 10px; border-radius: 50%; background: white; padding: 5px;">
+          <h2 style="color: white; margin: 0; font-size: 24px; font-weight: bold;">Taste of India</h2>
+          <p style="margin: 5px 0; color: #fef3c7; font-size: 14px;">Authentic Indian Cuisine</p>
+          <p style="margin: 5px 0; color: white; font-size: 16px; font-weight: 600;">Order Summary</p>
         </div>
         
-        <div style="margin-bottom: 15px;">
-          <strong>Order #${order.id}</strong><br>
-          <small>Date: ${new Date(order.created_at).toLocaleDateString()}</small>
+        <div style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #ea580c;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong style="color: #ea580c; font-size: 18px;">Order #${order.id}</strong>
+            <span style="background: #ea580c; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+              ${order.order_type === 'pickup' ? 'PICKUP' : 'DELIVERY'}
+            </span>
+          </div>
+          <small style="color: #64748b;">Date: ${new Date(order.created_at).toLocaleDateString()} at ${new Date(order.created_at).toLocaleTimeString()}</small>
         </div>
         
-        <div style="margin-bottom: 15px;">
-          <strong>Customer:</strong> ${order.customer_name}<br>
-          <strong>Phone:</strong> ${order.customer_phone}
+        <div style="margin-bottom: 20px; padding: 15px; background: #f1f5f9; border-radius: 8px;">
+          <h4 style="color: #1e293b; margin: 0 0 10px 0; font-size: 16px;">Customer Information</h4>
+          <div style="display: flex; justify-content: space-between;">
+            <div>
+              <strong style="color: #374151;">${order.customer_name}</strong><br>
+              <small style="color: #6b7280;">${order.customer_phone}</small>
+            </div>
+            ${order.order_type === 'delivery' && order.delivery_address ? `
+              <div style="text-align: right; max-width: 200px;">
+                <small style="color: #6b7280; word-break: break-word;">${order.delivery_address}</small>
+              </div>
+            ` : ''}
+          </div>
         </div>
         
-        <div style="margin-bottom: 15px;">
-          <strong>Items:</strong><br>
+        <div style="margin-bottom: 20px;">
+          <h4 style="color: #1e293b; margin: 0 0 15px 0; font-size: 16px;">Order Items</h4>
           ${Array.isArray(order.items) 
             ? order.items.map((item: any) => 
-                `<div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                  <span>${item.menu_item_name || item.name || 'Unknown Item'} × ${item.quantity}</span>
-                  <span>K${item.total_price?.toFixed(0) || '0'}</span>
+                `<div style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 8px; background: #f8fafc; border-radius: 6px;">
+                  <div>
+                    <span style="font-weight: 500; color: #374151;">${item.menu_item_name || item.name || 'Unknown Item'}</span>
+                    <br>
+                    <small style="color: #6b7280;">Qty: ${item.quantity}</small>
+                  </div>
+                  <span style="font-weight: bold; color: #ea580c; font-size: 16px;">K${item.total_price?.toFixed(0) || '0'}</span>
                 </div>`
               ).join('')
-            : '<div>Items details not available</div>'}
+            : '<div style="padding: 15px; background: #fef2f2; border-radius: 6px; color: #dc2626;">Items details not available</div>'}
         </div>
         
         ${order.special_instructions ? `
-          <div style="margin-bottom: 15px;">
-            <strong>Special Instructions:</strong><br>
-            <div style="background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 14px;">
-              ${order.special_instructions}
-            </div>
+          <div style="margin-bottom: 20px; padding: 15px; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+            <h4 style="color: #92400e; margin: 0 0 8px 0; font-size: 14px;">Special Instructions</h4>
+            <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.4;">${order.special_instructions}</p>
           </div>
         ` : ''}
         
-        <div style="border-top: 2px solid #ea580c; padding-top: 10px; text-align: center;">
-          <strong style="font-size: 18px; color: #ea580c;">Total: K${(order.total || order.total_amount || 0).toFixed(0)}</strong>
+        <div style="border-top: 3px solid #ea580c; padding: 20px 0; text-align: center; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; margin: 20px 0;">
+          <div style="font-size: 24px; font-weight: bold; color: #ea580c; margin-bottom: 5px;">
+            Total: K${(order.total || order.total_amount || 0).toFixed(0)}
+          </div>
+          <div style="font-size: 12px; color: #92400e;">
+            ${order.order_type === 'pickup' ? 'Ready for pickup in 15-20 minutes!' : 'Delivery in 30-45 minutes!'}
+          </div>
         </div>
         
-        <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #666;">
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
           <div style="margin-bottom: 10px;">
-            <strong>Track Your Order:</strong><br>
-            <span style="color: #ea580c; word-break: break-all;">${window.location.origin}/order-confirmation/${order.order_token || order.id}</span>
+            <strong style="color: #374151; font-size: 14px;">Track Your Order:</strong><br>
+            <span style="color: #ea580c; word-break: break-all; font-size: 12px;">${window.location.origin}/order-confirmation/${order.order_token || order.id}</span>
           </div>
-          Thank you for choosing Taste of India! 🙏
+          <div style="color: #6b7280; font-size: 12px; margin-top: 10px;">
+            <strong>Thank you for choosing Taste of India! 🙏</strong><br>
+            <span>Where Evenings Come Alive</span>
+          </div>
+        </div>
         </div>
       `;
       
