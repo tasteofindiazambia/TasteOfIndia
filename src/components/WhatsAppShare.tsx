@@ -34,10 +34,18 @@ ${order.items && order.items.length > 0
       const totalPrice = itemTotal + packagingPrice;
       
       let itemText = `• ${itemName} × ${quantity}`;
-      if (item.grams) itemText += ` (${item.grams}g)`;
-      itemText += `\n  - Base: K${basePrice.toFixed(0)} each = K${itemTotal.toFixed(0)}`;
+      if (item.grams) {
+        itemText += ` (${item.grams}g per packet)`;
+        itemText += `\n  - Price: K${basePrice.toFixed(0)} per gram`;
+        itemText += `\n  - Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}`;
+        itemText += `\n  - Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(0)} = K${itemTotal.toFixed(0)}`;
+      } else {
+        itemText += `\n  - Base price: K${basePrice.toFixed(0)} each`;
+        itemText += `\n  - Quantity: ${quantity} item${quantity > 1 ? 's' : ''}`;
+        itemText += `\n  - Item cost: ${quantity} × K${basePrice.toFixed(0)} = K${itemTotal.toFixed(0)}`;
+      }
       if (packagingPrice > 0) {
-        itemText += `\n  - Packaging: K${item.packaging_price?.toFixed(0) || '0'} each = K${packagingPrice.toFixed(0)}`;
+        itemText += `\n  - Packaging: K${item.packaging_price?.toFixed(0) || '0'} × ${quantity} = K${packagingPrice.toFixed(0)}`;
       }
       itemText += `\n  - Total: K${totalPrice.toFixed(0)}`;
       return itemText;
@@ -166,21 +174,26 @@ Thank you for your order! 🙏
                     <div>
                       <span style="font-weight: 500; color: #374151; font-size: 14px;">${itemName}</span>
                       <br>
-                      <small style="color: #6b7280;">Qty: ${quantity}${item.grams ? ` (${item.grams}g)` : ''}</small>
+                      <small style="color: #6b7280;">Qty: ${quantity}${item.grams ? ` (${item.grams}g per packet)` : ''}</small>
                     </div>
                     <span style="font-weight: bold; color: #ea580c; font-size: 16px;">K${totalPrice.toFixed(0)}</span>
                   </div>
-                  <div style="font-size: 12px; color: #6b7280; line-height: 1.4;">
-                    <div style="display: flex; justify-content: space-between;">
-                      <span>Base: K${basePrice.toFixed(0)} each</span>
-                      <span>K${itemTotal.toFixed(0)}</span>
-                    </div>
-                    ${packagingPrice > 0 ? `
-                      <div style="display: flex; justify-content: space-between;">
-                        <span>Packaging: K${item.packaging_price?.toFixed(0) || '0'} each</span>
-                        <span>K${packagingPrice.toFixed(0)}</span>
-                      </div>
-                    ` : ''}
+                  <div style="font-size: 11px; color: #6b7280; line-height: 1.4; background: white; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">
+                    ${item.grams ? `
+                      <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Dynamic Pricing Calculation:</div>
+                      <div>• Price: K${basePrice.toFixed(0)} per gram</div>
+                      <div>• Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}</div>
+                      <div>• Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(0)} = K${itemTotal.toFixed(0)}</div>
+                      ${packagingPrice > 0 ? `<div>• Packaging: K${item.packaging_price?.toFixed(0) || '0'} × ${quantity} = K${packagingPrice.toFixed(0)}</div>` : ''}
+                      <div style="font-weight: 500; color: #ea580c;">• Total: K${totalPrice.toFixed(0)}</div>
+                    ` : `
+                      <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Regular Pricing Calculation:</div>
+                      <div>• Base price: K${basePrice.toFixed(0)} each</div>
+                      <div>• Quantity: ${quantity} item${quantity > 1 ? 's' : ''}</div>
+                      <div>• Item cost: ${quantity} × K${basePrice.toFixed(0)} = K${itemTotal.toFixed(0)}</div>
+                      ${packagingPrice > 0 ? `<div>• Packaging: K${item.packaging_price?.toFixed(0) || '0'} × ${quantity} = K${packagingPrice.toFixed(0)}</div>` : ''}
+                      <div style="font-weight: 500; color: #ea580c;">• Total: K${totalPrice.toFixed(0)}</div>
+                    `}
                   </div>
                 </div>`;
               }).join('')

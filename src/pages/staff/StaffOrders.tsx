@@ -375,14 +375,29 @@ const StaffOrders: React.FC = () => {
                               <span className="font-bold text-deep-maroon">{formatMoney(totalPrice)}</span>
                             </div>
                             <div className="text-xs text-gray-600 space-y-1 bg-white p-2 rounded border">
-                              <div className="flex justify-between">
-                                <span>Base: {formatMoney(basePrice)} each</span>
-                                <span>{formatMoney(itemTotal)}</span>
-                              </div>
-                              {packagingPrice > 0 && (
-                                <div className="flex justify-between">
-                                  <span>Packaging: {formatMoney(item.packaging_price || 0)} each</span>
-                                  <span>{formatMoney(packagingPrice)}</span>
+                              {item.grams ? (
+                                // Dynamic pricing breakdown
+                                <div className="space-y-1">
+                                  <div className="font-medium text-gray-800">Dynamic Pricing Calculation:</div>
+                                  <div>• Price: {formatMoney(basePrice)} per gram</div>
+                                  <div>• Weight: {item.grams}g × {qty} packet{qty > 1 ? 's' : ''}</div>
+                                  <div>• Item cost: {item.grams}g × {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
+                                  {packagingPrice > 0 && (
+                                    <div>• Packaging: {formatMoney(item.packaging_price || 0)} × {qty} = {formatMoney(packagingPrice)}</div>
+                                  )}
+                                  <div className="font-medium text-deep-maroon">• Total: {formatMoney(totalPrice)}</div>
+                                </div>
+                              ) : (
+                                // Regular pricing breakdown
+                                <div className="space-y-1">
+                                  <div className="font-medium text-gray-800">Regular Pricing Calculation:</div>
+                                  <div>• Base price: {formatMoney(basePrice)} each</div>
+                                  <div>• Quantity: {qty} item{qty > 1 ? 's' : ''}</div>
+                                  <div>• Item cost: {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
+                                  {packagingPrice > 0 && (
+                                    <div>• Packaging: {formatMoney(item.packaging_price || 0)} × {qty} = {formatMoney(packagingPrice)}</div>
+                                  )}
+                                  <div className="font-medium text-deep-maroon">• Total: {formatMoney(totalPrice)}</div>
                                 </div>
                               )}
                             </div>

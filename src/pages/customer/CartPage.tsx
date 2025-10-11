@@ -71,13 +71,30 @@ const CartPage: React.FC = () => {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
                 <p className="text-gray-600 text-sm">{item.menuItem.description}</p>
-                <div className="text-sm text-gray-600">
-                  <p>Base price: K{item.menuItem.price.toFixed(0)} each</p>
-                  {item.menuItem.packaging_price && item.menuItem.packaging_price > 0 && (
-                    <p>Packaging: K{item.menuItem.packaging_price.toFixed(0)} each</p>
-                  )}
-                  {item.grams && (
-                    <p>Weight: {item.grams}g</p>
+                <div className="text-sm text-gray-600 mt-2">
+                  {item.grams ? (
+                    // Dynamic pricing item
+                    <div className="space-y-1">
+                      <p className="font-medium text-gray-800">Dynamic Pricing Breakdown:</p>
+                      <p>• Price: K{item.menuItem.price.toFixed(0)} per gram</p>
+                      <p>• Weight: {item.grams}g × {item.quantity} packet{item.quantity > 1 ? 's' : ''}</p>
+                      <p>• Item cost: {item.grams}g × {item.quantity} × K{item.menuItem.price.toFixed(0)} = K{item.itemTotal.toFixed(0)}</p>
+                      {item.packagingPrice > 0 && (
+                        <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
+                      )}
+                      <p className="font-medium text-deep-maroon">• Total: K{item.totalPrice.toFixed(0)}</p>
+                    </div>
+                  ) : (
+                    // Regular pricing item
+                    <div className="space-y-1">
+                      <p>• Base price: K{item.menuItem.price.toFixed(0)} each</p>
+                      <p>• Quantity: {item.quantity} item{item.quantity > 1 ? 's' : ''}</p>
+                      <p>• Item cost: {item.quantity} × K{item.menuItem.price.toFixed(0)} = K{item.itemTotal.toFixed(0)}</p>
+                      {item.packagingPrice > 0 && (
+                        <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
+                      )}
+                      <p className="font-medium text-deep-maroon">• Total: K{item.totalPrice.toFixed(0)}</p>
+                    </div>
                   )}
                 </div>
               </div>

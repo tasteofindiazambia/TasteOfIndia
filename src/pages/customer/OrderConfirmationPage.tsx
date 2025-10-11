@@ -254,35 +254,50 @@ const OrderConfirmationPage: React.FC = () => {
                 const totalPrice = itemTotal + packagingPrice;
                 
                 return (
-                  <div key={item.id || index} className="border border-gray-200 rounded-lg p-3">
-                    <div className="flex justify-between items-start mb-2">
+                  <div key={item.id || index} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
                       <div className="flex-1">
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-gray-900 text-lg">
                           {itemName}
                         </span>
                         <span className="text-gray-600 ml-2">× {quantity}</span>
                         {item.grams && (
-                          <span className="text-gray-500 ml-2">({item.grams}g)</span>
+                          <span className="text-gray-500 ml-2">({item.grams}g per packet)</span>
                         )}
                         {item.special_instructions && (
-                          <div className="text-sm text-gray-500 italic mt-1">
+                          <div className="text-sm text-gray-500 italic mt-2">
                             Note: {item.special_instructions}
                           </div>
                         )}
                       </div>
-                      <span className="font-bold text-deep-maroon">
+                      <span className="font-bold text-deep-maroon text-lg">
                         K{totalPrice.toFixed(0)}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div className="flex justify-between">
-                        <span>Base price: K{basePrice.toFixed(0)} each</span>
-                        <span>K{itemTotal.toFixed(0)}</span>
-                      </div>
-                      {packagingPrice > 0 && (
-                        <div className="flex justify-between">
-                          <span>Packaging: K{item.packaging_price?.toFixed(0) || '0'} each</span>
-                          <span>K{packagingPrice.toFixed(0)}</span>
+                    <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
+                      {item.grams ? (
+                        // Dynamic pricing breakdown
+                        <div className="space-y-1">
+                          <p className="font-medium text-gray-800">Dynamic Pricing Calculation:</p>
+                          <p>• Price: K{basePrice.toFixed(0)} per gram</p>
+                          <p>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
+                          <p>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</p>
+                          {packagingPrice > 0 && (
+                            <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
+                          )}
+                          <p className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</p>
+                        </div>
+                      ) : (
+                        // Regular pricing breakdown
+                        <div className="space-y-1">
+                          <p className="font-medium text-gray-800">Regular Pricing Calculation:</p>
+                          <p>• Base price: K{basePrice.toFixed(0)} each</p>
+                          <p>• Quantity: {quantity} item{quantity > 1 ? 's' : ''}</p>
+                          <p>• Item cost: {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</p>
+                          {packagingPrice > 0 && (
+                            <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
+                          )}
+                          <p className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</p>
                         </div>
                       )}
                     </div>

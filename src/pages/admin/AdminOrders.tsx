@@ -640,14 +640,29 @@ const AdminOrders: React.FC = () => {
                             <span className="font-bold text-deep-maroon">K{totalPrice.toFixed(0)}</span>
                           </div>
                           <div className="text-xs text-gray-600 space-y-1 bg-white p-2 rounded border">
-                            <div className="flex justify-between">
-                              <span>Base: K{basePrice.toFixed(0)} each</span>
-                              <span>K{itemTotal.toFixed(0)}</span>
-                            </div>
-                            {packagingPrice > 0 && (
-                              <div className="flex justify-between">
-                                <span>Packaging: K{item.packaging_price?.toFixed(0) || '0'} each</span>
-                                <span>K{packagingPrice.toFixed(0)}</span>
+                            {item.grams ? (
+                              // Dynamic pricing breakdown
+                              <div className="space-y-1">
+                                <div className="font-medium text-gray-800">Dynamic Pricing Calculation:</div>
+                                <div>• Price: K{basePrice.toFixed(0)} per gram</div>
+                                <div>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</div>
+                                <div>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</div>
+                                {packagingPrice > 0 && (
+                                  <div>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</div>
+                                )}
+                                <div className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</div>
+                              </div>
+                            ) : (
+                              // Regular pricing breakdown
+                              <div className="space-y-1">
+                                <div className="font-medium text-gray-800">Regular Pricing Calculation:</div>
+                                <div>• Base price: K{basePrice.toFixed(0)} each</div>
+                                <div>• Quantity: {quantity} item{quantity > 1 ? 's' : ''}</div>
+                                <div>• Item cost: {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</div>
+                                {packagingPrice > 0 && (
+                                  <div>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</div>
+                                )}
+                                <div className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</div>
                               </div>
                             )}
                           </div>
