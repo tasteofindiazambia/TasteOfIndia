@@ -81,7 +81,7 @@ const CheckoutPage: React.FC = () => {
     formState: { errors }
   } = useForm<CheckoutFormData>({
     defaultValues: {
-      restaurant_id: selectedRestaurant?.id || restaurants[0]?.id,
+      restaurant_id: 2, // Default to Parirenyetwa
       order_type: 'pickup'
     }
   });
@@ -508,26 +508,37 @@ Thank you for your order! 🙏
               )}
             </div>
 
-            {/* Restaurant Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {watchOrderType === 'delivery' ? 'Restaurant Location *' : 'Pickup Location *'}
-              </label>
-              <select
-                id="restaurant_id"
-                {...register('restaurant_id', { required: 'Please select a location' })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-              >
-                {restaurants.map((restaurant) => (
-                  <option key={restaurant.id} value={restaurant.id}>
-                    {restaurant.name} - {restaurant.address}
-                  </option>
-                ))}
-              </select>
-              {errors.restaurant_id && (
-                <p className="text-red-600 text-sm mt-1">{errors.restaurant_id.message}</p>
-              )}
-            </div>
+            {/* Restaurant Selection - Hidden for delivery, always Parirenyetwa */}
+            {watchOrderType === 'pickup' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Pickup Location *
+                </label>
+                <select
+                  id="restaurant_id"
+                  {...register('restaurant_id', { required: 'Please select a location' })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                >
+                  {restaurants.map((restaurant) => (
+                    <option key={restaurant.id} value={restaurant.id}>
+                      {restaurant.name} - {restaurant.address}
+                    </option>
+                  ))}
+                </select>
+                {errors.restaurant_id && (
+                  <p className="text-red-600 text-sm mt-1">{errors.restaurant_id.message}</p>
+                )}
+              </div>
+            )}
+            
+            {/* Hidden field for delivery orders - always Parirenyetwa */}
+            {watchOrderType === 'delivery' && (
+              <input
+                type="hidden"
+                {...register('restaurant_id')}
+                value="2"
+              />
+            )}
 
             {/* Delivery Address - Only show if delivery is selected */}
             {watchOrderType === 'delivery' && (

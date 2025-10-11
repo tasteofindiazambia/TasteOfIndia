@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Search, Filter, MapPin } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { MenuItem, Category, CartItem } from '../../types';
 import { restaurantService } from '../../services/restaurantService';
 import { useCart } from '../../context/CartContext';
@@ -9,11 +8,9 @@ import { useRestaurant } from '../../context/RestaurantContext';
 import MenuItemCard from '../../components/MenuItemCard';
 
 const MenuPage: React.FC = () => {
-  const { restaurantId } = useParams<{ restaurantId: string }>();
   const { addToCart } = useCart();
   const { showNotification } = useNotification();
   const { restaurants, setSelectedRestaurant } = useRestaurant();
-  const navigate = useNavigate();
   
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -24,14 +21,11 @@ const MenuPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLocationChange = (newRestaurantId: string) => {
-    navigate(`/menu/${newRestaurantId}`);
-  };
+  // Always use Parirenyetwa (restaurant_id: 2) since both restaurants share the same menu
+  const restaurantId = 2;
 
   useEffect(() => {
     const fetchMenuData = async () => {
-      if (!restaurantId) return;
-      
       try {
         setLoading(true);
         setError(null); // Clear previous errors
@@ -40,16 +34,16 @@ const MenuPage: React.FC = () => {
         setFilteredItems([]); // Clear filtered items
         
         const [menuData, categoriesData] = await Promise.all([
-          restaurantService.getMenu(parseInt(restaurantId)),
-          restaurantService.getCategories(parseInt(restaurantId))
+          restaurantService.getMenu(restaurantId),
+          restaurantService.getCategories(restaurantId)
         ]);
         
         setMenuItems(menuData);
         setCategories(categoriesData);
         setFilteredItems(menuData);
         
-        // Update selected restaurant in context
-        const currentRestaurant = restaurants.find(r => r.id === parseInt(restaurantId));
+        // Set Parirenyetwa as the selected restaurant in context
+        const currentRestaurant = restaurants.find(r => r.id === restaurantId);
         if (currentRestaurant) {
           setSelectedRestaurant(currentRestaurant);
         }
@@ -64,7 +58,7 @@ const MenuPage: React.FC = () => {
     };
 
     fetchMenuData();
-  }, [restaurantId]); // Remove restaurants and setSelectedRestaurant dependencies to prevent unnecessary re-renders
+  }, [restaurants, setSelectedRestaurant]);
 
   // Debounce search query
   useEffect(() => {
@@ -147,25 +141,6 @@ const MenuPage: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Our Menu</h1>
         
-        {/* Location Selector */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select
-              id="restaurant_location"
-              name="restaurant_location"
-              value={restaurantId || ''}
-              onChange={(e) => handleLocationChange(e.target.value)}
-              className="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon appearance-none bg-white"
-            >
-              {restaurants.map((restaurant) => (
-                <option key={restaurant.id} value={restaurant.id.toString()}>
-                  {restaurant.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
         
         {/* Search and Filter */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">

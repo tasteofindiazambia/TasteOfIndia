@@ -36,9 +36,10 @@ export const RestaurantProvider: React.FC<RestaurantProviderProps> = ({ children
         setLoading(true);
         const data = await restaurantService.getRestaurants();
         setRestaurants(data);
-        // Set first restaurant as default if none selected
+        // Set Parirenyetwa (restaurant_id: 2) as default if none selected
         if (data.length > 0 && !selectedRestaurant) {
-          setSelectedRestaurant(data[0]);
+          const parirenyetwa = data.find(r => r.id === 2) || data[0];
+          setSelectedRestaurant(parirenyetwa);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch restaurants');
