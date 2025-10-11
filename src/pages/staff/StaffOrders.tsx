@@ -173,12 +173,12 @@ const StaffOrders: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-3 sm:p-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="space-y-4">
+          <div className="h-6 sm:h-8 bg-gray-200 rounded w-1/3 sm:w-1/4 mb-4 sm:mb-6"></div>
+          <div className="space-y-3 sm:space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-white p-4 rounded-lg shadow h-20"></div>
+              <div key={i} className="bg-white p-3 sm:p-4 rounded-lg shadow h-16 sm:h-20"></div>
             ))}
           </div>
         </div>
@@ -187,34 +187,34 @@ const StaffOrders: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Orders Management</h1>
-        <p className="mt-1 text-gray-600">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders Management</h1>
+        <p className="mt-1 text-sm sm:text-base text-gray-600">
           View and update order status
         </p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white shadow rounded-lg p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="bg-white shadow rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder="Search by order number or customer name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon text-sm sm:text-base"
             />
           </div>
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon appearance-none bg-white"
+              className="pl-9 sm:pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon appearance-none bg-white text-sm sm:text-base"
             >
               <option value="all">All Status</option>
               <option value="preparing">Preparing</option>
@@ -229,10 +229,10 @@ const StaffOrders: React.FC = () => {
       {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.length === 0 ? (
-          <div className="bg-white shadow rounded-lg p-8 text-center">
-            <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-            <p className="text-gray-600">
+          <div className="bg-white shadow rounded-lg p-6 sm:p-8 text-center">
+            <Package className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+            <p className="text-sm sm:text-base text-gray-600">
               {searchTerm || statusFilter !== 'all' 
                 ? 'Try adjusting your search or filter criteria.'
                 : 'No orders available at the moment.'
@@ -243,70 +243,141 @@ const StaffOrders: React.FC = () => {
           filteredOrders.map((order) => {
             const StatusIcon = getStatusIcon(order.status);
             return (
-              <div key={order.id} className="bg-white shadow rounded-lg p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <StatusIcon className="w-8 h-8 text-deep-maroon" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900">
+              <div key={order.id} className="bg-white shadow rounded-lg p-4 sm:p-6">
+                {/* Mobile Layout */}
+                <div className="block sm:hidden">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <StatusIcon className="w-6 h-6 text-deep-maroon flex-shrink-0" />
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900">
                           Order #{order.id}
                         </h3>
-                        <p className="text-sm text-gray-600">
-                          Customer: {order.customer_name || 'N/A'}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Total: {formatMoney(computeOrderTotal(order))}
-                        </p>
-                        {buildItemsSummary(order) && (
-                          <p className="text-xs text-gray-500 truncate">
-                            {buildItemsSummary(order)}
-                          </p>
-                        )}
                         <p className="text-xs text-gray-500">
                           {new Date(order.created_at || '').toLocaleString()}
                         </p>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
                       {order.status}
                     </span>
-                    
-                    <div className="flex items-center space-x-2">
+                  </div>
+                  
+                  <div className="space-y-2 mb-4">
+                    <p className="text-sm text-gray-600">
+                      Customer: {order.customer_name || 'N/A'}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Total: {formatMoney(computeOrderTotal(order))}
+                    </p>
+                    {buildItemsSummary(order) && (
+                      <p className="text-xs text-gray-500">
+                        {buildItemsSummary(order)}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex space-x-2">
                       <a
                         href={buildWhatsAppLink(order.customer_phone, order.id.toString())}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center px-3 py-1.5 border border-green-500 text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-green-500 text-xs font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
                       >
                         <MessageSquare className="w-4 h-4 mr-1" />
                         Message
                       </a>
                       <button
                         onClick={() => setSelectedOrder(order)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         View
                       </button>
+                    </div>
+                    
+                    {order.status !== 'delivered' && order.id && (
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                      >
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="out for delivery">Out for Delivery</option>
+                      </select>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Desktop Layout */}
+                <div className="hidden sm:block">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <StatusIcon className="w-8 h-8 text-deep-maroon" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            Order #{order.id}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Customer: {order.customer_name || 'N/A'}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Total: {formatMoney(computeOrderTotal(order))}
+                          </p>
+                          {buildItemsSummary(order) && (
+                            <p className="text-xs text-gray-500 truncate">
+                              {buildItemsSummary(order)}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-500">
+                            {new Date(order.created_at || '').toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
+                        {order.status}
+                      </span>
                       
-                      {order.status !== 'delivered' && order.id && (
-                        <select
-                          value={order.status}
-                          onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                          className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                      <div className="flex items-center space-x-2">
+                        <a
+                          href={buildWhatsAppLink(order.customer_phone, order.id.toString())}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-3 py-1.5 border border-green-500 text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
                         >
-                          <option value="preparing">Preparing</option>
-                          <option value="ready">Ready</option>
-                          <option value="delivered">Delivered</option>
-                          <option value="out for delivery">Out for Delivery</option>
-                        </select>
-                      )}
+                          <MessageSquare className="w-4 h-4 mr-1" />
+                          Message
+                        </a>
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </button>
+                        
+                        {order.status !== 'delivered' && order.id && (
+                          <select
+                            value={order.status}
+                            onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                            className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                          >
+                            <option value="preparing">Preparing</option>
+                            <option value="ready">Ready</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="out for delivery">Out for Delivery</option>
+                          </select>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
