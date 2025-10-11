@@ -84,8 +84,8 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 max-w-sm w-full transform transition-all duration-300 ${
-        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 max-w-sm w-full transition-all duration-300 ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
       }`}
     >
       <div className={`${getBgColor()} border rounded-lg shadow-lg p-4`}>
