@@ -70,8 +70,7 @@ body {
 
 /* Modern Button Styles */
 .btn-primary {
-  @apply relative overflow-hidden bg-gradient-to-r from-deep-maroon to-burgundy text-light-cream px-8 py-3 rounded-xl font-semibold tracking-wide uppercase text-sm transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95;
-  box-shadow: var(--shadow-md);
+  @apply relative overflow-hidden bg-gradient-to-r from-deep-maroon to-burgundy text-light-cream px-8 py-3 rounded-lg font-semibold tracking-wide uppercase text-sm transition-all duration-200 hover:scale-105 active:scale-95;
 }
 
 .btn-primary::before {
@@ -90,13 +89,12 @@ body {
 }
 
 .btn-secondary {
-  @apply relative overflow-hidden border-2 border-deep-maroon text-deep-maroon px-8 py-3 rounded-xl font-semibold tracking-wide uppercase text-sm transition-all duration-300 hover:bg-deep-maroon hover:text-light-cream hover:shadow-xl hover:scale-105 active:scale-95;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  @apply relative overflow-hidden border-2 border-deep-maroon text-deep-maroon px-8 py-3 rounded-lg font-semibold tracking-wide uppercase text-sm transition-all duration-200 hover:bg-deep-maroon hover:text-light-cream hover:scale-105 active:scale-95;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .btn-ghost {
-  @apply relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-xl font-medium tracking-wide transition-all duration-300 hover:bg-white/20 hover:scale-105 active:scale-95;
+  @apply relative overflow-hidden bg-white/10 border border-white/20 text-white px-6 py-3 rounded-lg font-medium tracking-wide transition-all duration-200 hover:bg-white/20 hover:scale-105 active:scale-95;
 }
 
 /* Hero Slider Animations */
@@ -133,31 +131,29 @@ body {
 
 /* Modern Card Styles */
 .card-elegant {
-  @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105;
-  border-radius: 20px;
-  box-shadow: var(--shadow-lg);
+  @apply bg-white border border-gray-200 transition-all duration-200;
+  border-radius: 12px;
 }
 
 .card-elegant:hover {
-  box-shadow: var(--shadow-xl);
-  transform: translateY(-4px);
+  @apply border-gray-300;
+  transform: translateY(-1px);
 }
 
 .card-glass {
-  @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-lg;
-  border-radius: 20px;
+  @apply bg-white/95 border border-gray-200;
+  border-radius: 12px;
 }
 
 .card-floating {
-  @apply bg-white shadow-xl border border-gray-100;
-  border-radius: 24px;
-  box-shadow: var(--shadow-xl);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  @apply bg-white border border-gray-200;
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
 }
 
 .card-floating:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  @apply border-gray-300;
+  transform: translateY(-2px);
 }
 
 /* Restaurant Background Patterns */
