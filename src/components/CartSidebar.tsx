@@ -102,15 +102,33 @@ const CartSidebar: React.FC = () => {
                         <p className="text-warm-gray text-sm mb-1 line-clamp-2">
                           {item.menuItem.description}
                         </p>
-                        {/* Show gram quantity for dynamic pricing items */}
-                        {item.grams && (
-                          <p className="text-deep-maroon text-xs font-medium mb-2">
-                            {item.grams}g per package
-                          </p>
-                        )}
+                        {/* Show detailed pricing breakdown */}
+                        <div className="text-xs text-warm-gray mb-2">
+                          {item.grams ? (
+                            // Dynamic pricing breakdown
+                            <div className="space-y-1">
+                              <p className="font-medium text-charcoal">Dynamic Pricing:</p>
+                              <p>• K{item.menuItem.price.toFixed(0)}/g × {item.grams}g × {item.quantity} = K{item.itemTotal.toFixed(0)}</p>
+                              {item.packagingPrice > 0 && (
+                                <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
+                              )}
+                              <p className="font-medium text-deep-maroon">• Total: K{item.totalPrice.toFixed(0)}</p>
+                            </div>
+                          ) : (
+                            // Regular pricing breakdown
+                            <div className="space-y-1">
+                              <p className="font-medium text-charcoal">Regular Pricing:</p>
+                              <p>• K{item.menuItem.price.toFixed(0)} each × {item.quantity} = K{item.itemTotal.toFixed(0)}</p>
+                              {item.packagingPrice > 0 && (
+                                <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
+                              )}
+                              <p className="font-medium text-deep-maroon">• Total: K{item.totalPrice.toFixed(0)}</p>
+                            </div>
+                          )}
+                        </div>
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-charcoal">
-                            K{item.price.toFixed(0)}
+                            K{item.totalPrice.toFixed(0)}
                           </span>
                           
                           {/* Quantity Controls */}
@@ -157,12 +175,34 @@ const CartSidebar: React.FC = () => {
           {/* Footer */}
           {cartItems.length > 0 && (
             <div className="border-t border-gray-200 px-6 py-6 space-y-4">
-              {/* Total */}
-              <div className="flex items-center justify-between">
-                <span className="font-display text-lg font-semibold text-charcoal">Total</span>
-                <span className="font-display text-2xl font-bold text-charcoal">
-                  K{getCartTotal().toFixed(0)}
-                </span>
+              {/* Detailed Total Breakdown */}
+              <div className="space-y-2">
+                {(() => {
+                  const itemsTotal = cartItems.reduce((total, item) => total + item.itemTotal, 0);
+                  const packagingTotal = cartItems.reduce((total, item) => total + item.packagingPrice, 0);
+                  const subtotal = itemsTotal + packagingTotal;
+                  
+                  return (
+                    <>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-warm-gray">Items Total:</span>
+                        <span className="text-warm-gray">K{itemsTotal.toFixed(0)}</span>
+                      </div>
+                      {packagingTotal > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-warm-gray">Packaging:</span>
+                          <span className="text-warm-gray">K{packagingTotal.toFixed(0)}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between border-t border-gray-200 pt-2">
+                        <span className="font-display text-lg font-semibold text-charcoal">Total</span>
+                        <span className="font-display text-2xl font-bold text-charcoal">
+                          K{getCartTotal().toFixed(0)}
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Action Buttons */}

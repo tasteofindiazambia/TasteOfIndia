@@ -649,23 +649,75 @@ const CheckoutPage: React.FC = () => {
           
           <div className="space-y-4 mb-6">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-medium">{item.name}</h4>
-                  <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+              <div key={item.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-lg">{item.name}</h4>
+                    <p className="text-sm text-gray-600">
+                      Qty: {item.quantity} {item.grams ? `(${item.grams}g per packet)` : 'item(s)'}
+                    </p>
+                  </div>
+                  <span className="font-bold text-deep-maroon text-lg">
+                    K{item.totalPrice.toFixed(0)}
+                  </span>
                 </div>
-                <span className="font-semibold">
-                  K{(item.price * item.quantity).toFixed(0)}
-                </span>
+                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
+                  {item.grams ? (
+                    // Dynamic pricing breakdown
+                    <div className="space-y-1">
+                      <p className="font-medium text-gray-800">Dynamic Pricing Calculation:</p>
+                      <p>• Price: K{item.menuItem.price.toFixed(0)} per gram</p>
+                      <p>• Weight: {item.grams}g × {item.quantity} packet{item.quantity > 1 ? 's' : ''}</p>
+                      <p>• Item cost: {item.grams}g × {item.quantity} × K{item.menuItem.price.toFixed(0)} = K{item.itemTotal.toFixed(0)}</p>
+                      {item.packagingPrice > 0 && (
+                        <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
+                      )}
+                      <p className="font-medium text-deep-maroon">• Total: K{item.totalPrice.toFixed(0)}</p>
+                    </div>
+                  ) : (
+                    // Regular pricing breakdown
+                    <div className="space-y-1">
+                      <p className="font-medium text-gray-800">Regular Pricing Calculation:</p>
+                      <p>• Base price: K{item.menuItem.price.toFixed(0)} each</p>
+                      <p>• Quantity: {item.quantity} item{item.quantity > 1 ? 's' : ''}</p>
+                      <p>• Item cost: {item.quantity} × K{item.menuItem.price.toFixed(0)} = K{item.itemTotal.toFixed(0)}</p>
+                      {item.packagingPrice > 0 && (
+                        <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
+                      )}
+                      <p className="font-medium text-deep-maroon">• Total: K{item.totalPrice.toFixed(0)}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
 
           <div className="border-t pt-4 space-y-2">
-            <div className="flex justify-between items-center">
-              <span>Subtotal:</span>
-              <span>K{getCartTotal().toFixed(0)}</span>
-            </div>
+            {/* Detailed breakdown */}
+            {(() => {
+              const itemsTotal = cartItems.reduce((total, item) => total + item.itemTotal, 0);
+              const packagingTotal = cartItems.reduce((total, item) => total + item.packagingPrice, 0);
+              const subtotal = itemsTotal + packagingTotal;
+              
+              return (
+                <>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-gray-600">Items Total:</span>
+                    <span className="text-gray-600">K{itemsTotal.toFixed(0)}</span>
+                  </div>
+                  {packagingTotal > 0 && (
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Packaging:</span>
+                      <span className="text-gray-600">K{packagingTotal.toFixed(0)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center font-medium">
+                    <span>Subtotal:</span>
+                    <span>K{subtotal.toFixed(0)}</span>
+                  </div>
+                </>
+              );
+            })()}
             {watchOrderType === 'delivery' && (
               <div className="flex justify-between items-center text-sm">
                 <span>Delivery Fee:</span>
