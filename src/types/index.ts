@@ -90,30 +90,6 @@ export interface Order {
   special_instructions?: string;
 }
 
-// Reservation Types
-export interface Reservation {
-  id: number;
-  reservation_number?: string;
-  customer_name: string;
-  customer_phone: string;
-  customer_email?: string;
-  date_time: string;
-  party_size: number;
-  restaurant_id: number;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-  created_at: string;
-  special_requests?: string;
-  occasion?: string;
-  notes?: string;
-  location?: string;
-  confirmation_method?: string;
-  // Additional fields for localStorage reservations
-  _source?: string;
-  _note?: string;
-  _warning?: string;
-  _persistence_note?: string;
-  is_mock?: boolean;
-}
 
 // User Types
 export interface User {
@@ -147,14 +123,6 @@ export interface OrderFormData {
   payment_method?: string;
 }
 
-export interface ReservationFormData {
-  customer_name: string;
-  customer_phone: string;
-  date_time: string;
-  party_size: number;
-  restaurant_id: number;
-  special_requests?: string;
-}
 
 // Admin Types
 export interface AdminStats {

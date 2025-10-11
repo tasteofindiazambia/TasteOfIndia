@@ -12,8 +12,6 @@ import HomePage from './pages/customer/HomePage';
 import MenuPage from './pages/customer/MenuPage';
 import CartPage from './pages/customer/CartPage';
 import CheckoutPage from './pages/customer/CheckoutPage';
-import ReservationPage from './pages/customer/ReservationPage';
-import ReservationConfirmationPage from './pages/customer/ReservationConfirmationPage';
 import OrderConfirmationPage from './pages/customer/OrderConfirmationPage';
 import AboutPage from './pages/customer/AboutPage';
 import LocationsPage from './pages/customer/LocationsPage';
@@ -24,12 +22,10 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminCustomers from './pages/admin/AdminCustomers';
-import AdminReservations from './pages/admin/AdminReservations';
 
 // Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
 import StaffOrders from './pages/staff/StaffOrders';
-import StaffReservations from './pages/staff/StaffReservations';
 
 // Shared Components
 import Layout from './components/Layout';
@@ -50,8 +46,6 @@ function App() {
                   <Route path="menu/:restaurantId" element={<MenuPage />} />
                   <Route path="cart" element={<CartPage />} />
                   <Route path="checkout" element={<CheckoutPage />} />
-                  <Route path="reservation" element={<ReservationPage />} />
-                  <Route path="reservation-confirmation/:reservationId" element={<ReservationConfirmationPage />} />
                   <Route path="order-confirmation/:orderId" element={<OrderConfirmationPage />} />
                   <Route path="about" element={<AboutPage />} />
                   <Route path="locations" element={<LocationsPage />} />
@@ -80,11 +74,6 @@ function App() {
                       <AdminCustomers />
                     </ProtectedRoute>
                   } />
-                  <Route path="reservations" element={
-                    <ProtectedRoute requireOwnerAccess={true}>
-                      <AdminReservations />
-                    </ProtectedRoute>
-                  } />
                 </Route>
 
                 {/* Staff Routes */}
@@ -92,7 +81,6 @@ function App() {
                   <Route index element={<StaffDashboard />} />
                   <Route path="dashboard" element={<StaffDashboard />} />
                   <Route path="orders" element={<StaffOrders />} />
-                  <Route path="reservations" element={<StaffReservations />} />
                 </Route>
               </Routes>
             </Router>

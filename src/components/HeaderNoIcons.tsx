@@ -49,9 +49,6 @@ const HeaderNoIcons: React.FC = () => {
               <Link to="/menu/1" className="text-gray-700 hover:text-deep-maroon font-medium transition-colors">
                 Menu
               </Link>
-              <Link to="/reservation" className="text-gray-700 hover:text-deep-maroon font-medium transition-colors">
-                Reservations
-              </Link>
               <Link to="/about" className="text-gray-700 hover:text-deep-maroon font-medium transition-colors">
                 About
               </Link>
@@ -106,13 +103,6 @@ const HeaderNoIcons: React.FC = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Menu
-                </Link>
-                <Link 
-                  to="/reservation" 
-                  className="text-gray-700 hover:text-deep-maroon font-medium transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Reservations
                 </Link>
                 <Link 
                   to="/about" 

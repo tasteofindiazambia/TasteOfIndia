@@ -91,10 +91,10 @@ const HomePage: React.FC = () => {
                         View Menu
                       </Link>
                       <Link
-                        to="/reservation"
+                        to="/menu/1"
                         className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md"
                       >
-                        Make Reservation
+                        Order Now
                       </Link>
                     </div>
                   </div>
@@ -191,10 +191,10 @@ const HomePage: React.FC = () => {
                 business meeting, or special occasion, we create the perfect atmosphere for connection.
               </p>
               <Link 
-                to="/reservation" 
+                to="/menu/1" 
                 className="btn-primary inline-block"
               >
-                LEARN MORE
+                ORDER NOW
               </Link>
             </div>
 
@@ -319,11 +319,11 @@ const HomePage: React.FC = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-in-up" style={{ animationDelay: '0.6s' }}>
             <Link 
-              to="/reservation" 
+              to="/menu/1" 
               className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center space-x-2"
             >
-              <Calendar className="w-4 h-4" />
-              <span>BOOK A TABLE</span>
+              <Utensils className="w-4 h-4" />
+              <span>ORDER NOW</span>
             </Link>
             <Link 
               to="/menu/1" 

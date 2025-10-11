@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import restaurantRoutes from './routes/restaurants.js';
 import menuRoutes from './routes/menu.js';
 import orderRoutes from './routes/orders.js';
-import reservationRoutes from './routes/reservations.js';
 import authRoutes from './routes/auth.js';
 import customerRoutes from './routes/customers.js';
 
@@ -58,7 +57,6 @@ if (!fs.existsSync('uploads')) {
 app.use('/api/restaurants', restaurantRoutes);
 app.use('/api', menuRoutes); // Menu routes are nested under /api
 app.use('/api/orders', orderRoutes);
-app.use('/api/reservations', reservationRoutes);
 app.use('/api/auth', authRoutes);
 // Removed: blog, event, and branding routes - features removed
 app.use('/api/customers', customerRoutes);

@@ -21,12 +21,6 @@ const StaffSidebar: React.FC = () => {
       description: 'View and update orders'
     },
     {
-      name: 'Reservations', 
-      href: '/staff/reservations',
-      icon: Calendar,
-      description: 'Manage table reservations'
-    },
-    {
       name: 'Today\'s Summary',
       href: '/staff/dashboard',
       icon: BarChart3,

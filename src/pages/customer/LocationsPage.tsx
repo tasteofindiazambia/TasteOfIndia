@@ -263,21 +263,21 @@ const LocationsPage: React.FC = () => {
             Questions About Our Locations?
           </h2>
           <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-            We're here to help you find the perfect dining experience. Contact us for reservations, 
+            We're here to help you find the perfect dining experience. Contact us for orders, 
             directions, or any questions about our locations.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link 
-              to="/reservation" 
+              to="/menu/1" 
               className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 font-semibold transition-all duration-300 text-center rounded-lg"
             >
-              BOOK A TABLE
+              ORDER NOW
             </Link>
             <Link 
-              to="/reservation" 
+              to="/menu/1" 
               className="border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white px-6 py-3 font-semibold transition-all duration-300 text-center rounded-lg"
             >
-              MAKE RESERVATION
+              VIEW MENU
             </Link>
           </div>
         </div>

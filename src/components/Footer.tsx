@@ -103,11 +103,6 @@ const Footer: React.FC = () => {
               </a>
               </li>
               <li>
-                <a href="/reservation" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
-                  Reservations
-                </a>
-              </li>
-              <li>
                 <a href="/locations" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
                   Locations
                 </a>

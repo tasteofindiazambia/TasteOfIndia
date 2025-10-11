@@ -175,16 +175,16 @@ const AboutPage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              to="/reservation" 
+              to="/menu/1" 
               className="btn-primary bg-warm-pink text-light-cream px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 hover:bg-rose hover:shadow-lg flex items-center justify-center space-x-2"
             >
-              <span>BOOK A TABLE</span>
+              <span>ORDER NOW</span>
             </Link>
             <Link 
-              to="/reservation" 
+              to="/menu/1" 
               className="bg-[#F5F5DC] text-[#532734] border-2 border-[#F5F5DC] hover:bg-[#532734] hover:text-[#F5F5DC] px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 flex items-center justify-center space-x-2"
             >
-              <span>BOOK A TABLE</span>
+              <span>ORDER NOW</span>
             </Link>
           </div>
         </div>

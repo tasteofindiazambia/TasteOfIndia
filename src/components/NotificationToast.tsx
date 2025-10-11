@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, AlertCircle, Info, X, ShoppingBag, Calendar } from 'lucide-react';
+import { CheckCircle, AlertCircle, Info, X, ShoppingBag } from 'lucide-react';
 
 interface NotificationToastProps {
-  type: 'success' | 'error' | 'info' | 'order' | 'reservation';
+  type: 'success' | 'error' | 'info' | 'order';
   message: string;
   title?: string;
   duration?: number;
@@ -41,8 +41,6 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         return <Info className="w-5 h-5 text-blue-500" />;
       case 'order':
         return <ShoppingBag className="w-5 h-5 text-orange-500" />;
-      case 'reservation':
-        return <Calendar className="w-5 h-5 text-purple-500" />;
       default:
         return <Info className="w-5 h-5 text-blue-500" />;
     }
@@ -58,8 +56,6 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         return 'bg-blue-50 border-blue-200';
       case 'order':
         return 'bg-orange-50 border-orange-200';
-      case 'reservation':
-        return 'bg-purple-50 border-purple-200';
       default:
         return 'bg-blue-50 border-blue-200';
     }
@@ -75,8 +71,6 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
         return 'text-blue-800';
       case 'order':
         return 'text-orange-800';
-      case 'reservation':
-        return 'text-purple-800';
       default:
         return 'text-blue-800';
     }

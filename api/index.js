@@ -11,9 +11,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey
 );
 
-// Mock reservations storage for when RLS blocks database access
-// Using Map to ensure better persistence and quick lookups
-const mockReservations = new Map();
 
 // Authentication middleware
 async function verifyToken(req) {
@@ -223,45 +220,6 @@ export default async function handler(req, res) {
     }
 
 
-    // Handle reservation status update (/api/reservations/{id}/status) - check this first
-    if (pathSegments[0] === 'reservations' && pathSegments[2] === 'status' && req.method === 'PUT') {
-      const reservationId = pathSegments[1];
-      const { status, notes } = req.body;
-      
-      try {
-        // First check mock reservations
-        const mockReservation = mockReservations.get(parseInt(reservationId));
-        if (mockReservation) {
-          mockReservation.status = status;
-          if (notes) mockReservation.notes = notes;
-          mockReservations.set(parseInt(reservationId), mockReservation);
-          console.log('Updated mock reservation status:', mockReservation);
-          return res.json(mockReservation);
-        }
-        
-        // Then try database update
-        const { data: reservation, error } = await supabase
-          .from('reservations')
-          .update({ status, notes })
-          .eq('id', reservationId)
-          .select()
-          .single();
-        
-        if (error) {
-          console.error('Reservation status update error:', error);
-          return res.status(500).json({ error: 'Failed to update reservation status' });
-        }
-        
-        return res.json(reservation);
-      } catch (error) {
-        console.error('Reservation status update exception:', error);
-        return res.status(500).json({ error: 'Failed to update reservation status' });
-      }
-    }
-
-    if (pathSegments[0] === 'reservations') {
-      return await handleReservations(req, res, query, pathSegments);
-    }
 
     if (pathSegments[0] === 'menu-categories') {
       return await handleMenuCategories(req, res, pathSegments, query);
@@ -822,7 +780,7 @@ async function handleAuth(req, res, pathSegments) {
 async function handleCustomers(req, res, query) {
   if (req.method === 'GET') {
     try {
-      // Get customers from orders and reservations
+      // Get customers from orders
       const customers = new Map();
       
       // Get unique customers from orders
@@ -857,57 +815,6 @@ async function handleCustomers(req, res, query) {
           }
         });
       }
-      
-      // Get unique customers from reservations
-      const { data: reservations, error: reservationsError } = await supabase
-        .from('reservations')
-        .select('customer_name, customer_phone, customer_email, created_at');
-      
-      if (!reservationsError && reservations) {
-        reservations.forEach(reservation => {
-          const phone = reservation.customer_phone;
-          if (phone && !customers.has(phone)) {
-            customers.set(phone, {
-              id: customers.size + 1,
-              name: reservation.customer_name,
-              phone: reservation.customer_phone,
-              email: reservation.customer_email,
-              source: 'reservation',
-              first_interaction: reservation.created_at,
-              last_order_date: null,
-              total_spent: 0,
-              order_count: 0,
-              reservation_count: 1
-            });
-          } else if (phone && customers.has(phone)) {
-            // Update existing customer
-            const existing = customers.get(phone);
-            existing.reservation_count = (existing.reservation_count || 0) + 1;
-            if (new Date(reservation.created_at) < new Date(existing.first_interaction)) {
-              existing.first_interaction = reservation.created_at;
-            }
-          }
-        });
-      }
-      
-      // Add mock reservations to customer list
-      Array.from(mockReservations.values()).forEach(reservation => {
-        const phone = reservation.customer_phone;
-        if (phone && !customers.has(phone)) {
-          customers.set(phone, {
-            id: customers.size + 1,
-            name: reservation.customer_name,
-            phone: reservation.customer_phone,
-            email: reservation.customer_email,
-            source: 'mock_reservation',
-            first_interaction: reservation.created_at,
-            last_order_date: null,
-            total_spent: 0,
-            order_count: 0,
-            reservation_count: 1
-          });
-        }
-      });
       
       // Convert Map to Array and sort by most recent interaction
       const customerList = Array.from(customers.values()).sort((a, b) => {
@@ -998,236 +905,6 @@ async function handleCustomers(req, res, query) {
   return res.status(405).json({ error: 'Method not allowed' });
 }
 
-// Reservations handler
-async function handleReservations(req, res, query, pathSegments) {
-  if (req.method === 'GET') {
-    try {
-      // Handle individual reservation lookup (/reservations/:id)
-      if (pathSegments.length > 1 && pathSegments[1]) {
-        const reservationId = parseInt(pathSegments[1]);
-        console.log('Looking up reservation ID:', reservationId);
-        
-        if (isNaN(reservationId)) {
-          return res.status(400).json({ error: 'Invalid reservation ID' });
-        }
-        
-        // First check mock reservations
-        const mockReservation = mockReservations.get(reservationId);
-        if (mockReservation) {
-          console.log('Found mock reservation:', mockReservation);
-          return res.json(mockReservation);
-        }
-        
-        // Then check database
-        const { data: reservation, error } = await supabase
-          .from('reservations')
-          .select('*')
-          .eq('id', reservationId)
-          .single();
-        
-        if (error || !reservation) {
-          console.log('Reservation lookup error:', error);
-          return res.status(404).json({ 
-            error: 'Reservation not found',
-            message: `Reservation with ID ${reservationId} does not exist or has been removed.`,
-            reservationId 
-          });
-        }
-        
-        return res.json(reservation);
-      }
-      
-      // Handle list of reservations
-      const { restaurant_id } = query;
-      
-      // Get database reservations
-      let queryBuilder = supabase
-        .from('reservations')
-        .select('*')
-        .order('date_time', { ascending: true });
-      
-      if (restaurant_id) {
-        queryBuilder = queryBuilder.eq('restaurant_id', restaurant_id);
-      }
-      
-      const { data: dbReservations, error } = await queryBuilder;
-      
-      // Get mock reservations
-      let mockReservationsList = Array.from(mockReservations.values());
-      if (restaurant_id) {
-        mockReservationsList = mockReservationsList.filter(r => r.restaurant_id == restaurant_id);
-      }
-      
-      console.log('Reservations request details:');
-      console.log('  - Restaurant ID filter:', restaurant_id);
-      console.log('  - Database reservations count:', dbReservations?.length || 0);
-      console.log('  - Mock reservations total:', mockReservations.size);
-      console.log('  - Mock reservations filtered:', mockReservationsList.length);
-      console.log('  - Database error:', error?.message || 'none');
-      
-      // Combine database and mock reservations
-      const allReservations = [
-        ...(dbReservations || []),
-        ...mockReservationsList
-      ];
-      
-      if (error) {
-        console.log('Reservations query error (returning mock only):', error);
-        return res.json(mockReservationsList);
-      }
-      
-      console.log('Returning combined reservations:', allReservations.length);
-      return res.json(allReservations);
-  } catch (error) {
-      console.log('Reservations error (returning empty):', error);
-      return res.json([]);
-    }
-  }
-  
-  if (req.method === 'POST') {
-    try {
-      console.log('Reservation creation request body:', req.body);
-      
-      const { 
-        customer_name, 
-        customer_phone, 
-        customer_email,
-        restaurant_id,
-        date_time,
-        party_size,
-        occasion,
-        special_requests
-      } = req.body;
-      
-      // Validate required fields
-      if (!customer_name || !customer_phone || !restaurant_id || !date_time || !party_size) {
-        return res.status(400).json({ error: 'Missing required fields' });
-      }
-      
-      const reservationNumber = `RES-${Math.floor(Math.random() * 9999)}`; // Shorter reservation number
-      
-      console.log('Creating reservation with data:', {
-        reservation_number: reservationNumber,
-        customer_name,
-        customer_phone,
-        customer_email,
-        restaurant_id,
-        date_time,
-        party_size,
-        occasion,
-        special_requests,
-        status: 'pending'
-      });
-      
-      // Try to insert reservation with multiple fallback strategies
-      let finalReservation = null;
-      let insertError = null;
-      
-      // Strategy 1: Try admin client first (more likely to succeed with RLS)
-      try {
-        console.log('Trying admin client first for reservation creation...');
-        const { data: adminReservations, error: adminError } = await supabaseAdmin
-          .from('reservations')
-          .insert({
-            reservation_number: reservationNumber,
-            customer_name,
-            customer_phone,
-            customer_email,
-            restaurant_id,
-            date_time,
-            party_size,
-            occasion,
-            special_requests,
-            status: 'pending'
-          })
-          .select();
-        
-        if (!adminError && adminReservations && adminReservations.length > 0) {
-          finalReservation = adminReservations[0];
-          console.log('Reservation created successfully with admin client:', finalReservation);
-          return res.status(201).json(finalReservation);
-        } else {
-          console.error('Admin client failed:', adminError);
-          insertError = adminError;
-        }
-      } catch (adminClientError) {
-        console.error('Admin client exception:', adminClientError);
-        insertError = adminClientError;
-      }
-      
-      // Strategy 2: Try regular supabase client as fallback
-      const { data: reservations, error } = await supabase
-        .from('reservations')
-        .insert({
-          reservation_number: reservationNumber,
-          customer_name,
-          customer_phone,
-          customer_email,
-          restaurant_id,
-          date_time,
-          party_size,
-          occasion,
-          special_requests,
-          status: 'pending'
-        })
-        .select();
-      
-      if (!error && reservations && reservations.length > 0) {
-        finalReservation = reservations[0];
-        console.log('Reservation created successfully with regular client:', finalReservation);
-        return res.status(201).json(finalReservation);
-      } else {
-        console.error('Regular client also failed:', error);
-        insertError = error;
-      }
-      
-      // Strategy 3: Create a persistent mock reservation as final fallback
-      console.log('All database strategies failed, creating persistent mock reservation');
-      
-      // Use a timestamp-based ID to ensure uniqueness
-      const mockId = Date.now() + Math.floor(Math.random() * 1000);
-      
-      const mockReservation = {
-        id: mockId,
-        reservation_number: reservationNumber,
-        customer_name,
-        customer_phone,
-        customer_email,
-        restaurant_id: parseInt(restaurant_id),
-        date_time,
-        party_size: parseInt(party_size),
-        occasion,
-        special_requests,
-        status: 'pending',
-        created_at: new Date().toISOString(),
-        is_mock: true // Flag to identify mock reservations
-      };
-      
-      // Store mock reservation for later retrieval
-      mockReservations.set(mockReservation.id, mockReservation);
-      console.log('Mock reservation created and stored:', mockReservation);
-      console.log('Current mock reservations count:', mockReservations.size);
-      
-      // Also log to help with debugging
-      console.log('Mock reservation will be available at:', `${req.headers.host}/api/reservations/${mockId}`);
-      
-      // IMPORTANT: Since this is a mock reservation due to database issues,
-      // we should also try to return it in a way that the frontend can cache it
-      const responseData = {
-        ...mockReservation,
-        _warning: 'This reservation was created as a fallback due to database issues. It may not appear in admin panels until database connectivity is restored.',
-        _persistence_note: 'Please save this confirmation for your records.'
-      };
-      
-      return res.status(201).json(responseData);
-  } catch (error) {
-      console.error('Reservation error:', error);
-      return res.status(500).json({ error: 'Failed to create reservation: ' + error.message });
-    }
-  }
-  
-  return res.status(405).json({ error: 'Method not allowed' });
-}
 
 // Menu Categories handler
 async function handleMenuCategories(req, res, pathSegments, query) {

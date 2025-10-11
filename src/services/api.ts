@@ -232,35 +232,6 @@ class ApiService {
     });
   }
 
-  // ==================== RESERVATIONS ====================
-  async createReservation(reservationData: any) {
-    return this.request('/reservations', {
-      method: 'POST',
-      body: JSON.stringify(reservationData),
-    });
-  }
-
-  async getAdminReservations(filters: any = {}) {
-    const params = new URLSearchParams(filters);
-    return this.request(`/reservations?${params}`);
-  }
-
-  async updateReservationStatus(id: number, status: string, notes?: string) {
-    return this.request(`/reservations/${id}/status`, {
-      method: 'PUT',
-      body: JSON.stringify({ status, notes }),
-    });
-  }
-
-  async getReservationDetails(id: number) {
-    return this.request(`/reservations/${id}`);
-  }
-
-  async deleteReservation(id: number) {
-    return this.request(`/reservations/${id}`, {
-      method: 'DELETE',
-    });
-  }
 
   // ==================== CUSTOMERS ====================
   async getAdminCustomers(filters: any = {}) {

@@ -21,7 +21,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
     { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/admin/menu', icon: Menu, label: 'Menu Management' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
-    { path: '/admin/reservations', icon: Calendar, label: 'Reservations' },
     { path: '/admin/customers', icon: Users, label: 'Customer Management' },
   ];
 
