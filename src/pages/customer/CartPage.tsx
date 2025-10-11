@@ -75,7 +75,7 @@ const CartPage: React.FC = () => {
                   {item.grams ? (
                     // Dynamic pricing item
                     <div className="space-y-1">
-                      <p className="font-medium text-gray-800">Dynamic Pricing Breakdown:</p>
+                      <p className="font-medium text-gray-800">Order Total Breakdown:</p>
                       <p>• Price: K{item.menuItem.price.toFixed(0)} per gram</p>
                       <p>• Weight: {item.grams}g × {item.quantity} packet{item.quantity > 1 ? 's' : ''}</p>
                       <p>• Item cost: {item.grams}g × {item.quantity} × K{item.menuItem.price.toFixed(0)} = K{item.itemTotal.toFixed(0)}</p>
@@ -87,6 +87,7 @@ const CartPage: React.FC = () => {
                   ) : (
                     // Regular pricing item
                     <div className="space-y-1">
+                      <p className="font-medium text-gray-800">Order Total Breakdown:</p>
                       <p>• Base price: K{item.menuItem.price.toFixed(0)} each</p>
                       <p>• Quantity: {item.quantity} item{item.quantity > 1 ? 's' : ''}</p>
                       <p>• Item cost: {item.quantity} × K{item.menuItem.price.toFixed(0)} = K{item.itemTotal.toFixed(0)}</p>

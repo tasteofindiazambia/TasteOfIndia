@@ -643,7 +643,7 @@ const AdminOrders: React.FC = () => {
                             {item.grams ? (
                               // Dynamic pricing breakdown
                               <div className="space-y-1">
-                                <div className="font-medium text-gray-800">Dynamic Pricing Calculation:</div>
+                                <div className="font-medium text-gray-800">Order Total Breakdown:</div>
                                 <div>• Price: K{basePrice.toFixed(0)} per gram</div>
                                 <div>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</div>
                                 <div>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</div>
@@ -655,7 +655,7 @@ const AdminOrders: React.FC = () => {
                             ) : (
                               // Regular pricing breakdown
                               <div className="space-y-1">
-                                <div className="font-medium text-gray-800">Regular Pricing Calculation:</div>
+                                <div className="font-medium text-gray-800">Order Total Breakdown:</div>
                                 <div>• Base price: K{basePrice.toFixed(0)} each</div>
                                 <div>• Quantity: {quantity} item{quantity > 1 ? 's' : ''}</div>
                                 <div>• Item cost: {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</div>

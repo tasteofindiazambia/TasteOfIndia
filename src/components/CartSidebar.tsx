@@ -107,7 +107,7 @@ const CartSidebar: React.FC = () => {
                           {item.grams ? (
                             // Dynamic pricing breakdown
                             <div className="space-y-1">
-                              <p className="font-medium text-charcoal">Dynamic Pricing:</p>
+                              <p className="font-medium text-charcoal">Order Total Breakdown:</p>
                               <p>• K{item.menuItem.price.toFixed(0)}/g × {item.grams}g × {item.quantity} = K{item.itemTotal.toFixed(0)}</p>
                               {item.packagingPrice > 0 && (
                                 <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
@@ -117,7 +117,7 @@ const CartSidebar: React.FC = () => {
                           ) : (
                             // Regular pricing breakdown
                             <div className="space-y-1">
-                              <p className="font-medium text-charcoal">Regular Pricing:</p>
+                              <p className="font-medium text-charcoal">Order Total Breakdown:</p>
                               <p>• K{item.menuItem.price.toFixed(0)} each × {item.quantity} = K{item.itemTotal.toFixed(0)}</p>
                               {item.packagingPrice > 0 && (
                                 <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>

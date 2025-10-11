@@ -378,7 +378,7 @@ const StaffOrders: React.FC = () => {
                               {item.grams ? (
                                 // Dynamic pricing breakdown
                                 <div className="space-y-1">
-                                  <div className="font-medium text-gray-800">Dynamic Pricing Calculation:</div>
+                                  <div className="font-medium text-gray-800">Order Total Breakdown:</div>
                                   <div>• Price: {formatMoney(basePrice)} per gram</div>
                                   <div>• Weight: {item.grams}g × {qty} packet{qty > 1 ? 's' : ''}</div>
                                   <div>• Item cost: {item.grams}g × {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
@@ -390,7 +390,7 @@ const StaffOrders: React.FC = () => {
                               ) : (
                                 // Regular pricing breakdown
                                 <div className="space-y-1">
-                                  <div className="font-medium text-gray-800">Regular Pricing Calculation:</div>
+                                  <div className="font-medium text-gray-800">Order Total Breakdown:</div>
                                   <div>• Base price: {formatMoney(basePrice)} each</div>
                                   <div>• Quantity: {qty} item{qty > 1 ? 's' : ''}</div>
                                   <div>• Item cost: {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>

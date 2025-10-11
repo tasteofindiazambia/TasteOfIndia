@@ -180,14 +180,14 @@ Thank you for your order! 🙏
                   </div>
                   <div style="font-size: 11px; color: #6b7280; line-height: 1.4; background: white; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">
                     ${item.grams ? `
-                      <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Dynamic Pricing Calculation:</div>
+                      <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Order Total Breakdown:</div>
                       <div>• Price: K${basePrice.toFixed(0)} per gram</div>
                       <div>• Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}</div>
                       <div>• Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(0)} = K${itemTotal.toFixed(0)}</div>
                       ${packagingPrice > 0 ? `<div>• Packaging: K${item.packaging_price?.toFixed(0) || '0'} × ${quantity} = K${packagingPrice.toFixed(0)}</div>` : ''}
                       <div style="font-weight: 500; color: #ea580c;">• Total: K${totalPrice.toFixed(0)}</div>
                     ` : `
-                      <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Regular Pricing Calculation:</div>
+                      <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Order Total Breakdown:</div>
                       <div>• Base price: K${basePrice.toFixed(0)} each</div>
                       <div>• Quantity: ${quantity} item${quantity > 1 ? 's' : ''}</div>
                       <div>• Item cost: ${quantity} × K${basePrice.toFixed(0)} = K${itemTotal.toFixed(0)}</div>

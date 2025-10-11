@@ -278,7 +278,7 @@ const OrderConfirmationPage: React.FC = () => {
                       {item.grams ? (
                         // Dynamic pricing breakdown
                         <div className="space-y-1">
-                          <p className="font-medium text-gray-800">Dynamic Pricing Calculation:</p>
+                          <p className="font-medium text-gray-800">Order Total Breakdown:</p>
                           <p>• Price: K{basePrice.toFixed(0)} per gram</p>
                           <p>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
                           <p>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</p>
@@ -290,7 +290,7 @@ const OrderConfirmationPage: React.FC = () => {
                       ) : (
                         // Regular pricing breakdown
                         <div className="space-y-1">
-                          <p className="font-medium text-gray-800">Regular Pricing Calculation:</p>
+                          <p className="font-medium text-gray-800">Order Total Breakdown:</p>
                           <p>• Base price: K{basePrice.toFixed(0)} each</p>
                           <p>• Quantity: {quantity} item{quantity > 1 ? 's' : ''}</p>
                           <p>• Item cost: {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</p>
