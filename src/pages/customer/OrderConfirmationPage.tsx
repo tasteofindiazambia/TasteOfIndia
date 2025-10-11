@@ -247,11 +247,25 @@ const OrderConfirmationPage: React.FC = () => {
             {order.items && order.items.length > 0 ? (
               order.items.map((item: any, index: number) => {
                 const itemName = item.menu_item_name || item.name || item.menu_items?.name || 'Unknown Item';
-                const basePrice = item.unit_price || item.price || 0;
                 const quantity = item.quantity || 1;
-                const itemTotal = basePrice * quantity;
-                const packagingPrice = (item.packaging_price || 0) * quantity;
-                const totalPrice = itemTotal + packagingPrice;
+                
+                // For dynamic pricing items, calculate per-gram price and item total correctly
+                let basePrice, itemTotal, packagingPrice, totalPrice;
+                
+                if (item.grams) {
+                  // Dynamic pricing: basePrice is per-gram price
+                  const totalItemPrice = item.unit_price || item.price || 0;
+                  basePrice = totalItemPrice / item.grams; // Per-gram price
+                  itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+                  packagingPrice = (item.packaging_price || 0) * quantity;
+                  totalPrice = itemTotal + packagingPrice;
+                } else {
+                  // Regular pricing: basePrice is per-item price
+                  basePrice = item.unit_price || item.price || 0;
+                  itemTotal = basePrice * quantity;
+                  packagingPrice = (item.packaging_price || 0) * quantity;
+                  totalPrice = itemTotal + packagingPrice;
+                }
                 
                 return (
                   <div key={item.id || index} className="border border-gray-200 rounded-lg p-4">
@@ -279,9 +293,9 @@ const OrderConfirmationPage: React.FC = () => {
                         // Dynamic pricing breakdown
                         <div className="space-y-1">
                           <p className="font-medium text-gray-800">Order Total Breakdown:</p>
-                          <p>• Price: K{(basePrice / item.grams).toFixed(2)} per gram</p>
+                          <p>• Price: K{basePrice.toFixed(2)} per gram</p>
                           <p>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
-                          <p>• Item cost: {item.grams}g × {quantity} × K{(basePrice / item.grams).toFixed(2)} = K{itemTotal.toFixed(0)}</p>
+                          <p>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</p>
                           {packagingPrice > 0 && (
                             <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
                           )}

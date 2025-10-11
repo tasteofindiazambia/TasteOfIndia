@@ -27,18 +27,32 @@ ${order.order_type === 'pickup' ? '🏪 Pickup Order' : '🚚 Delivery Order'}
 ${order.items && order.items.length > 0 
   ? order.items.map((item: any) => {
       const itemName = item.menu_item_name || item.name || 'Unknown Item';
-      const basePrice = item.unit_price || item.price || 0;
       const quantity = item.quantity || 1;
-      const itemTotal = basePrice * quantity;
-      const packagingPrice = (item.packaging_price || 0) * quantity;
-      const totalPrice = itemTotal + packagingPrice;
+      
+      // For dynamic pricing items, calculate per-gram price and item total correctly
+      let basePrice, itemTotal, packagingPrice, totalPrice;
+      
+      if (item.grams) {
+        // Dynamic pricing: basePrice is per-gram price
+        const totalItemPrice = item.unit_price || item.price || 0;
+        basePrice = totalItemPrice / item.grams; // Per-gram price
+        itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+        packagingPrice = (item.packaging_price || 0) * quantity;
+        totalPrice = itemTotal + packagingPrice;
+      } else {
+        // Regular pricing: basePrice is per-item price
+        basePrice = item.unit_price || item.price || 0;
+        itemTotal = basePrice * quantity;
+        packagingPrice = (item.packaging_price || 0) * quantity;
+        totalPrice = itemTotal + packagingPrice;
+      }
       
       let itemText = `• ${itemName} × ${quantity}`;
       if (item.grams) {
         itemText += ` (${item.grams}g per packet)`;
-        itemText += `\n  - Price: K${(basePrice / item.grams).toFixed(2)} per gram`;
+        itemText += `\n  - Price: K${basePrice.toFixed(2)} per gram`;
         itemText += `\n  - Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}`;
-        itemText += `\n  - Item cost: ${item.grams}g × ${quantity} × K${(basePrice / item.grams).toFixed(2)} = K${itemTotal.toFixed(0)}`;
+        itemText += `\n  - Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(2)} = K${itemTotal.toFixed(0)}`;
       } else {
         itemText += `\n  - Base price: K${basePrice.toFixed(0)} each`;
         itemText += `\n  - Quantity: ${quantity} item${quantity > 1 ? 's' : ''}`;
@@ -163,11 +177,25 @@ Thank you for your order! 🙏
           ${Array.isArray(order.items) 
             ? order.items.map((item: any) => {
                 const itemName = item.menu_item_name || item.name || 'Unknown Item';
-                const basePrice = item.unit_price || item.price || 0;
                 const quantity = item.quantity || 1;
-                const itemTotal = basePrice * quantity;
-                const packagingPrice = (item.packaging_price || 0) * quantity;
-                const totalPrice = itemTotal + packagingPrice;
+                
+                // For dynamic pricing items, calculate per-gram price and item total correctly
+                let basePrice, itemTotal, packagingPrice, totalPrice;
+                
+                if (item.grams) {
+                  // Dynamic pricing: basePrice is per-gram price
+                  const totalItemPrice = item.unit_price || item.price || 0;
+                  basePrice = totalItemPrice / item.grams; // Per-gram price
+                  itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+                  packagingPrice = (item.packaging_price || 0) * quantity;
+                  totalPrice = itemTotal + packagingPrice;
+                } else {
+                  // Regular pricing: basePrice is per-item price
+                  basePrice = item.unit_price || item.price || 0;
+                  itemTotal = basePrice * quantity;
+                  packagingPrice = (item.packaging_price || 0) * quantity;
+                  totalPrice = itemTotal + packagingPrice;
+                }
                 
                 return `<div style="margin: 8px 0; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
                   <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
@@ -181,9 +209,9 @@ Thank you for your order! 🙏
                   <div style="font-size: 11px; color: #6b7280; line-height: 1.4; background: white; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">
                     ${item.grams ? `
                       <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Order Total Breakdown:</div>
-                      <div>• Price: K${(basePrice / item.grams).toFixed(2)} per gram</div>
+                      <div>• Price: K${basePrice.toFixed(2)} per gram</div>
                       <div>• Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}</div>
-                      <div>• Item cost: ${item.grams}g × ${quantity} × K${(basePrice / item.grams).toFixed(2)} = K${itemTotal.toFixed(0)}</div>
+                      <div>• Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(2)} = K${itemTotal.toFixed(0)}</div>
                       ${packagingPrice > 0 ? `<div>• Packaging: K${item.packaging_price?.toFixed(0) || '0'} × ${quantity} = K${packagingPrice.toFixed(0)}</div>` : ''}
                       <div style="font-weight: 500; color: #ea580c;">• Total: K${totalPrice.toFixed(0)}</div>
                     ` : `
