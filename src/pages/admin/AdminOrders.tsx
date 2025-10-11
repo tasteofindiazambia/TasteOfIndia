@@ -483,7 +483,7 @@ const AdminOrders: React.FC = () => {
                     return (
                       <tr key={order.id} className="hover:bg-gray-50">
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">#{order.order_number || order.id}</div>
+                          <div className="text-sm font-medium text-gray-900">#{order.id}</div>
                           <div className="text-xs text-gray-500 sm:hidden">{order.customer_name}</div>
                         </td>
                         <td className="px-2 sm:px-4 py-4 whitespace-nowrap hidden sm:table-cell">

@@ -69,7 +69,7 @@ const StaffOrders: React.FC = () => {
       return false;
     }
     
-    const matchesSearch = order.order_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = order.id?.toString().includes(searchTerm.toLowerCase()) ||
                          order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -234,7 +234,7 @@ const StaffOrders: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-semibold text-gray-900">
-                          Order #{order.order_number}
+                          Order #{order.id}
                         </h3>
                         <p className="text-sm text-gray-600">
                           Customer: {order.customer_name || 'N/A'}
@@ -261,7 +261,7 @@ const StaffOrders: React.FC = () => {
                     
                     <div className="flex items-center space-x-2">
                       <a
-                        href={buildWhatsAppLink(order.customer_phone, (order as any).order_number)}
+                        href={buildWhatsAppLink(order.customer_phone, order.id.toString())}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center px-3 py-1.5 border border-green-500 text-sm font-medium rounded-md text-green-700 bg-white hover:bg-green-50"
@@ -306,7 +306,7 @@ const StaffOrders: React.FC = () => {
             <div className="mt-3">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Order #{selectedOrder.order_number}
+                  Order #{selectedOrder.id}
                 </h3>
                 <button
                   onClick={() => setSelectedOrder(null)}
@@ -322,7 +322,7 @@ const StaffOrders: React.FC = () => {
                   <p className="flex items-center gap-2">
                     <span><strong>Phone:</strong> {selectedOrder.customer_phone}</span>
                     <a
-                      href={buildWhatsAppLink(selectedOrder.customer_phone, selectedOrder.order_number)}
+                      href={buildWhatsAppLink(selectedOrder.customer_phone, selectedOrder.id.toString())}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center px-2 py-1 border border-green-500 text-xs font-medium rounded text-green-700 bg-white hover:bg-green-50"
