@@ -49,6 +49,15 @@ Thank you for your order! 🙏
     window.open(whatsappUrl, '_blank');
   };
 
+  const chatWithRestaurant = () => {
+    // Restaurant WhatsApp number
+    const phoneNumber = '+917099539615';
+    const message = `Hi, I'm order no #${order.id}. I have a question about my order.`;
+    
+    const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const generateScreenshot = async () => {
     setGenerating(true);
     try {
@@ -143,7 +152,7 @@ Thank you for your order! 🙏
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <h3 className="font-semibold mb-4">Share Your Order</h3>
       <p className="text-gray-600 mb-4">
-        Share your order summary with friends or save it for your records
+        Share your order summary with friends or contact the restaurant directly
       </p>
       
       <div className="flex flex-col sm:flex-row gap-3">
@@ -152,7 +161,15 @@ Thank you for your order! 🙏
           className="flex items-center justify-center space-x-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
         >
           <MessageCircle className="w-4 h-4" />
-          <span>Share on WhatsApp</span>
+          <span>Share with Anyone</span>
+        </button>
+        
+        <button
+          onClick={chatWithRestaurant}
+          className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          <MessageCircle className="w-4 h-4" />
+          <span>Chat with Restaurant</span>
         </button>
         
         <button
