@@ -30,13 +30,21 @@ ${order.items && order.items.length > 0
       const quantity = item.quantity || 1;
       
       // For dynamic pricing items, calculate per-gram price and item total correctly
-      let basePrice, itemTotal, packagingPrice, totalPrice;
+      let basePrice, itemTotal, packagingPrice, totalPrice, grams;
       
+      // Extract grams from special_instructions if not directly available
       if (item.grams) {
+        grams = item.grams;
+      } else if (item.special_instructions && item.special_instructions.includes('g per package')) {
+        // Extract grams from special_instructions like "100g per package -"
+        const match = item.special_instructions.match(/(\d+)g per package/);
+        grams = match ? parseInt(match[1]) : null;
+      }
+      
+      if (grams && item.unit_price && item.unit_price < 10) {
         // Dynamic pricing: basePrice is per-gram price
-        const totalItemPrice = item.unit_price || item.price || 0;
-        basePrice = totalItemPrice / item.grams; // Per-gram price
-        itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+        basePrice = item.unit_price; // This is already per-gram price from backend
+        itemTotal = basePrice * grams * quantity; // Per-gram price × grams × quantity
         packagingPrice = (item.packaging_price || 0) * quantity;
         totalPrice = itemTotal + packagingPrice;
       } else {
@@ -48,11 +56,11 @@ ${order.items && order.items.length > 0
       }
       
       let itemText = `• ${itemName} × ${quantity}`;
-      if (item.grams) {
-        itemText += ` (${item.grams}g per packet)`;
+      if (grams) {
+        itemText += ` (${grams}g per packet)`;
         itemText += `\n  - Price: K${basePrice.toFixed(2)} per gram`;
-        itemText += `\n  - Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}`;
-        itemText += `\n  - Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(2)} = K${itemTotal.toFixed(0)}`;
+        itemText += `\n  - Weight: ${grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}`;
+        itemText += `\n  - Item cost: ${grams}g × ${quantity} × K${basePrice.toFixed(2)} = K${itemTotal.toFixed(0)}`;
       } else {
         itemText += `\n  - Base price: K${basePrice.toFixed(0)} each`;
         itemText += `\n  - Quantity: ${quantity} item${quantity > 1 ? 's' : ''}`;
@@ -180,13 +188,21 @@ Thank you for your order! 🙏
                 const quantity = item.quantity || 1;
                 
                 // For dynamic pricing items, calculate per-gram price and item total correctly
-                let basePrice, itemTotal, packagingPrice, totalPrice;
+                let basePrice, itemTotal, packagingPrice, totalPrice, grams;
                 
+                // Extract grams from special_instructions if not directly available
                 if (item.grams) {
+                  grams = item.grams;
+                } else if (item.special_instructions && item.special_instructions.includes('g per package')) {
+                  // Extract grams from special_instructions like "100g per package -"
+                  const match = item.special_instructions.match(/(\d+)g per package/);
+                  grams = match ? parseInt(match[1]) : null;
+                }
+                
+                if (grams && item.unit_price && item.unit_price < 10) {
                   // Dynamic pricing: basePrice is per-gram price
-                  const totalItemPrice = item.unit_price || item.price || 0;
-                  basePrice = totalItemPrice / item.grams; // Per-gram price
-                  itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+                  basePrice = item.unit_price; // This is already per-gram price from backend
+                  itemTotal = basePrice * grams * quantity; // Per-gram price × grams × quantity
                   packagingPrice = (item.packaging_price || 0) * quantity;
                   totalPrice = itemTotal + packagingPrice;
                 } else {
@@ -202,16 +218,16 @@ Thank you for your order! 🙏
                     <div>
                       <span style="font-weight: 500; color: #374151; font-size: 14px;">${itemName}</span>
                       <br>
-                      <small style="color: #6b7280;">Qty: ${quantity}${item.grams ? ` (${item.grams}g per packet)` : ''}</small>
+                      <small style="color: #6b7280;">Qty: ${quantity}${grams ? ` (${grams}g per packet)` : ''}</small>
                     </div>
                     <span style="font-weight: bold; color: #ea580c; font-size: 16px;">K${totalPrice.toFixed(0)}</span>
                   </div>
                   <div style="font-size: 11px; color: #6b7280; line-height: 1.4; background: white; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">
-                    ${item.grams ? `
+                    ${grams ? `
                       <div style="font-weight: 500; color: #374151; margin-bottom: 4px;">Order Total Breakdown:</div>
                       <div>• Price: K${basePrice.toFixed(2)} per gram</div>
-                      <div>• Weight: ${item.grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}</div>
-                      <div>• Item cost: ${item.grams}g × ${quantity} × K${basePrice.toFixed(2)} = K${itemTotal.toFixed(0)}</div>
+                      <div>• Weight: ${grams}g × ${quantity} packet${quantity > 1 ? 's' : ''}</div>
+                      <div>• Item cost: ${grams}g × ${quantity} × K${basePrice.toFixed(2)} = K${itemTotal.toFixed(0)}</div>
                       ${packagingPrice > 0 ? `<div>• Packaging: K${item.packaging_price?.toFixed(0) || '0'} × ${quantity} = K${packagingPrice.toFixed(0)}</div>` : ''}
                       <div style="font-weight: 500; color: #ea580c;">• Total: K${totalPrice.toFixed(0)}</div>
                     ` : `

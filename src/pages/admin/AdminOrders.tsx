@@ -614,13 +614,21 @@ const AdminOrders: React.FC = () => {
                       const quantity = item.quantity || 1;
                       
                       // For dynamic pricing items, calculate per-gram price and item total correctly
-                      let basePrice, itemTotal, packagingPrice, totalPrice;
+                      let basePrice, itemTotal, packagingPrice, totalPrice, grams;
                       
+                      // Extract grams from special_instructions if not directly available
                       if (item.grams) {
+                        grams = item.grams;
+                      } else if (item.special_instructions && item.special_instructions.includes('g per package')) {
+                        // Extract grams from special_instructions like "100g per package -"
+                        const match = item.special_instructions.match(/(\d+)g per package/);
+                        grams = match ? parseInt(match[1]) : null;
+                      }
+                      
+                      if (grams && item.unit_price && item.unit_price < 10) {
                         // Dynamic pricing: basePrice is per-gram price
-                        const totalItemPrice = item.unit_price || item.price || 0;
-                        basePrice = totalItemPrice / item.grams; // Per-gram price
-                        itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+                        basePrice = item.unit_price; // This is already per-gram price from backend
+                        itemTotal = basePrice * grams * quantity; // Per-gram price × grams × quantity
                         packagingPrice = (item.packaging_price || 0) * quantity;
                         totalPrice = itemTotal + packagingPrice;
                       } else {
@@ -654,13 +662,13 @@ const AdminOrders: React.FC = () => {
                             <span className="font-bold text-deep-maroon">K{totalPrice.toFixed(0)}</span>
                           </div>
                           <div className="text-xs text-gray-600 space-y-1 bg-white p-2 rounded border">
-                            {item.grams ? (
+                            {grams ? (
                               // Dynamic pricing breakdown
                               <div className="space-y-1">
                                 <div className="font-medium text-gray-800">Order Total Breakdown:</div>
                                 <div>• Price: K{basePrice.toFixed(2)} per gram</div>
-                                <div>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</div>
-                                <div>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</div>
+                                <div>• Weight: {grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</div>
+                                <div>• Item cost: {grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</div>
                                 {packagingPrice > 0 && (
                                   <div>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</div>
                                 )}

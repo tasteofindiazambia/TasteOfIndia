@@ -354,13 +354,21 @@ const StaffOrders: React.FC = () => {
                         const qty = item.quantity || 1;
                         
                         // For dynamic pricing items, calculate per-gram price and item total correctly
-                        let basePrice, itemTotal, packagingPrice, totalPrice;
+                        let basePrice, itemTotal, packagingPrice, totalPrice, grams;
                         
+                        // Extract grams from special_instructions if not directly available
                         if (item.grams) {
+                          grams = item.grams;
+                        } else if (item.special_instructions && item.special_instructions.includes('g per package')) {
+                          // Extract grams from special_instructions like "100g per package -"
+                          const match = item.special_instructions.match(/(\d+)g per package/);
+                          grams = match ? parseInt(match[1]) : null;
+                        }
+                        
+                        if (grams && item.unit_price && item.unit_price < 10) {
                           // Dynamic pricing: basePrice is per-gram price
-                          const totalItemPrice = item.unit_price || item.price || 0;
-                          basePrice = totalItemPrice / item.grams; // Per-gram price
-                          itemTotal = basePrice * item.grams * qty; // Per-gram price × grams × quantity
+                          basePrice = item.unit_price; // This is already per-gram price from backend
+                          itemTotal = basePrice * grams * qty; // Per-gram price × grams × quantity
                           packagingPrice = (item.packaging_price || 0) * qty;
                           totalPrice = itemTotal + packagingPrice;
                         } else {
@@ -389,13 +397,13 @@ const StaffOrders: React.FC = () => {
                               <span className="font-bold text-deep-maroon">{formatMoney(totalPrice)}</span>
                             </div>
                             <div className="text-xs text-gray-600 space-y-1 bg-white p-2 rounded border">
-                              {item.grams ? (
+                              {grams ? (
                                 // Dynamic pricing breakdown
                                 <div className="space-y-1">
                                   <div className="font-medium text-gray-800">Order Total Breakdown:</div>
                                   <div>• Price: {formatMoney(basePrice)} per gram</div>
-                                  <div>• Weight: {item.grams}g × {qty} packet{qty > 1 ? 's' : ''}</div>
-                                  <div>• Item cost: {item.grams}g × {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
+                                  <div>• Weight: {grams}g × {qty} packet{qty > 1 ? 's' : ''}</div>
+                                  <div>• Item cost: {grams}g × {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
                                   {packagingPrice > 0 && (
                                     <div>• Packaging: {formatMoney(item.packaging_price || 0)} × {qty} = {formatMoney(packagingPrice)}</div>
                                   )}

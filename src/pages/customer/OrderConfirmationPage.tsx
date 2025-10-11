@@ -250,13 +250,21 @@ const OrderConfirmationPage: React.FC = () => {
                 const quantity = item.quantity || 1;
                 
                 // For dynamic pricing items, calculate per-gram price and item total correctly
-                let basePrice, itemTotal, packagingPrice, totalPrice;
+                let basePrice, itemTotal, packagingPrice, totalPrice, grams;
                 
+                // Extract grams from special_instructions if not directly available
                 if (item.grams) {
+                  grams = item.grams;
+                } else if (item.special_instructions && item.special_instructions.includes('g per package')) {
+                  // Extract grams from special_instructions like "100g per package -"
+                  const match = item.special_instructions.match(/(\d+)g per package/);
+                  grams = match ? parseInt(match[1]) : null;
+                }
+                
+                if (grams && item.unit_price && item.unit_price < 10) {
                   // Dynamic pricing: basePrice is per-gram price
-                  const totalItemPrice = item.unit_price || item.price || 0;
-                  basePrice = totalItemPrice / item.grams; // Per-gram price
-                  itemTotal = basePrice * item.grams * quantity; // Per-gram price × grams × quantity
+                  basePrice = item.unit_price; // This is already per-gram price from backend
+                  itemTotal = basePrice * grams * quantity; // Per-gram price × grams × quantity
                   packagingPrice = (item.packaging_price || 0) * quantity;
                   totalPrice = itemTotal + packagingPrice;
                 } else {
@@ -275,8 +283,8 @@ const OrderConfirmationPage: React.FC = () => {
                           {itemName}
                         </span>
                         <span className="text-gray-600 ml-2">× {quantity}</span>
-                        {item.grams && (
-                          <span className="text-gray-500 ml-2">({item.grams}g per packet)</span>
+                        {grams && (
+                          <span className="text-gray-500 ml-2">({grams}g per packet)</span>
                         )}
                         {item.special_instructions && (
                           <div className="text-sm text-gray-500 italic mt-2">
@@ -289,13 +297,13 @@ const OrderConfirmationPage: React.FC = () => {
                       </span>
                     </div>
                     <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
-                      {item.grams ? (
+                      {grams ? (
                         // Dynamic pricing breakdown
                         <div className="space-y-1">
                           <p className="font-medium text-gray-800">Order Total Breakdown:</p>
                           <p>• Price: K{basePrice.toFixed(2)} per gram</p>
-                          <p>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
-                          <p>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</p>
+                          <p>• Weight: {grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
+                          <p>• Item cost: {grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</p>
                           {packagingPrice > 0 && (
                             <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
                           )}
