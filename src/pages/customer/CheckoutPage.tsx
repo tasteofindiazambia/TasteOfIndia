@@ -367,46 +367,10 @@ const CheckoutPage: React.FC = () => {
 
       const order = await orderService.createOrder(orderData);
       
-      // Auto-send WhatsApp message
-      try {
-        const orderSummary = `
-🍛 *Taste of India - Order Summary*
-
-📋 *Order #${order.id}*
-👤 Customer: ${order.customer_name}
-📞 Phone: ${order.customer_phone}
-📅 Date: ${new Date().toLocaleDateString()}
-${data.order_type === 'pickup' ? '🏪 *Pickup Order*' : '🚚 *Delivery Order*'}
-${data.order_type === 'delivery' && data.delivery_address ? `📍 Address: ${data.delivery_address}` : ''}
-
-🛒 *Items Ordered:*
-${transformedItems.map((item: any) => {
-          const menuItem = cartItems.find(cartItem => cartItem.menuItem.id === item.menu_item_id);
-          return `• ${menuItem?.menuItem.name || 'Unknown Item'} × ${item.quantity} - K${item.total_price.toFixed(0)}`;
-        }).join('\n')}
-
-💰 *Subtotal: K${getCartTotal().toFixed(0)}*
-${deliveryFee > 0 ? `🚚 *Delivery Fee: K${deliveryFee}*` : ''}
-💰 *Total: K${totalWithDelivery.toFixed(0)}*
-
-${data.special_instructions ? `📝 Special Instructions: ${data.special_instructions}` : ''}
-
-🏪 *Taste of India Restaurant*
-${data.order_type === 'pickup' ? 'Ready for pickup in 15-20 minutes!' : 'Delivery in 30-45 minutes!'}
-Thank you for your order! 🙏
-        `.trim();
-        
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(orderSummary)}`;
-        window.open(whatsappUrl, '_blank');
-      } catch (whatsappError) {
-        console.error('Failed to send WhatsApp message:', whatsappError);
-        // Don't block the order process if WhatsApp fails
-      }
-      
       clearCart();
       showNotification({
         type: 'success',
-        message: 'Order placed successfully! WhatsApp message sent.'
+        message: 'Order placed successfully!'
       });
       navigate(`/order-confirmation/${(order as any).order_token || order.id}`);
     } catch (err) {
