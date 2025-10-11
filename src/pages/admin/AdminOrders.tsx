@@ -23,10 +23,6 @@ const AdminOrders: React.FC = () => {
     start: new Date().toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
-  const [orderValueRange, setOrderValueRange] = useState<{min: number, max: number}>({
-    min: 0,
-    max: 1000
-  });
 
   // Disable auto-refresh to reduce server load
   // Real-time updates disabled - use manual refresh button instead
@@ -235,11 +231,6 @@ const AdminOrders: React.FC = () => {
       return orderDate >= dateRange.start && orderDate <= dateRange.end;
     });
 
-    // Filter by order value range
-    filtered = filtered.filter(order => {
-      const orderTotal = order.total || order.total_amount || 0;
-      return orderTotal >= orderValueRange.min && orderTotal <= orderValueRange.max;
-    });
 
     // Sort orders
     filtered.sort((a, b) => {
@@ -360,7 +351,6 @@ const AdminOrders: React.FC = () => {
                 <option value="ready">Ready</option>
                 <option value="delivered">Delivered</option>
                 <option value="out for delivery">Out for Delivery</option>
-                <option value="completed">Completed</option>
               </select>
             </div>
 
@@ -385,26 +375,6 @@ const AdminOrders: React.FC = () => {
               />
             </div>
 
-            {/* Order Value Range */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Order Value</label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={orderValueRange.min}
-                  onChange={(e) => setOrderValueRange(prev => ({ ...prev, min: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={orderValueRange.max}
-                  onChange={(e) => setOrderValueRange(prev => ({ ...prev, max: parseInt(e.target.value) || 1000 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-                />
-              </div>
-            </div>
           </div>
         </div>
 
