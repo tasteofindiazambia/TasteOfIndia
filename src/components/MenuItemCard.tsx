@@ -4,7 +4,11 @@ import { MenuItem } from '../types';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  onAddToCart: (item: MenuItem, quantity: number, grams?: number) => void;
+  onAddToCart: (item: MenuItem, quantity: number, grams?: number, pricingDetails?: {
+    itemTotal: number;
+    packagingPrice: number;
+    totalPrice: number;
+  }) => void;
 }
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
@@ -15,7 +19,29 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
   const isDynamicPricing = item.dynamic_pricing || item.pricing_type === 'per_gram';
 
   const handleAddToCart = useCallback(() => {
-    onAddToCart(item, isDynamicPricing ? 1 : quantity, isDynamicPricing ? grams : undefined);
+    // Calculate detailed pricing
+    const currentQuantity = isDynamicPricing ? 1 : quantity;
+    const currentGrams = isDynamicPricing ? grams : undefined;
+    
+    let itemTotal: number;
+    let packagingPrice: number;
+    
+    if (isDynamicPricing && currentGrams) {
+      itemTotal = item.price * currentGrams * currentQuantity;
+      packagingPrice = (item.packaging_price || 0) * currentQuantity;
+    } else {
+      itemTotal = item.price * currentQuantity;
+      packagingPrice = (item.packaging_price || 0) * currentQuantity;
+    }
+    
+    const totalPrice = itemTotal + packagingPrice;
+    
+    onAddToCart(item, currentQuantity, currentGrams, {
+      itemTotal,
+      packagingPrice,
+      totalPrice
+    });
+    
     setShowQuantitySelector(false);
     setQuantity(1);
     setGrams(100);

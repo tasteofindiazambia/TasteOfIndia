@@ -65,11 +65,15 @@ export interface MenuItem {
 export interface CartItem {
   id: number;
   name: string;
-  price: number;
+  price: number; // Base item price
   quantity: number;
   grams?: number; // For per-gram items
   specialInstructions?: string;
   menuItem: MenuItem;
+  // Detailed pricing breakdown
+  itemTotal: number; // price * quantity (or price * grams * quantity for dynamic pricing)
+  packagingPrice: number; // packaging_price * quantity
+  totalPrice: number; // itemTotal + packagingPrice
 }
 
 export interface Order {

@@ -35,22 +35,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
-        const newQuantity = existingItem.quantity + item.quantity;
-        if (newQuantity <= 0) {
-          // Remove item if quantity becomes 0 or negative
-          return prevItems.filter(cartItem => cartItem.id !== item.id);
-        }
         return prevItems.map(cartItem =>
           cartItem.id === item.id
-            ? { ...cartItem, quantity: newQuantity }
+            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
             : cartItem
         );
       }
-      // Only add new item if quantity is positive
-      if (item.quantity > 0) {
-        return [...prevItems, item];
-      }
-      return prevItems;
+      return [...prevItems, item];
     });
   };
 
@@ -65,9 +56,30 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     }
     
     setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? { ...item, quantity } : item
-      )
+      prevItems.map(item => {
+        if (item.id === itemId) {
+          const isDynamicPricing = item.menuItem.dynamic_pricing || item.menuItem.pricing_type === 'per_gram';
+          let itemTotal: number;
+          let packagingPrice: number;
+          
+          if (isDynamicPricing && item.grams) {
+            itemTotal = item.menuItem.price * item.grams * quantity;
+            packagingPrice = (item.menuItem.packaging_price || 0) * quantity;
+          } else {
+            itemTotal = item.menuItem.price * quantity;
+            packagingPrice = (item.menuItem.packaging_price || 0) * quantity;
+          }
+          
+          return {
+            ...item,
+            quantity,
+            itemTotal,
+            packagingPrice,
+            totalPrice: itemTotal + packagingPrice
+          };
+        }
+        return item;
+      })
     );
   };
 
@@ -77,9 +89,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => {
-      const unit = Number(item.price) || 0; // product unit price
-      const pack = Number((item as any).menuItem?.packaging_price || 0);
-      return total + (unit + pack) * (item.quantity || 0);
+      return total + (item.totalPrice || 0);
     }, 0);
   };
 

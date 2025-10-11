@@ -89,22 +89,42 @@ const MenuPage: React.FC = () => {
     setFilteredItems(filtered);
   }, [menuItems, selectedCategory, debouncedSearchQuery]);
 
-  const handleAddToCart = useCallback((menuItem: MenuItem, quantity: number = 1, grams?: number) => {
+  const handleAddToCart = useCallback((menuItem: MenuItem, quantity: number = 1, grams?: number, pricingDetails?: {
+    itemTotal: number;
+    packagingPrice: number;
+    totalPrice: number;
+  }) => {
     const isDynamicPricing = menuItem.dynamic_pricing || menuItem.pricing_type === 'per_gram';
     
-    // Calculate price based on dynamic pricing
-    let totalPrice = menuItem.price * quantity;
-    if (isDynamicPricing && grams) {
-      totalPrice = (menuItem.price * grams * quantity) + ((menuItem.packaging_price || 0) * quantity);
+    // Use provided pricing details or calculate them
+    let itemTotal: number;
+    let packagingPrice: number;
+    let totalPrice: number;
+    
+    if (pricingDetails) {
+      itemTotal = pricingDetails.itemTotal;
+      packagingPrice = pricingDetails.packagingPrice;
+      totalPrice = pricingDetails.totalPrice;
+    } else {
+      // Fallback calculation for backward compatibility
+      itemTotal = menuItem.price * quantity;
+      if (isDynamicPricing && grams) {
+        itemTotal = menuItem.price * grams * quantity;
+      }
+      packagingPrice = (menuItem.packaging_price || 0) * quantity;
+      totalPrice = itemTotal + packagingPrice;
     }
     
     const cartItem: CartItem = {
       id: Date.now() + Math.random(), // Unique ID for cart item
       name: menuItem.name,
-      price: totalPrice, // Store calculated total price
+      price: menuItem.price, // Base item price
       quantity,
       grams: isDynamicPricing ? grams : undefined,
-      menuItem
+      menuItem,
+      itemTotal,
+      packagingPrice,
+      totalPrice
     };
     
     addToCart(cartItem);

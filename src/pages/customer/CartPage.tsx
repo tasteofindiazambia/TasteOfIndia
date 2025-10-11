@@ -71,7 +71,15 @@ const CartPage: React.FC = () => {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
                 <p className="text-gray-600 text-sm">{item.menuItem.description}</p>
-                <p className="text-deep-maroon font-bold">K{item.price.toFixed(0)} each</p>
+                <div className="text-sm text-gray-600">
+                  <p>Base price: K{item.menuItem.price.toFixed(0)} each</p>
+                  {item.menuItem.packaging_price && item.menuItem.packaging_price > 0 && (
+                    <p>Packaging: K{item.menuItem.packaging_price.toFixed(0)} each</p>
+                  )}
+                  {item.grams && (
+                    <p>Weight: {item.grams}g</p>
+                  )}
+                </div>
               </div>
 
               {/* Quantity Controls */}
@@ -93,8 +101,14 @@ const CartPage: React.FC = () => {
 
               {/* Item Total */}
               <div className="text-right">
+                <div className="text-sm text-gray-600 mb-1">
+                  <p>Item: K{item.itemTotal.toFixed(0)}</p>
+                  {item.packagingPrice > 0 && (
+                    <p>Packaging: K{item.packagingPrice.toFixed(0)}</p>
+                  )}
+                </div>
                 <p className="text-lg font-bold text-gray-900">
-                  K{(item.price * item.quantity).toFixed(0)}
+                  K{item.totalPrice.toFixed(0)}
                 </p>
                 <button
                   onClick={() => removeFromCart(item.id)}
@@ -109,11 +123,29 @@ const CartPage: React.FC = () => {
 
         {/* Cart Summary */}
         <div className="bg-gray-50 p-6 border-t">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-lg font-semibold">Subtotal:</span>
-            <span className="text-xl font-bold text-deep-maroon">
-              K{getCartTotal().toFixed(0)}
-            </span>
+          <div className="space-y-2 mb-4">
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Items Total:</span>
+              <span className="text-sm text-gray-600">
+                K{cartItems.reduce((total, item) => total + item.itemTotal, 0).toFixed(0)}
+              </span>
+            </div>
+            {cartItems.some(item => item.packagingPrice > 0) && (
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">Packaging:</span>
+                <span className="text-sm text-gray-600">
+                  K{cartItems.reduce((total, item) => total + item.packagingPrice, 0).toFixed(0)}
+                </span>
+              </div>
+            )}
+            <div className="border-t pt-2">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold">Subtotal:</span>
+                <span className="text-xl font-bold text-deep-maroon">
+                  K{getCartTotal().toFixed(0)}
+                </span>
+              </div>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4">
