@@ -609,30 +609,51 @@ const AdminOrders: React.FC = () => {
                 <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
                 <div className="space-y-2">
                   {selectedOrder?.items && selectedOrder.items.length > 0 ? (
-                    selectedOrder.items.map((item: any, index: number) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <span className="font-medium text-gray-900">{item.menu_item_name || 'Unknown Item'}</span>
-                            <span className="text-gray-600 ml-2">× {item.quantity}</span>
-                            <div className="text-sm text-gray-500 mt-1">
-                              K{item.unit_price?.toFixed(0) || '0'} each
+                    selectedOrder.items.map((item: any, index: number) => {
+                      const itemName = item.menu_item_name || 'Unknown Item';
+                      const basePrice = item.unit_price || item.price || 0;
+                      const quantity = item.quantity || 1;
+                      const itemTotal = basePrice * quantity;
+                      const packagingPrice = (item.packaging_price || 0) * quantity;
+                      const totalPrice = itemTotal + packagingPrice;
+                      
+                      return (
+                        <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <span className="font-medium text-gray-900">{itemName}</span>
+                              <span className="text-gray-600 ml-2">× {quantity}</span>
+                              {item.grams && (
+                                <span className="text-gray-500 ml-2">({item.grams}g)</span>
+                              )}
                               {item.category_name && (
                                 <span className="ml-2 px-2 py-1 bg-gray-200 rounded-full text-xs">
                                   {item.category_name}
                                 </span>
                               )}
+                              {item.special_instructions && (
+                                <div className="text-sm text-gray-500 italic mt-1">
+                                  📝 {item.special_instructions}
+                                </div>
+                              )}
                             </div>
-                            {item.special_instructions && (
-                              <div className="text-sm text-gray-500 italic mt-1">
-                                📝 {item.special_instructions}
+                            <span className="font-bold text-deep-maroon">K{totalPrice.toFixed(0)}</span>
+                          </div>
+                          <div className="text-xs text-gray-600 space-y-1 bg-white p-2 rounded border">
+                            <div className="flex justify-between">
+                              <span>Base: K{basePrice.toFixed(0)} each</span>
+                              <span>K{itemTotal.toFixed(0)}</span>
+                            </div>
+                            {packagingPrice > 0 && (
+                              <div className="flex justify-between">
+                                <span>Packaging: K{item.packaging_price?.toFixed(0) || '0'} each</span>
+                                <span>K{packagingPrice.toFixed(0)}</span>
                               </div>
                             )}
                           </div>
-                          <span className="font-medium text-gray-900">K{item.total_price?.toFixed(0) || '0'}</span>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="text-center py-4 text-gray-500">
                       No items found
@@ -643,15 +664,41 @@ const AdminOrders: React.FC = () => {
                 {/* Order Breakdown */}
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <div className="space-y-2 text-sm">
-                    {/* Subtotal */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="text-gray-900">
-                        K{selectedOrder?.items ? 
-                          selectedOrder.items.reduce((sum: number, item: any) => sum + (item.total_price || 0), 0).toFixed(0) 
-                          : '0'}
-                      </span>
-                    </div>
+                    {/* Detailed breakdown */}
+                    {(() => {
+                      const itemsTotal = selectedOrder?.items?.reduce((total: number, item: any) => {
+                        const basePrice = item.unit_price || item.price || 0;
+                        const quantity = item.quantity || 1;
+                        return total + (basePrice * quantity);
+                      }, 0) || 0;
+                      
+                      const packagingTotal = selectedOrder?.items?.reduce((total: number, item: any) => {
+                        const packagingPrice = item.packaging_price || 0;
+                        const quantity = item.quantity || 1;
+                        return total + (packagingPrice * quantity);
+                      }, 0) || 0;
+                      
+                      const subtotal = itemsTotal + packagingTotal;
+                      
+                      return (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-600">Items Total:</span>
+                            <span className="text-gray-900">K{itemsTotal.toFixed(0)}</span>
+                          </div>
+                          {packagingTotal > 0 && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">Packaging:</span>
+                              <span className="text-gray-900">K{packagingTotal.toFixed(0)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center font-medium">
+                            <span className="text-gray-700">Subtotal:</span>
+                            <span className="text-gray-900">K{subtotal.toFixed(0)}</span>
+                          </div>
+                        </>
+                      );
+                    })()}
                     
                     {/* Delivery Information */}
                     {selectedOrder?.order_type === 'delivery' && (

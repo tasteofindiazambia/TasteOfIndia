@@ -91,12 +91,23 @@ const StaffOrders: React.FC = () => {
   const buildItemsSummary = (order: Order): string => {
     const items = getOrderItems(order);
     if (!items.length) return "";
-    const parts = items.slice(0, 3).map((it: any) => {
+    const parts = items.slice(0, 2).map((it: any) => {
       const name = it.menu_item_name || it.name || 'Item';
       const qty = it.quantity || 1;
-      return `${name} × ${qty}`;
+      const basePrice = it.unit_price || it.price || 0;
+      const itemTotal = basePrice * qty;
+      const packagingPrice = (it.packaging_price || 0) * qty;
+      const totalPrice = itemTotal + packagingPrice;
+      
+      let itemText = `${name} × ${qty}`;
+      if (it.grams) itemText += ` (${it.grams}g)`;
+      itemText += ` = K${totalPrice.toFixed(0)}`;
+      if (packagingPrice > 0) {
+        itemText += ` (inc. K${packagingPrice.toFixed(0)} packaging)`;
+      }
+      return itemText;
     });
-    const more = items.length > 3 ? ` +${items.length - 3} more` : '';
+    const more = items.length > 2 ? ` +${items.length - 2} more items` : '';
     return parts.join(', ') + more;
   };
 
@@ -341,21 +352,40 @@ const StaffOrders: React.FC = () => {
                       {getOrderItems(selectedOrder).map((item: any, index: number) => {
                         const name = item.menu_item_name || item.name || 'Unknown Item';
                         const qty = item.quantity || 1;
-                        // Prefer total_price/qty for accurate unit when item is per-gram
-                        const computedUnit = item.total_price && qty ? (Number(item.total_price) / qty) : undefined;
-                        const unit = computedUnit ?? item.unit_price ?? item.price ?? 0;
-                        const line = (qty * Number(unit));
+                        const basePrice = item.unit_price || item.price || 0;
+                        const itemTotal = basePrice * qty;
+                        const packagingPrice = (item.packaging_price || 0) * qty;
+                        const totalPrice = itemTotal + packagingPrice;
+                        
                         return (
-                          <div key={index} className="p-2 bg-gray-50 rounded">
-                            <div className="flex justify-between items-center">
-                              <span>{name}</span>
-                              <span>Qty: {qty} × {formatMoney(unit)} = {formatMoney(line)}</span>
-                            </div>
-                            {(item.special_instructions || item.note) && (
-                              <div className="text-xs text-gray-500 mt-1">
-                                Note: {item.special_instructions || item.note}
+                          <div key={index} className="p-3 bg-gray-50 rounded border border-gray-200">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1">
+                                <span className="font-medium text-gray-900">{name}</span>
+                                <span className="text-gray-600 ml-2">× {qty}</span>
+                                {item.grams && (
+                                  <span className="text-gray-500 ml-2">({item.grams}g)</span>
+                                )}
+                                {(item.special_instructions || item.note) && (
+                                  <div className="text-xs text-gray-500 mt-1">
+                                    Note: {item.special_instructions || item.note}
+                                  </div>
+                                )}
                               </div>
-                            )}
+                              <span className="font-bold text-deep-maroon">{formatMoney(totalPrice)}</span>
+                            </div>
+                            <div className="text-xs text-gray-600 space-y-1 bg-white p-2 rounded border">
+                              <div className="flex justify-between">
+                                <span>Base: {formatMoney(basePrice)} each</span>
+                                <span>{formatMoney(itemTotal)}</span>
+                              </div>
+                              {packagingPrice > 0 && (
+                                <div className="flex justify-between">
+                                  <span>Packaging: {formatMoney(item.packaging_price || 0)} each</span>
+                                  <span>{formatMoney(packagingPrice)}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         );
                       })}
