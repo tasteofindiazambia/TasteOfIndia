@@ -79,17 +79,13 @@ class ApiService {
       }
       
       if (!response.ok) {
-        console.error('❌ [apiService] Response not OK:', response.status, response.statusText);
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ [apiService] Error response body:', errorData);
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
       
-      const responseData = await response.json();
-      console.log('✅ [apiService] Response data:', responseData);
-      return responseData;
+      return await response.json();
     } catch (error) {
-      console.error(`❌ [apiService] API request failed for ${endpoint}:`, error);
+      console.error(`API request failed for ${endpoint}:`, error);
       throw error;
     }
   }
