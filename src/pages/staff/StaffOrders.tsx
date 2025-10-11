@@ -117,6 +117,12 @@ const StaffOrders: React.FC = () => {
     return `K${num.toFixed(0)}`; // match app style (no decimals)
   };
 
+  const formatPerGramPrice = (n: number | string | undefined): string => {
+    const num = Number(n || 0);
+    if (Number.isNaN(num)) return 'K0.00';
+    return `K${num.toFixed(2)}`; // show decimals for per-gram pricing
+  };
+
   const computeOrderTotal = (order: any): number => {
     const apiTotal = Number(order.total_amount ?? order.total);
     if (!Number.isNaN(apiTotal) && apiTotal > 0) return apiTotal;
@@ -401,9 +407,9 @@ const StaffOrders: React.FC = () => {
                                 // Dynamic pricing breakdown
                                 <div className="space-y-1">
                                   <div className="font-medium text-gray-800">Order Total Breakdown:</div>
-                                  <div>• Price: {formatMoney(basePrice)} per gram</div>
+                                  <div>• Price: {formatPerGramPrice(basePrice)} per gram</div>
                                   <div>• Weight: {grams}g × {qty} packet{qty > 1 ? 's' : ''}</div>
-                                  <div>• Item cost: {grams}g × {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
+                                  <div>• Item cost: {grams}g × {qty} × {formatPerGramPrice(basePrice)} = {formatMoney(itemTotal)}</div>
                                   {packagingPrice > 0 && (
                                     <div>• Packaging: {formatMoney(item.packaging_price || 0)} × {qty} = {formatMoney(packagingPrice)}</div>
                                   )}
