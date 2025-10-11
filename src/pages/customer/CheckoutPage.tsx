@@ -743,30 +743,6 @@ const CheckoutPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-light-cream rounded-lg">
-            <h3 className="font-semibold text-deep-maroon mb-2">Order Details</h3>
-            <ul className="text-sm text-warm-gray space-y-1">
-              {watchOrderType === 'pickup' ? (
-                <>
-                  <li>• Order will be prepared for pickup</li>
-                  <li>• Estimated preparation time: 15-20 minutes</li>
-                  <li>• You'll receive a confirmation shortly</li>
-                  <li>• Payment can be made at pickup</li>
-                </>
-              ) : (
-                <>
-                  <li>• Order will be prepared and delivered</li>
-                  <li>• Estimated preparation time: 15-20 minutes</li>
-                  <li>• Estimated delivery time: {deliverySettings.delivery_time_minutes} minutes total</li>
-                  <li>• Delivery fee: K{calculatedDeliveryFee || '—'}</li>
-                  {deliverySettings.min_delivery_order > 0 && (
-                    <li>• Minimum order: K{deliverySettings.min_delivery_order.toFixed(0)}</li>
-                  )}
-                  <li>• Payment can be made on delivery</li>
-                </>
-              )}
-            </ul>
-          </div>
         </div>
       </div>
     </div>
