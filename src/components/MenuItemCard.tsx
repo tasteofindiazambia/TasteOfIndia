@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { MenuItem } from '../types';
+import { useCart } from '../context/CartContext';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -8,44 +9,50 @@ interface MenuItemCardProps {
 }
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
-  const [quantity, setQuantity] = useState(1);
-  const [grams, setGrams] = useState(100); // Default 100g for dynamic pricing items
-  const [showQuantitySelector, setShowQuantitySelector] = useState(false);
+  const { cartItems } = useCart();
+  
+  // Check if item is already in cart
+  const cartItem = cartItems.find(cartItem => cartItem.menuItem?.id === item.id);
+  const isInCart = !!cartItem;
   
   const isDynamicPricing = item.dynamic_pricing || item.pricing_type === 'per_gram';
 
-  const handleAddToCart = useCallback(() => {
-    onAddToCart(item, quantity, isDynamicPricing ? grams : undefined);
-    setShowQuantitySelector(false);
-    setQuantity(1);
-    setGrams(100);
-  }, [onAddToCart, item, quantity, grams, isDynamicPricing]);
+  const handleCardClick = useCallback(() => {
+    if (!isInCart) {
+      // Add one item directly to cart
+      onAddToCart(item, 1, isDynamicPricing ? 100 : undefined);
+    }
+  }, [onAddToCart, item, isDynamicPricing, isInCart]);
 
-  const incrementQuantity = useCallback(() => {
-    setQuantity(prev => prev + 1);
-  }, []);
+  const handleIncrementCartQuantity = useCallback(() => {
+    if (cartItem) {
+      onAddToCart(item, 1, isDynamicPricing ? 100 : undefined);
+    }
+  }, [onAddToCart, item, isDynamicPricing, cartItem]);
 
-  const decrementQuantity = useCallback(() => {
-    setQuantity(prev => Math.max(1, prev - 1));
-  }, []);
-
-  const incrementGrams = useCallback(() => {
-    setGrams(prev => prev + 50); // Increment by 50g
-  }, []);
-
-  const decrementGrams = useCallback(() => {
-    setGrams(prev => Math.max(50, prev - 50)); // Minimum 50g
-  }, []);
+  const handleDecrementCartQuantity = useCallback(() => {
+    if (cartItem && cartItem.quantity > 1) {
+      // Remove one item
+      onAddToCart(item, -1, isDynamicPricing ? 100 : undefined);
+    }
+  }, [onAddToCart, item, isDynamicPricing, cartItem]);
 
   const calculatePrice = useCallback(() => {
-    if (isDynamicPricing) {
+    if (isDynamicPricing && cartItem) {
+      const grams = cartItem.grams || 100;
+      const quantity = cartItem.quantity || 1;
       return (item.price * grams * quantity) + (item.packaging_price || 0) * quantity;
     }
-    return item.price * quantity;
-  }, [item.price, item.packaging_price, grams, quantity, isDynamicPricing]);
+    return item.price * (cartItem?.quantity || 1);
+  }, [item.price, item.packaging_price, isDynamicPricing, cartItem]);
 
   return (
-    <div className="card-floating overflow-hidden group">
+    <div 
+      className={`card-floating overflow-hidden group transition-all duration-200 ${
+        !item.available ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg'
+      }`}
+      onClick={item.available ? handleCardClick : undefined}
+    >
       {/* Item Image */}
       <div className="h-64 bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
         {item.image_url ? (
@@ -78,7 +85,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
             {isDynamicPricing ? (
               <>
                 <span className="text-sm text-warm-gray">K{item.price.toFixed(2)}/gram</span>
-                {showQuantitySelector && (
+                {isInCart && (
                   <span className="text-xl font-bold text-deep-maroon">
                     K{calculatePrice().toFixed(0)}
                   </span>
@@ -98,85 +105,37 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onAddToCart }) => {
           
           {item.available ? (
             <div className="flex items-center space-x-2">
-              {showQuantitySelector ? (
-                <div className="flex flex-col space-y-2">
-                  {isDynamicPricing ? (
-                    <>
-                      {/* Grams selector */}
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-600 w-12">Grams:</span>
-                        <button
-                          onClick={decrementGrams}
-                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <input
-                          type="number"
-                          value={grams}
-                          onChange={(e) => setGrams(Math.max(50, parseInt(e.target.value) || 50))}
-                          className="w-16 text-center text-sm border-2 border-deep-maroon/20 rounded-lg px-2 py-1 focus:border-deep-maroon focus:outline-none transition-colors"
-                          min="50"
-                          step="50"
-                        />
-                        <button
-                          onClick={incrementGrams}
-                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                        <span className="text-xs text-gray-600">g</span>
-                      </div>
-                      {/* Quantity selector for packages */}
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-600 w-12">Qty:</span>
-                        <button
-                          onClick={decrementQuantity}
-                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="font-bold w-8 text-center text-sm text-deep-maroon">{quantity}</span>
-                        <button
-                          onClick={incrementQuantity}
-                          className="w-6 h-6 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    /* Regular quantity selector */
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={decrementQuantity}
-                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="font-bold w-8 text-center text-deep-maroon">{quantity}</span>
-                      <button
-                        onClick={incrementQuantity}
-                        className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+              {isInCart ? (
+                /* Show quantity controls when item is in cart */
+                <div className="flex items-center space-x-3">
                   <button
-                    onClick={handleAddToCart}
-                    className="btn-primary px-6 py-3 text-sm font-semibold"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDecrementCartQuantity();
+                    }}
+                    className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
                   >
-                    Add to Cart
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="font-bold text-deep-maroon min-w-[2rem] text-center">
+                    {cartItem?.quantity || 0}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleIncrementCartQuantity();
+                    }}
+                    className="w-8 h-8 rounded-full bg-gradient-to-r from-deep-maroon to-burgundy text-white flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-md"
+                  >
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowQuantitySelector(true)}
-                  className="btn-primary p-3 rounded-2xl hover:scale-110 transition-all duration-200"
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
+                /* Show add hint when item is not in cart */
+                <div className="text-center">
+                  <div className="text-sm text-gray-500 mb-1">Click to add</div>
+                  <div className="text-xs text-gray-400">Tap anywhere</div>
+                </div>
               )}
             </div>
           ) : (

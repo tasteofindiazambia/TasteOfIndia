@@ -9,7 +9,7 @@ const Layout: React.FC = () => {
   return (
     <div className="min-h-screen bg-cream">
       <HeaderNoIcons />
-      <main className="flex-1">
+      <main className="flex-1 pb-20">
         <Outlet />
       </main>
       <Footer />

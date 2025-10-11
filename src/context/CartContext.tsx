@@ -35,13 +35,22 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(cartItem => cartItem.id === item.id);
       if (existingItem) {
+        const newQuantity = existingItem.quantity + item.quantity;
+        if (newQuantity <= 0) {
+          // Remove item if quantity becomes 0 or negative
+          return prevItems.filter(cartItem => cartItem.id !== item.id);
+        }
         return prevItems.map(cartItem =>
           cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+            ? { ...cartItem, quantity: newQuantity }
             : cartItem
         );
       }
-      return [...prevItems, item];
+      // Only add new item if quantity is positive
+      if (item.quantity > 0) {
+        return [...prevItems, item];
+      }
+      return prevItems;
     });
   };
 
