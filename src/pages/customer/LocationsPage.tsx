@@ -268,10 +268,10 @@ const LocationsPage: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link 
-              to="/contact" 
+              to="/reservation" 
               className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 font-semibold transition-all duration-300 text-center rounded-lg"
             >
-              CONTACT US
+              BOOK A TABLE
             </Link>
             <Link 
               to="/reservation" 

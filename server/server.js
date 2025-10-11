@@ -10,7 +10,6 @@ import orderRoutes from './routes/orders.js';
 import reservationRoutes from './routes/reservations.js';
 import authRoutes from './routes/auth.js';
 import customerRoutes from './routes/customers.js';
-import contactRoutes from './routes/contact.js';
 
 // Import database to initialize
 import DatabaseAdapter from './models/databaseAdapter.js';
@@ -63,7 +62,6 @@ app.use('/api/reservations', reservationRoutes);
 app.use('/api/auth', authRoutes);
 // Removed: blog, event, and branding routes - features removed
 app.use('/api/customers', customerRoutes);
-app.use('/api/contact', contactRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -114,12 +114,6 @@ const OrderConfirmationPage: React.FC = () => {
               Return to Home
             </Link>
             <br />
-            <Link 
-              to="/contact" 
-              className="text-deep-maroon hover:underline text-sm"
-            >
-              Contact Support
-            </Link>
           </div>
         </div>
       </div>

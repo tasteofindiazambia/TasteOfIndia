@@ -13,7 +13,7 @@ export const reservationService = {
         name: reservationData.customer_name,
         phone: reservationData.customer_phone,
         email: undefined, // ReservationFormData doesn't include email
-        source: 'contact_form'
+        source: 'whatsapp'
       });
     } catch (error) {
       console.error('Failed to save customer data:', error);

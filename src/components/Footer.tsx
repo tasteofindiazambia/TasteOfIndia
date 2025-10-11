@@ -117,11 +117,6 @@ const Footer: React.FC = () => {
                   Private Events
                 </a>
               </li>
-              <li>
-                <a href="/contact" className="text-[#F5F5DC] hover:text-[#D2691E] transition-colors text-sm font-medium">
-                  Contact
-                </a>
-              </li>
             </ul>
           </div>
 

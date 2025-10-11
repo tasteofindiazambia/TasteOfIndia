@@ -120,16 +120,6 @@ CREATE TABLE IF NOT EXISTS order_items (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Contact messages table
-CREATE TABLE IF NOT EXISTS contact_messages (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100),
-    phone VARCHAR(20),
-    subject VARCHAR(150),
-    message TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
 
 -- Reservations table
 CREATE TABLE IF NOT EXISTS reservations (

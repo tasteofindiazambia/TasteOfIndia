@@ -181,10 +181,10 @@ const AboutPage: React.FC = () => {
               <span>BOOK A TABLE</span>
             </Link>
             <Link 
-              to="/contact" 
+              to="/reservation" 
               className="bg-[#F5F5DC] text-[#532734] border-2 border-[#F5F5DC] hover:bg-[#532734] hover:text-[#F5F5DC] px-8 py-4 rounded-none font-medium tracking-wide uppercase text-sm transition-all duration-300 flex items-center justify-center space-x-2"
             >
-              <span>CONTACT US</span>
+              <span>BOOK A TABLE</span>
             </Link>
           </div>
         </div>

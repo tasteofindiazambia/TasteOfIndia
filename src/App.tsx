@@ -17,7 +17,6 @@ import ReservationConfirmationPage from './pages/customer/ReservationConfirmatio
 import OrderConfirmationPage from './pages/customer/OrderConfirmationPage';
 import AboutPage from './pages/customer/AboutPage';
 import LocationsPage from './pages/customer/LocationsPage';
-import ContactPage from './pages/customer/ContactPage';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -56,7 +55,6 @@ function App() {
                   <Route path="order-confirmation/:orderId" element={<OrderConfirmationPage />} />
                   <Route path="about" element={<AboutPage />} />
                   <Route path="locations" element={<LocationsPage />} />
-                  <Route path="contact" element={<ContactPage />} />
                 </Route>
 
                 {/* Admin Routes */}

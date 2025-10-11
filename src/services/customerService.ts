@@ -48,7 +48,7 @@ export const customerService = {
     name: string;
     phone?: string;
     email?: string;
-    source: 'order' | 'contact_form' | 'whatsapp';
+    source: 'order' | 'whatsapp';
   }): Promise<Customer> {
     const response = await apiService.request('/customers', {
       method: 'POST',
@@ -74,7 +74,7 @@ export const customerService = {
   },
 
   // Get customers by source
-  async getCustomersBySource(source: 'order' | 'contact_form' | 'whatsapp'): Promise<Customer[]> {
+  async getCustomersBySource(source: 'order' | 'whatsapp'): Promise<Customer[]> {
     const response = await apiService.request(`/customers/source/${source}`);
     return response;
   }

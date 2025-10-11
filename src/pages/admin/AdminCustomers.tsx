@@ -10,7 +10,7 @@ const AdminCustomers: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState<'all' | 'order' | 'contact_form' | 'whatsapp'>('all');
+  const [filter, setFilter] = useState<'all' | 'order' | 'whatsapp'>('all');
 
   // Sample customer data - simplified
   const sampleCustomers: Customer[] = [
@@ -28,7 +28,7 @@ const AdminCustomers: React.FC = () => {
       name: 'Sarah Chisenga',
       phone: '+260 96 234 5678',
       email: 'sarah.chisenga@email.com',
-      source: 'contact_form',
+      source: 'whatsapp',
       created_at: '2024-01-10',
       last_activity: '2024-01-10'
     },
@@ -78,8 +78,6 @@ const AdminCustomers: React.FC = () => {
     switch (source) {
       case 'order':
         return <ShoppingBag className="w-4 h-4 text-green-600" />;
-      case 'contact_form':
-        return <Mail className="w-4 h-4 text-blue-600" />;
       case 'whatsapp':
         return <MessageSquare className="w-4 h-4 text-green-500" />;
       default:
@@ -91,8 +89,6 @@ const AdminCustomers: React.FC = () => {
     switch (source) {
       case 'order':
         return 'Ordered';
-      case 'contact_form':
-        return 'Contact Form';
       case 'whatsapp':
         return 'WhatsApp';
       default:
@@ -179,17 +175,6 @@ const AdminCustomers: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Contact Forms</p>
-              <p className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {customers.filter(c => c.source === 'contact_form').length}
-              </p>
-            </div>
-            <Mail className="w-8 h-8 text-blue-500" />
-          </div>
-        </div>
         
         <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-600">
           <div className="flex items-center justify-between">
@@ -230,7 +215,6 @@ const AdminCustomers: React.FC = () => {
             >
               <option value="all">All Sources</option>
               <option value="order">From Orders</option>
-              <option value="contact_form">Contact Forms</option>
               <option value="whatsapp">WhatsApp</option>
             </select>
           </div>
@@ -267,7 +251,6 @@ const AdminCustomers: React.FC = () => {
                         <h3 className="text-lg font-medium text-gray-900">{customer.name}</h3>
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           customer.source === 'order' ? 'bg-green-100 text-green-800' :
-                          customer.source === 'contact_form' ? 'bg-blue-100 text-blue-800' :
                           'bg-green-100 text-green-800'
                         }`}>
                           {getSourceLabel(customer.source)}
@@ -317,7 +300,6 @@ const AdminCustomers: React.FC = () => {
         <h3 className="text-lg font-semibold text-blue-800 mb-2">How Customer Data is Collected</h3>
         <div className="space-y-2 text-blue-700">
           <p>• <strong>From Orders:</strong> When customers place orders on your website</p>
-          <p>• <strong>Contact Forms:</strong> When people submit their details in footer contact forms</p>
           <p>• <strong>WhatsApp:</strong> When people share their WhatsApp number for contact</p>
         </div>
         <p className="text-sm text-blue-600 mt-3">
