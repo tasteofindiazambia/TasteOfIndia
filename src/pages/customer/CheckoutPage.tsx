@@ -162,8 +162,9 @@ const CheckoutPage: React.FC = () => {
               coords.lat, coords.lng,
               currentRestaurant.latitude, currentRestaurant.longitude
             );
-            setDistance(Math.round(dist * 10) / 10);
-            setCalculatedDeliveryFee(Math.ceil(dist * (currentRestaurant.delivery_fee_per_km || 10)));
+            const roundedDistance = Math.round(dist);
+            setDistance(roundedDistance);
+            setCalculatedDeliveryFee(roundedDistance * (currentRestaurant.delivery_fee_per_km || 10));
           }
         } else {
           setAddressPinned(false);
@@ -206,8 +207,9 @@ const CheckoutPage: React.FC = () => {
               coords.lat, coords.lng,
               currentRestaurant.latitude, currentRestaurant.longitude
             );
-            setDistance(Math.round(dist * 10) / 10);
-            setCalculatedDeliveryFee(Math.ceil(dist * (currentRestaurant.delivery_fee_per_km || 10)));
+            const roundedDistance = Math.round(dist);
+            setDistance(roundedDistance);
+            setCalculatedDeliveryFee(roundedDistance * (currentRestaurant.delivery_fee_per_km || 10));
           }
         } else {
           setAddressPinned(false);
@@ -243,8 +245,9 @@ const CheckoutPage: React.FC = () => {
               location.lat, location.lng,
               deliverySettings.latitude, deliverySettings.longitude
             );
-            setDistance(Math.round(dist * 10) / 10); // Round to 1 decimal
-            setCalculatedDeliveryFee(Math.ceil(dist * deliverySettings.delivery_fee_per_km));
+            const roundedDistance = Math.round(dist);
+            setDistance(roundedDistance);
+            setCalculatedDeliveryFee(roundedDistance * deliverySettings.delivery_fee_per_km);
           }
         },
         (_err) => {
