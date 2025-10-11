@@ -108,7 +108,7 @@ const CartSidebar: React.FC = () => {
                             // Dynamic pricing breakdown
                             <div className="space-y-1">
                               <p className="font-medium text-charcoal">Order Total Breakdown:</p>
-                              <p>• K{item.menuItem.price.toFixed(0)}/g × {item.grams}g × {item.quantity} = K{item.itemTotal.toFixed(0)}</p>
+                              <p>• K{(item.menuItem.price / item.grams).toFixed(2)}/g × {item.grams}g × {item.quantity} = K{item.itemTotal.toFixed(0)}</p>
                               {item.packagingPrice > 0 && (
                                 <p>• Packaging: K{item.menuItem.packaging_price?.toFixed(0) || '0'} × {item.quantity} = K{item.packagingPrice.toFixed(0)}</p>
                               )}

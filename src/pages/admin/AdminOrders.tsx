@@ -644,9 +644,9 @@ const AdminOrders: React.FC = () => {
                               // Dynamic pricing breakdown
                               <div className="space-y-1">
                                 <div className="font-medium text-gray-800">Order Total Breakdown:</div>
-                                <div>• Price: K{basePrice.toFixed(0)} per gram</div>
+                                <div>• Price: K{(basePrice / item.grams).toFixed(2)} per gram</div>
                                 <div>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</div>
-                                <div>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</div>
+                                <div>• Item cost: {item.grams}g × {quantity} × K{(basePrice / item.grams).toFixed(2)} = K{itemTotal.toFixed(0)}</div>
                                 {packagingPrice > 0 && (
                                   <div>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</div>
                                 )}

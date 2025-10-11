@@ -279,9 +279,9 @@ const OrderConfirmationPage: React.FC = () => {
                         // Dynamic pricing breakdown
                         <div className="space-y-1">
                           <p className="font-medium text-gray-800">Order Total Breakdown:</p>
-                          <p>• Price: K{basePrice.toFixed(0)} per gram</p>
+                          <p>• Price: K{(basePrice / item.grams).toFixed(2)} per gram</p>
                           <p>• Weight: {item.grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
-                          <p>• Item cost: {item.grams}g × {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</p>
+                          <p>• Item cost: {item.grams}g × {quantity} × K{(basePrice / item.grams).toFixed(2)} = K{itemTotal.toFixed(0)}</p>
                           {packagingPrice > 0 && (
                             <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
                           )}
