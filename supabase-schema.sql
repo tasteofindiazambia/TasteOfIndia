@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     delivery_fee_per_km DECIMAL(10,2) DEFAULT 10.00,
     latitude DECIMAL(10,8),
     longitude DECIMAL(11,8),
-    max_delivery_radius_km INTEGER DEFAULT 15,
+    max_delivery_radius_km INTEGER DEFAULT 10,
     min_delivery_order DECIMAL(10,2) DEFAULT 25.00,
     delivery_time_minutes INTEGER DEFAULT 30,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -180,8 +180,8 @@ CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
 
 -- Insert sample data with delivery settings
 INSERT INTO restaurants (id, name, address, phone, email, hours, delivery_fee_per_km, latitude, longitude, max_delivery_radius_km, min_delivery_order, delivery_time_minutes) VALUES
-(1, 'Taste of India - Manda Hill', 'Manda Hill Shopping Centre, Lusaka', '+260 97 123 4567', 'manda@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}', 10.00, -15.3875, 28.3228, 15, 25.00, 30),
-(2, 'Taste of India - Parirenyetwa', 'Parirenyetwa Rd, Lusaka 10101, Zambia', '+260 77 3219999', 'parirenyetwa@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}', 12.00, -15.4067, 28.2833, 12, 20.00, 25)
+(1, 'Taste of India - Manda Hill', 'Manda Hill Shopping Centre, Lusaka', '+260 97 123 4567', 'manda@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}', 10.00, -15.3875, 28.3228, 10, 25.00, 30),
+(2, 'Taste of India - Parirenyetwa', 'Parirenyetwa Rd, Lusaka 10101, Zambia', '+260 77 3219999', 'parirenyetwa@tasteofindia.co.zm', '{"monday": "11:00-22:00", "tuesday": "11:00-22:00", "wednesday": "11:00-22:00", "thursday": "11:00-22:00", "friday": "11:00-23:00", "saturday": "11:00-23:00", "sunday": "11:00-21:00"}', 10.00, -15.4067, 28.2833, 10, 20.00, 25)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO categories (id, name, description, restaurant_id, display_order) VALUES
