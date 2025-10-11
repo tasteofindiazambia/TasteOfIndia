@@ -76,6 +76,12 @@ ${order.items && order.items.length > 0
 
 ${(() => {
   const itemsTotal = order.items?.reduce((total: number, item: any) => {
+    // For dynamic pricing items, use the stored total_price or calculate from grams
+    if (item.total_price) {
+      return total + (item.total_price * (item.quantity || 1));
+    }
+    
+    // For regular items, use unit_price or price
     const basePrice = item.unit_price || item.price || 0;
     const quantity = item.quantity || 1;
     return total + (basePrice * quantity);
@@ -256,6 +262,12 @@ Thank you for your order! 🙏
             <h4 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">Pricing Breakdown</h4>
             ${(() => {
               const itemsTotal = order.items?.reduce((total: number, item: any) => {
+                // For dynamic pricing items, use the stored total_price or calculate from grams
+                if (item.total_price) {
+                  return total + (item.total_price * (item.quantity || 1));
+                }
+                
+                // For regular items, use unit_price or price
                 const basePrice = item.unit_price || item.price || 0;
                 const quantity = item.quantity || 1;
                 return total + (basePrice * quantity);

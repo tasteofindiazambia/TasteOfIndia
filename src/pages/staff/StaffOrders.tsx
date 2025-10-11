@@ -129,7 +129,12 @@ const StaffOrders: React.FC = () => {
     const items = getOrderItems(order);
     const itemsSum = items.reduce((sum: number, it: any) => {
       const qty = Number(it.quantity || 1);
-      const unit = it.total_price && qty ? Number(it.total_price) / qty : Number(it.unit_price ?? it.price ?? 0);
+      // For dynamic pricing items, use the stored total_price
+      if (it.total_price) {
+        return sum + (Number(it.total_price) * qty);
+      }
+      // For regular items, use unit_price or price
+      const unit = Number(it.unit_price ?? it.price ?? 0);
       return sum + qty * (Number.isNaN(unit) ? 0 : unit);
     }, 0);
     const fee = Number(order.delivery_fee || 0);

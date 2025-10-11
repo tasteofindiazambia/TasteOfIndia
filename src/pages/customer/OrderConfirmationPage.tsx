@@ -360,6 +360,12 @@ const OrderConfirmationPage: React.FC = () => {
           {/* Calculate items total and packaging total */}
           {(() => {
             const itemsTotal = order.items?.reduce((total: number, item: any) => {
+              // For dynamic pricing items, use the stored total_price or calculate from grams
+              if (item.total_price) {
+                return total + (item.total_price * (item.quantity || 1));
+              }
+              
+              // For regular items, use unit_price or price
               const basePrice = item.unit_price || item.price || 0;
               const quantity = item.quantity || 1;
               return total + (basePrice * quantity);
