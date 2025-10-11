@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Phone, User, MessageSquare } from 'lucide-react';
+import { Phone, User, MessageSquare, ChevronDown } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
@@ -17,6 +17,61 @@ interface CheckoutFormData {
   delivery_longitude?: number;
   special_instructions?: string;
 }
+
+// Common African country codes for the dropdown
+const countryCodes = [
+  { code: '+260', country: 'Zambia', flag: '🇿🇲' },
+  { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  { code: '+255', country: 'Tanzania', flag: '🇹🇿' },
+  { code: '+256', country: 'Uganda', flag: '🇺🇬' },
+  { code: '+250', country: 'Rwanda', flag: '🇷🇼' },
+  { code: '+251', country: 'Ethiopia', flag: '🇪🇹' },
+  { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
+  { code: '+233', country: 'Ghana', flag: '🇬🇭' },
+  { code: '+220', country: 'Gambia', flag: '🇬🇲' },
+  { code: '+221', country: 'Senegal', flag: '🇸🇳' },
+  { code: '+225', country: 'Ivory Coast', flag: '🇨🇮' },
+  { code: '+226', country: 'Burkina Faso', flag: '🇧🇫' },
+  { code: '+227', country: 'Niger', flag: '🇳🇪' },
+  { code: '+228', country: 'Togo', flag: '🇹🇬' },
+  { code: '+229', country: 'Benin', flag: '🇧🇯' },
+  { code: '+230', country: 'Mauritius', flag: '🇲🇺' },
+  { code: '+231', country: 'Liberia', flag: '🇱🇷' },
+  { code: '+232', country: 'Sierra Leone', flag: '🇸🇱' },
+  { code: '+235', country: 'Chad', flag: '🇹🇩' },
+  { code: '+236', country: 'Central African Republic', flag: '🇨🇫' },
+  { code: '+237', country: 'Cameroon', flag: '🇨🇲' },
+  { code: '+238', country: 'Cape Verde', flag: '🇨🇻' },
+  { code: '+239', country: 'São Tomé and Príncipe', flag: '🇸🇹' },
+  { code: '+240', country: 'Equatorial Guinea', flag: '🇬🇶' },
+  { code: '+241', country: 'Gabon', flag: '🇬🇦' },
+  { code: '+242', country: 'Republic of the Congo', flag: '🇨🇬' },
+  { code: '+243', country: 'Democratic Republic of the Congo', flag: '🇨🇩' },
+  { code: '+244', country: 'Angola', flag: '🇦🇴' },
+  { code: '+245', country: 'Guinea-Bissau', flag: '🇬🇼' },
+  { code: '+246', country: 'British Indian Ocean Territory', flag: '🇮🇴' },
+  { code: '+248', country: 'Seychelles', flag: '🇸🇨' },
+  { code: '+249', country: 'Sudan', flag: '🇸🇩' },
+  { code: '+252', country: 'Somalia', flag: '🇸🇴' },
+  { code: '+253', country: 'Djibouti', flag: '🇩🇯' },
+  { code: '+257', country: 'Burundi', flag: '🇧🇮' },
+  { code: '+258', country: 'Mozambique', flag: '🇲🇿' },
+  { code: '+261', country: 'Madagascar', flag: '🇲🇬' },
+  { code: '+262', country: 'Réunion', flag: '🇷🇪' },
+  { code: '+263', country: 'Zimbabwe', flag: '🇿🇼' },
+  { code: '+264', country: 'Namibia', flag: '🇳🇦' },
+  { code: '+265', country: 'Malawi', flag: '🇲🇼' },
+  { code: '+266', country: 'Lesotho', flag: '🇱🇸' },
+  { code: '+267', country: 'Botswana', flag: '🇧🇼' },
+  { code: '+268', country: 'Eswatini', flag: '🇸🇿' },
+  { code: '+269', country: 'Comoros', flag: '🇰🇲' },
+  { code: '+290', country: 'Saint Helena', flag: '🇸🇭' },
+  { code: '+291', country: 'Eritrea', flag: '🇪🇷' },
+  { code: '+297', country: 'Aruba', flag: '🇦🇼' },
+  { code: '+298', country: 'Faroe Islands', flag: '🇫🇴' },
+  { code: '+299', country: 'Greenland', flag: '🇬🇱' }
+];
 
 const CheckoutPage: React.FC = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
@@ -42,9 +97,29 @@ const CheckoutPage: React.FC = () => {
   const [geocoding, setGeocoding] = useState(false);
   const [addressPinned, setAddressPinned] = useState(false);
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const [selectedCountryCode, setSelectedCountryCode] = useState('+260'); // Default to Zambia
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const deliveryAddressRef = useRef<HTMLTextAreaElement | null>(null);
   const googleAutocompleteRef = useRef<any>(null);
+  const countryDropdownRef = useRef<HTMLDivElement | null>(null);
   const mapsApiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_KEY as string | undefined;
+  
+  // Close country dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setIsCountryDropdownOpen(false);
+      }
+    };
+
+    if (isCountryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isCountryDropdownOpen]);
   
   // Generic geocode with multi-provider fallback (free, no key)
   const geocodeAddress = async (text: string): Promise<{ lat: number; lng: number } | null> => {
@@ -354,7 +429,7 @@ const CheckoutPage: React.FC = () => {
 
       const orderData = {
         customer_name: data.customer_name,
-        customer_phone: data.customer_phone,
+        customer_phone: `${selectedCountryCode}${data.customer_phone}`,
         restaurant_id: data.restaurant_id,
         order_type: data.order_type,
         delivery_address: data.order_type === 'delivery' ? data.delivery_address : null,
@@ -434,21 +509,58 @@ const CheckoutPage: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Phone Number *
               </label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="tel"
-                  id="customer_phone"
-                  {...register('customer_phone', { 
-                    required: 'Phone number is required',
-                    pattern: {
-                      value: /^[+]?[1-9][\d]{0,15}$/,
-                      message: 'Please enter a valid phone number'
-                    }
-                  })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-                  placeholder="Enter your phone number"
-                />
+              <div className="flex">
+                {/* Country Code Dropdown */}
+                <div className="relative" ref={countryDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                    className="flex items-center px-3 py-2 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-deep-maroon focus:z-10"
+                  >
+                    <span className="text-sm font-medium">
+                      {countryCodes.find(c => c.code === selectedCountryCode)?.flag} {selectedCountryCode}
+                    </span>
+                    <ChevronDown className="ml-1 w-4 h-4 text-gray-500" />
+                  </button>
+                  
+                  {isCountryDropdownOpen && (
+                    <div className="absolute top-full left-0 z-50 w-64 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {countryCodes.map((country) => (
+                        <button
+                          key={country.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCountryCode(country.code);
+                            setIsCountryDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center px-3 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                        >
+                          <span className="mr-2">{country.flag}</span>
+                          <span className="font-medium mr-2">{country.code}</span>
+                          <span className="text-sm text-gray-600">{country.country}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Phone Number Input */}
+                <div className="relative flex-1">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="tel"
+                    id="customer_phone"
+                    {...register('customer_phone', { 
+                      required: 'Phone number is required',
+                      pattern: {
+                        value: /^[0-9]{6,15}$/,
+                        message: 'Please enter a valid phone number (6-15 digits)'
+                      }
+                    })}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
               </div>
               {errors.customer_phone && (
                 <p className="text-red-600 text-sm mt-1">{errors.customer_phone.message}</p>
