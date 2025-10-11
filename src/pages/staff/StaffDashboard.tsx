@@ -9,21 +9,16 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { orderService } from '../../services/orderService';
-import { reservationService } from '../../services/reservationService';
 
 interface DashboardStats {
   todayOrders: number;
   pendingOrders: number;
-  todayReservations: number;
-  upcomingReservations: number;
 }
 
 const StaffDashboard: React.FC = () => {
   const [stats, setStats] = useState<DashboardStats>({
     todayOrders: 0,
-    pendingOrders: 0,
-    todayReservations: 0,
-    upcomingReservations: 0
+    pendingOrders: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -45,22 +40,9 @@ const StaffDashboard: React.FC = () => {
           order.status === 'pending' || order.status === 'confirmed'
         );
         
-        // Fetch reservations
-        const reservations = await reservationService.getReservations();
-        const todayReservations = reservations.filter(reservation => {
-          const reservationDate = new Date(reservation.date_time).toISOString().split('T')[0];
-          return reservationDate === todayStr;
-        });
-        const upcomingReservations = reservations.filter(reservation => {
-          const reservationDate = new Date(reservation.date_time);
-          return reservationDate >= today && reservation.status !== 'cancelled';
-        });
-        
         setStats({
           todayOrders: todayOrders.length,
-          pendingOrders: pendingOrders.length,
-          todayReservations: todayReservations.length,
-          upcomingReservations: upcomingReservations.length
+          pendingOrders: pendingOrders.length
         });
         
       } catch (error) {
@@ -88,20 +70,6 @@ const StaffDashboard: React.FC = () => {
       color: 'bg-orange-500',
       description: 'Orders needing attention'
     },
-    {
-      title: "Today's Reservations",
-      value: stats.todayReservations,
-      icon: Calendar,
-      color: 'bg-green-500',
-      description: 'Tables booked today'
-    },
-    {
-      title: 'Upcoming Reservations',
-      value: stats.upcomingReservations,
-      icon: Clock,
-      color: 'bg-purple-500',
-      description: 'Future reservations'
-    }
   ];
 
   if (loading) {
@@ -177,16 +145,6 @@ const StaffDashboard: React.FC = () => {
             </div>
           </Link>
           
-          <Link
-            to="/staff/reservations"
-            className="flex items-center p-4 border-2 border-dashed border-gray-200 rounded-lg hover:border-deep-maroon hover:bg-gray-50 transition-colors"
-          >
-            <Calendar className="w-6 h-6 text-deep-maroon mr-3" />
-            <div>
-              <h3 className="font-medium text-gray-900">Manage Reservations</h3>
-              <p className="text-sm text-gray-600">Handle table bookings</p>
-            </div>
-          </Link>
         </div>
       </div>
     </div>

@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   ShoppingBag, DollarSign, Star, MapPin, RefreshCw
 } from 'lucide-react';
-import { Order, Reservation } from '../../types';
+import { Order } from '../../types';
 import { orderService } from '../../services/orderService';
-import { reservationService } from '../../services/reservationService';
 import { useRestaurant } from '../../context/RestaurantContext';
 import AdminLocationSwitcher from '../../components/AdminLocationSwitcher';
 import { useOrderNotifications } from '../../hooks/useOrderNotifications';
@@ -19,7 +18,6 @@ const AdminDashboard: React.FC = () => {
     locationPerformance: {}
   });
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
-  const [todayReservations, setTodayReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -40,10 +38,6 @@ const AdminDashboard: React.FC = () => {
         totalOrders: prev.totalOrders + 1
       }));
     },
-    onNewReservation: (newReservation) => {
-      console.log('📅 Dashboard: New reservation received:', newReservation);
-      setTodayReservations(prev => [newReservation, ...prev]);
-    },
     enabled: true
   });
 
@@ -58,15 +52,8 @@ const AdminDashboard: React.FC = () => {
       }
       const today = new Date().toISOString().split('T')[0];
       
-      // Fetch orders and reservations
-      const [allOrders, reservations] = await Promise.all([
-        orderService.getOrders(selectedRestaurant?.id),
-        reservationService.getReservationsByDateRange(
-          `${today} 00:00:00`,
-          `${today} 23:59:59`,
-          selectedRestaurant?.id
-        )
-      ]);
+      // Fetch orders
+      const allOrders = await orderService.getOrders(selectedRestaurant?.id);
       
       // Calculate total revenue
       const totalRevenue = allOrders.reduce((sum, order) => sum + (order.total || order.total_amount || 0), 0);
@@ -90,7 +77,6 @@ const AdminDashboard: React.FC = () => {
       });
       
       setRecentOrders(allOrders.slice(0, 5));
-      setTodayReservations(reservations.slice(0, 5));
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
       // Show empty state if API fails
@@ -219,56 +205,28 @@ const AdminDashboard: React.FC = () => {
       )}
 
 
-      {/* Recent Orders & Today's Reservations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h2>
-          <div className="space-y-3">
-            {recentOrders.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-2">No recent orders</p>
-                <p className="text-sm text-gray-400">Orders will appear here once customers start placing them</p>
-              </div>
-            ) : (
-              recentOrders.map((order) => (
-                <div key={order.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Order #{order.id}</p>
-                    <p className="text-sm text-gray-600">{order.customer_name} - K{(order.total || order.total_amount || 0).toFixed(0)}</p>
-                  </div>
-                  <span className={`px-2 py-1 text-sm rounded ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
+      {/* Recent Orders */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h2>
+        <div className="space-y-3">
+          {recentOrders.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-2">No recent orders</p>
+              <p className="text-sm text-gray-400">Orders will appear here once customers start placing them</p>
+            </div>
+          ) : (
+            recentOrders.map((order) => (
+              <div key={order.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="font-medium text-gray-900">Order #{order.id}</p>
+                  <p className="text-sm text-gray-600">{order.customer_name} - K{(order.total || order.total_amount || 0).toFixed(0)}</p>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Today's Reservations</h2>
-          <div className="space-y-3">
-            {todayReservations.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-2">No reservations today</p>
-                <p className="text-sm text-gray-400">Reservations will appear here once customers book tables</p>
+                <span className={`px-2 py-1 text-sm rounded ${getStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
               </div>
-            ) : (
-              todayReservations.map((reservation) => (
-                <div key={reservation.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{reservation.customer_name}</p>
-                    <p className="text-sm text-gray-600">
-                      {formatTime(reservation.date_time)} - Party of {reservation.party_size}
-                    </p>
-                  </div>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded">
-                    {reservation.status}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
+            ))
+          )}
         </div>
       </div>
 

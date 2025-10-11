@@ -63,7 +63,6 @@ export const usePermissions = () => {
   const canUpdateOrders = () => hasPermission('update_orders');
   const canManageMenu = () => hasPermission('manage_menu');
   const canViewCustomers = () => hasPermission('view_customers');
-  const canManageReservations = () => hasPermission('manage_reservations');
   const canViewFinancialReports = () => hasPermission('view_financial_reports');
   const canManageStaff = () => hasPermission('manage_staff');
   const canManageSettings = () => hasPermission('manage_settings');
@@ -76,7 +75,6 @@ export const usePermissions = () => {
     canUpdateOrders,
     canManageMenu,
     canViewCustomers,
-    canManageReservations,
     canViewFinancialReports,
     canManageStaff,
     canManageSettings,

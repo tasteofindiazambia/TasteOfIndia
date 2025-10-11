@@ -49,9 +49,6 @@ const Header: React.FC = () => {
                 <Link to="/menu/1" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   Menu
                 </Link>
-                <Link to="/reservation" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
-                  Reservations
-                </Link>
                 <Link to="/locations" className="text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase hover:scale-105">
                   Locations
                 </Link>
@@ -122,13 +119,6 @@ const Header: React.FC = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Menu
-                </Link>
-                <Link 
-                  to="/reservation" 
-                  className="block text-charcoal hover:text-deep-maroon transition-all duration-300 font-semibold tracking-wide text-sm uppercase py-3 px-4 rounded-xl hover:bg-gray-100 hover:scale-105"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Reservations
                 </Link>
                 <Link 
                   to="/locations" 
