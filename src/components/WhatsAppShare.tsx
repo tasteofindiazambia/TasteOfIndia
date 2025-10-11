@@ -25,10 +25,53 @@ ${order.order_type === 'pickup' ? '🏪 Pickup Order' : '🚚 Delivery Order'}
 
 🛒 *Items Ordered:*
 ${order.items && order.items.length > 0 
-  ? order.items.map((item: any) => `• ${item.menu_item_name || item.name || 'Unknown Item'} × ${item.quantity} - K${item.total_price?.toFixed(0) || '0'}`).join('\n')
+  ? order.items.map((item: any) => {
+      const itemName = item.menu_item_name || item.name || 'Unknown Item';
+      const basePrice = item.unit_price || item.price || 0;
+      const quantity = item.quantity || 1;
+      const itemTotal = basePrice * quantity;
+      const packagingPrice = (item.packaging_price || 0) * quantity;
+      const totalPrice = itemTotal + packagingPrice;
+      
+      let itemText = `• ${itemName} × ${quantity}`;
+      if (item.grams) itemText += ` (${item.grams}g)`;
+      itemText += `\n  - Base: K${basePrice.toFixed(0)} each = K${itemTotal.toFixed(0)}`;
+      if (packagingPrice > 0) {
+        itemText += `\n  - Packaging: K${item.packaging_price?.toFixed(0) || '0'} each = K${packagingPrice.toFixed(0)}`;
+      }
+      itemText += `\n  - Total: K${totalPrice.toFixed(0)}`;
+      return itemText;
+    }).join('\n\n')
   : 'Items details not available'}
 
-💰 *Total: K${(order.total || order.total_amount || 0).toFixed(0)}*
+${(() => {
+  const itemsTotal = order.items?.reduce((total: number, item: any) => {
+    const basePrice = item.unit_price || item.price || 0;
+    const quantity = item.quantity || 1;
+    return total + (basePrice * quantity);
+  }, 0) || 0;
+  
+  const packagingTotal = order.items?.reduce((total: number, item: any) => {
+    const packagingPrice = item.packaging_price || 0;
+    const quantity = item.quantity || 1;
+    return total + (packagingPrice * quantity);
+  }, 0) || 0;
+  
+  const subtotal = itemsTotal + packagingTotal;
+  
+  let totalText = `💰 *Pricing Breakdown:*\n`;
+  totalText += `Items Total: K${itemsTotal.toFixed(0)}\n`;
+  if (packagingTotal > 0) {
+    totalText += `Packaging: K${packagingTotal.toFixed(0)}\n`;
+  }
+  totalText += `Subtotal: K${subtotal.toFixed(0)}\n`;
+  if (order.delivery_fee && order.delivery_fee > 0) {
+    totalText += `Delivery Fee: K${order.delivery_fee.toFixed(0)}\n`;
+  }
+  totalText += `*Total: K${(order.total || order.total_amount || 0).toFixed(0)}*`;
+  
+  return totalText;
+})()}
 
 ${order.special_instructions ? `📝 Special Instructions: ${order.special_instructions}` : ''}
 
@@ -110,16 +153,37 @@ Thank you for your order! 🙏
         <div style="margin-bottom: 20px;">
           <h4 style="color: #1e293b; margin: 0 0 15px 0; font-size: 16px;">Order Items</h4>
           ${Array.isArray(order.items) 
-            ? order.items.map((item: any) => 
-                `<div style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0; padding: 8px; background: #f8fafc; border-radius: 6px;">
-                  <div>
-                    <span style="font-weight: 500; color: #374151;">${item.menu_item_name || item.name || 'Unknown Item'}</span>
-                    <br>
-                    <small style="color: #6b7280;">Qty: ${item.quantity}</small>
+            ? order.items.map((item: any) => {
+                const itemName = item.menu_item_name || item.name || 'Unknown Item';
+                const basePrice = item.unit_price || item.price || 0;
+                const quantity = item.quantity || 1;
+                const itemTotal = basePrice * quantity;
+                const packagingPrice = (item.packaging_price || 0) * quantity;
+                const totalPrice = itemTotal + packagingPrice;
+                
+                return `<div style="margin: 8px 0; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
+                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div>
+                      <span style="font-weight: 500; color: #374151; font-size: 14px;">${itemName}</span>
+                      <br>
+                      <small style="color: #6b7280;">Qty: ${quantity}${item.grams ? ` (${item.grams}g)` : ''}</small>
+                    </div>
+                    <span style="font-weight: bold; color: #ea580c; font-size: 16px;">K${totalPrice.toFixed(0)}</span>
                   </div>
-                  <span style="font-weight: bold; color: #ea580c; font-size: 16px;">K${item.total_price?.toFixed(0) || '0'}</span>
-                </div>`
-              ).join('')
+                  <div style="font-size: 12px; color: #6b7280; line-height: 1.4;">
+                    <div style="display: flex; justify-content: space-between;">
+                      <span>Base: K${basePrice.toFixed(0)} each</span>
+                      <span>K${itemTotal.toFixed(0)}</span>
+                    </div>
+                    ${packagingPrice > 0 ? `
+                      <div style="display: flex; justify-content: space-between;">
+                        <span>Packaging: K${item.packaging_price?.toFixed(0) || '0'} each</span>
+                        <span>K${packagingPrice.toFixed(0)}</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>`;
+              }).join('')
             : '<div style="padding: 15px; background: #fef2f2; border-radius: 6px; color: #dc2626;">Items details not available</div>'}
         </div>
         
@@ -130,12 +194,66 @@ Thank you for your order! 🙏
           </div>
         ` : ''}
         
-        <div style="border-top: 3px solid #ea580c; padding: 20px 0; text-align: center; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; margin: 20px 0;">
-          <div style="font-size: 24px; font-weight: bold; color: #ea580c; margin-bottom: 5px;">
-            Total: K${(order.total || order.total_amount || 0).toFixed(0)}
+        <div style="border-top: 3px solid #ea580c; padding: 20px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 8px; margin: 20px 0;">
+          <div style="margin-bottom: 15px;">
+            <h4 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px; font-weight: bold;">Pricing Breakdown</h4>
+            ${(() => {
+              const itemsTotal = order.items?.reduce((total: number, item: any) => {
+                const basePrice = item.unit_price || item.price || 0;
+                const quantity = item.quantity || 1;
+                return total + (basePrice * quantity);
+              }, 0) || 0;
+              
+              const packagingTotal = order.items?.reduce((total: number, item: any) => {
+                const packagingPrice = item.packaging_price || 0;
+                const quantity = item.quantity || 1;
+                return total + (packagingPrice * quantity);
+              }, 0) || 0;
+              
+              const subtotal = itemsTotal + packagingTotal;
+              
+              let breakdown = `
+                <div style="display: flex; justify-content: space-between; margin: 4px 0; font-size: 14px;">
+                  <span style="color: #92400e;">Items Total:</span>
+                  <span style="color: #92400e; font-weight: 500;">K${itemsTotal.toFixed(0)}</span>
+                </div>
+              `;
+              
+              if (packagingTotal > 0) {
+                breakdown += `
+                  <div style="display: flex; justify-content: space-between; margin: 4px 0; font-size: 14px;">
+                    <span style="color: #92400e;">Packaging:</span>
+                    <span style="color: #92400e; font-weight: 500;">K${packagingTotal.toFixed(0)}</span>
+                  </div>
+                `;
+              }
+              
+              breakdown += `
+                <div style="display: flex; justify-content: space-between; margin: 8px 0; padding-top: 8px; border-top: 1px solid #f59e0b; font-size: 14px;">
+                  <span style="color: #92400e; font-weight: bold;">Subtotal:</span>
+                  <span style="color: #92400e; font-weight: bold;">K${subtotal.toFixed(0)}</span>
+                </div>
+              `;
+              
+              if (order.delivery_fee && order.delivery_fee > 0) {
+                breakdown += `
+                  <div style="display: flex; justify-content: space-between; margin: 4px 0; font-size: 14px;">
+                    <span style="color: #92400e;">Delivery Fee:</span>
+                    <span style="color: #92400e; font-weight: 500;">K${order.delivery_fee.toFixed(0)}</span>
+                  </div>
+                `;
+              }
+              
+              return breakdown;
+            })()}
           </div>
-          <div style="font-size: 12px; color: #92400e;">
-            ${order.order_type === 'pickup' ? 'Ready for pickup in 15-20 minutes!' : 'Delivery in 30-45 minutes!'}
+          <div style="text-align: center; border-top: 2px solid #f59e0b; padding-top: 15px;">
+            <div style="font-size: 24px; font-weight: bold; color: #ea580c; margin-bottom: 5px;">
+              Total: K${(order.total || order.total_amount || 0).toFixed(0)}
+            </div>
+            <div style="font-size: 12px; color: #92400e;">
+              ${order.order_type === 'pickup' ? 'Ready for pickup in 15-20 minutes!' : 'Delivery in 30-45 minutes!'}
+            </div>
           </div>
         </div>
         

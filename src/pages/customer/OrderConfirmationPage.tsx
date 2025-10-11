@@ -245,24 +245,50 @@ const OrderConfirmationPage: React.FC = () => {
           <h3 className="font-semibold mb-3">Order Items</h3>
           <div className="space-y-2">
             {order.items && order.items.length > 0 ? (
-              order.items.map((item: any, index: number) => (
-                <div key={item.id || index} className="flex justify-between items-center">
-                  <div>
-                    <span className="font-medium">
-                      {item.menu_item_name || item.name || item.menu_items?.name || 'Unknown Item'}
-                    </span>
-                    <span className="text-gray-600 ml-2">× {item.quantity}</span>
-                    {item.special_instructions && (
-                      <div className="text-sm text-gray-500 italic">
-                        Note: {item.special_instructions}
+              order.items.map((item: any, index: number) => {
+                const itemName = item.menu_item_name || item.name || item.menu_items?.name || 'Unknown Item';
+                const basePrice = item.unit_price || item.price || 0;
+                const quantity = item.quantity || 1;
+                const itemTotal = basePrice * quantity;
+                const packagingPrice = (item.packaging_price || 0) * quantity;
+                const totalPrice = itemTotal + packagingPrice;
+                
+                return (
+                  <div key={item.id || index} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <span className="font-medium text-gray-900">
+                          {itemName}
+                        </span>
+                        <span className="text-gray-600 ml-2">× {quantity}</span>
+                        {item.grams && (
+                          <span className="text-gray-500 ml-2">({item.grams}g)</span>
+                        )}
+                        {item.special_instructions && (
+                          <div className="text-sm text-gray-500 italic mt-1">
+                            Note: {item.special_instructions}
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <span className="font-bold text-deep-maroon">
+                        K{totalPrice.toFixed(0)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div className="flex justify-between">
+                        <span>Base price: K{basePrice.toFixed(0)} each</span>
+                        <span>K{itemTotal.toFixed(0)}</span>
+                      </div>
+                      {packagingPrice > 0 && (
+                        <div className="flex justify-between">
+                          <span>Packaging: K{item.packaging_price?.toFixed(0) || '0'} each</span>
+                          <span>K{packagingPrice.toFixed(0)}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <span className="font-medium">
-                    K{item.total_price?.toFixed(0) || (item.price * item.quantity)?.toFixed(0) || '0'}
-                  </span>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-4 text-gray-500">
                 <div>No items found</div>
@@ -289,22 +315,51 @@ const OrderConfirmationPage: React.FC = () => {
 
         {/* Total */}
         <div className="border-t pt-4 space-y-2">
-          {order.delivery_fee && order.delivery_fee > 0 && (
-            <>
-              <div className="flex justify-between items-center">
-                <span>Subtotal:</span>
-                <span>K{((order.total_amount || 0) - (order.delivery_fee || 0)).toFixed(0)}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span>Delivery Fee:</span>
-                <span>K{order.delivery_fee.toFixed(0)}</span>
-              </div>
-            </>
-          )}
-          <div className="flex justify-between items-center text-lg font-bold border-t pt-2">
-            <span>Total:</span>
-            <span className="text-deep-maroon">K{(order.total || order.total_amount || 0).toFixed(0)}</span>
-          </div>
+          {/* Calculate items total and packaging total */}
+          {(() => {
+            const itemsTotal = order.items?.reduce((total: number, item: any) => {
+              const basePrice = item.unit_price || item.price || 0;
+              const quantity = item.quantity || 1;
+              return total + (basePrice * quantity);
+            }, 0) || 0;
+            
+            const packagingTotal = order.items?.reduce((total: number, item: any) => {
+              const packagingPrice = item.packaging_price || 0;
+              const quantity = item.quantity || 1;
+              return total + (packagingPrice * quantity);
+            }, 0) || 0;
+            
+            const subtotal = itemsTotal + packagingTotal;
+            
+            return (
+              <>
+                <div className="flex justify-between items-center text-sm">
+                  <span>Items Total:</span>
+                  <span>K{itemsTotal.toFixed(0)}</span>
+                </div>
+                {packagingTotal > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Packaging:</span>
+                    <span>K{packagingTotal.toFixed(0)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span>Subtotal:</span>
+                  <span>K{subtotal.toFixed(0)}</span>
+                </div>
+                {order.delivery_fee && order.delivery_fee > 0 && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span>Delivery Fee:</span>
+                    <span>K{order.delivery_fee.toFixed(0)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-lg font-bold border-t pt-2">
+                  <span>Total:</span>
+                  <span className="text-deep-maroon">K{(order.total || order.total_amount || 0).toFixed(0)}</span>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
 
