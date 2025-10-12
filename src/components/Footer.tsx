@@ -132,13 +132,13 @@ const Footer: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-[#D2691E] flex-shrink-0" />
                 <p className="text-[#F5F5DC] text-sm font-medium">
-                  +91 70995 39615
+                  +260 774 219 999
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-[#D2691E] flex-shrink-0" />
                 <p className="text-[#F5F5DC] text-sm font-medium">
-                  hello@tasteofindia.co.zm
+                taste.of.india.zambia@gmail.com
                 </p>
               </div>
               <div className="flex items-start space-x-3">

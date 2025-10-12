@@ -4,7 +4,7 @@ import { MessageCircle } from 'lucide-react';
 const WhatsAppChat: React.FC = () => {
   const handleWhatsAppClick = () => {
     // WhatsApp number for Taste of India (replace with actual number)
-    const phoneNumber = '+917099539615'; // WhatsApp number
+    const phoneNumber = '+260774219999'; // WhatsApp number
     const message = 'Hello! I would like to make a reservation or ask about your menu.';
     
     // Create WhatsApp URL
