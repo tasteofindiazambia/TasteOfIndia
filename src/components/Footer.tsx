@@ -129,11 +129,26 @@ const Footer: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="w-5 h-5 text-[#D2691E] flex-shrink-0" />
-                <p className="text-[#F5F5DC] text-sm font-medium">
-                  +260 774 219 999
-                </p>
+              <div className="flex items-start space-x-3">
+                <Phone className="w-5 h-5 text-[#D2691E] mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-[#F5F5DC] text-sm font-medium">
+                      +260 773 219 999
+                    </p>
+                    <p className="text-[#D2691E] text-xs">
+                      WhatsApp/Chat
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[#F5F5DC] text-sm font-medium">
+                      +260 774 219 999
+                    </p>
+                    <p className="text-[#D2691E] text-xs">
+                      Reservations & Inquiries
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5 text-[#D2691E] flex-shrink-0" />
