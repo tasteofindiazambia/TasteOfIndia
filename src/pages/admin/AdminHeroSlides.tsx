@@ -98,30 +98,31 @@ const AdminHeroSlides: React.FC = () => {
         return;
       }
       
-      // Create a unique filename to avoid conflicts
-      const timestamp = Date.now();
-      const fileExtension = file.name.split('.').pop();
-      const uniqueFileName = `hero-slide-${timestamp}.${fileExtension}`;
+      // File will be converted to base64 and stored directly
       
-      // For now, we'll use the filename and assume manual upload to public folder
-      // In production, you'd upload to a cloud service like Cloudinary, AWS S3, etc.
+      // Convert file to base64 for storage (temporary solution)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        
+        // For now, we'll store the base64 data in the database
+        // In production, you'd upload to a cloud service like Cloudinary, AWS S3, etc.
+        
+        // Update the background image URL with the base64 data
+        setFormData(prev => ({
+          ...prev,
+          background_image_url: base64
+        }));
+        
+        showNotification({ type: 'success', message: `Image "${file.name}" uploaded successfully!` });
+      };
       
-      // Update the background image URL with the new filename
-      setFormData(prev => ({
-        ...prev,
-        background_image_url: uniqueFileName
-      }));
+      reader.onerror = () => {
+        showNotification({ type: 'error', message: 'Failed to process image file' });
+        setUploadingImage(false);
+      };
       
-      showNotification({ type: 'success', message: `Image "${file.name}" processed. Filename: ${uniqueFileName}. Please upload this file to your public folder.` });
-      
-      // Create a download link for the user to save the file
-      const downloadLink = document.createElement('a');
-      downloadLink.href = URL.createObjectURL(file);
-      downloadLink.download = uniqueFileName;
-      downloadLink.style.display = 'none';
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      reader.readAsDataURL(file);
       
     } catch (error) {
       console.error('Error handling image upload:', error);
@@ -535,8 +536,9 @@ const AdminHeroSlides: React.FC = () => {
                   </div>
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>💡 <strong>URL:</strong> Paste any image URL (we'll clean trailing commas automatically)</p>
-                    <p>📁 <strong>File Upload:</strong> Select an image file - it will be downloaded with a unique name</p>
+                    <p>📁 <strong>File Upload:</strong> Select an image file - it will be uploaded directly to the database</p>
                     <p>🔄 <strong>Replacement:</strong> New images automatically replace the previous one</p>
+                    <p>🎨 <strong>No Image:</strong> Leave empty to use brown background color</p>
                   </div>
                 </div>
               </div>

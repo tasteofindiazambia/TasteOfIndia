@@ -82,7 +82,7 @@ const HomePage: React.FC = () => {
               <div 
                 className="w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
-                  backgroundColor: '#532734', // Fallback color
+                  backgroundColor: '#8B4513', // Brown fallback color
                   backgroundImage: (() => {
                     console.log(`🖼️ [HomePage] Processing slide ${slide.id}:`, {
                       slide_type: slide.slide_type,
@@ -115,18 +115,22 @@ const HomePage: React.FC = () => {
                     
                     // For other slides or fallback, use background_image_url
                     if (slide.background_image_url) {
-                      // Check if it's a full URL or a filename
+                      // Check if it's a full URL, base64, or a filename
                       if (slide.background_image_url.startsWith('http')) {
-                        // Add a very light gradient overlay for better text readability
+                        // External URL
                         const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${slide.background_image_url}')`;
                         console.log(`🖼️ [HomePage] External URL slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] External URL: ${slide.background_image_url}`);
                         return bgUrl;
+                      } else if (slide.background_image_url.startsWith('data:image')) {
+                        // Base64 image
+                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${slide.background_image_url}')`;
+                        console.log(`🖼️ [HomePage] Base64 image slide (ID: ${slide.id}) background URL: ${bgUrl.substring(0, 100)}...`);
+                        return bgUrl;
                       } else {
-                        // For local files, use the full domain URL to ensure proper loading
+                        // Local filename (legacy)
                         const baseUrl = window.location.origin;
                         const imageUrl = `${baseUrl}/${slide.background_image_url}`;
-                        // Add a very light gradient overlay for better text readability
                         const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${imageUrl}')`;
                         console.log(`🖼️ [HomePage] Local file slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] Local file URL: ${imageUrl}`);
@@ -134,10 +138,10 @@ const HomePage: React.FC = () => {
                       }
                     }
                     
-                    // Fallback to gradient only
-                    const defaultBg = 'linear-gradient(rgba(83, 39, 52, 0.2), rgba(83, 39, 52, 0.2))';
-                    console.log(`🖼️ [HomePage] Slide (ID: ${slide.id}) using default background (no image): ${defaultBg}`);
-                    return defaultBg;
+                    // Fallback to brown color when no image is provided
+                    const brownColor = '#8B4513'; // Brown color
+                    console.log(`🖼️ [HomePage] Slide (ID: ${slide.id}) using brown fallback (no image): ${brownColor}`);
+                    return brownColor;
                   })()
                 }}
               >
