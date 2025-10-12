@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Clock, CheckCircle, Eye, Printer, Search, ArrowUpDown, Phone, MessageSquare, X, Plus, Filter, Download, RefreshCw } from 'lucide-react';
+import { Clock, CheckCircle, Eye, Printer, Search, ArrowUpDown, Phone, MessageSquare, X, Filter, Download, RefreshCw } from 'lucide-react';
 import { Order } from '../../types';
 import { orderService } from '../../services/orderService';
 import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
-import CreateOrderModal from '../../components/CreateOrderModal';
 import { useOrderNotifications } from '../../hooks/useOrderNotifications';
 import { useRealTimeUpdates } from '../../hooks/useRealTimeUpdates';
 
@@ -18,7 +17,6 @@ const AdminOrders: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'total'>('newest');
   const [showOrderSidebar, setShowOrderSidebar] = useState(false);
-  const [showCreateOrderModal, setShowCreateOrderModal] = useState(false);
   const [dateRange, setDateRange] = useState<{start: string, end: string}>({
     start: new Date().toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
@@ -185,10 +183,6 @@ const AdminOrders: React.FC = () => {
     }
   };
 
-  const handleOrderCreated = (newOrder: Order) => {
-    setOrders(prev => [newOrder, ...prev]);
-    setShowCreateOrderModal(false);
-  };
 
   const handleBulkAction = (action: string, selectedOrderIds: number[]) => {
     switch (action) {
@@ -308,14 +302,6 @@ const AdminOrders: React.FC = () => {
             >
               <RefreshCw className="w-4 h-4" />
               <span className="hidden sm:inline">Refresh</span>
-            </button>
-            <button
-              onClick={() => setShowCreateOrderModal(true)}
-              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-deep-maroon text-light-cream rounded-lg hover:bg-burgundy transition-colors text-sm sm:text-base"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create Order</span>
-              <span className="sm:hidden">Create</span>
             </button>
             
             {/* Export Button */}
@@ -832,12 +818,6 @@ const AdminOrders: React.FC = () => {
         </>
       )}
 
-      {/* Create Order Modal */}
-      <CreateOrderModal
-        isOpen={showCreateOrderModal}
-        onClose={() => setShowCreateOrderModal(false)}
-        onOrderCreated={handleOrderCreated}
-      />
     </div>
   );
 };
