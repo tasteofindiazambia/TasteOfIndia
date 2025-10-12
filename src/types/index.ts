@@ -80,7 +80,7 @@ export interface Order {
   id: number;
   customer_name: string;
   customer_phone: string;
-  items: CartItem[] | string; // Can be array or JSON string
+  items: CartItem[]; // Always array of CartItem
   total: number;
   total_amount?: number; // Backend field name
   order_number?: string;
@@ -88,6 +88,15 @@ export interface Order {
   restaurant_id: number;
   created_at: string;
   special_instructions?: string;
+  // Additional order properties
+  order_type?: 'pickup' | 'delivery';
+  delivery_address?: string;
+  delivery_fee?: number;
+  delivery_distance_km?: number;
+  delivery_time_estimate?: number;
+  estimated_preparation_time?: number;
+  order_token?: string;
+  order_items?: any[]; // For backend compatibility
 }
 
 

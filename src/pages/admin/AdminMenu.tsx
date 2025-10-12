@@ -72,6 +72,7 @@ const AdminMenu: React.FC = () => {
       const newItem: MenuItem = {
         id: Date.now(), // Temporary ID
         ...itemData,
+        available: true, // Default to available
         availability_status: formData.availability_status,
         category: categories.find(c => c.id === itemData.category_id)
       };
@@ -164,6 +165,7 @@ const AdminMenu: React.FC = () => {
       price: parseFloat(item.price),
       category_id: categories.find(cat => cat.name === item.category)?.id || 1,
       image_url: item.imageUrl,
+      available: item.available || true, // Default to available
       availability_status: item.available ? 1 : 0,
       restaurant_id: selectedRestaurant?.id || 1,
       created_at: new Date().toISOString(),

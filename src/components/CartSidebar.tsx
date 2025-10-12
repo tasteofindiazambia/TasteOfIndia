@@ -180,7 +180,6 @@ const CartSidebar: React.FC = () => {
                 {(() => {
                   const itemsTotal = cartItems.reduce((total, item) => total + item.itemTotal, 0);
                   const packagingTotal = cartItems.reduce((total, item) => total + item.packagingPrice, 0);
-                  const subtotal = itemsTotal + packagingTotal;
                   
                   return (
                     <>

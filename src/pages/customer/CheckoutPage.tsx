@@ -75,13 +75,12 @@ const countryCodes = [
 
 const CheckoutPage: React.FC = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
-  const { restaurants, selectedRestaurant } = useRestaurant();
+  const { restaurants } = useRestaurant();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Deprecated local state; using react-hook-form watch instead
-  const [orderType] = useState<'pickup' | 'delivery'>('pickup');
   const [deliverySettings, setDeliverySettings] = useState({
     delivery_fee_per_km: 10,
     delivery_time_minutes: 30,

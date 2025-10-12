@@ -2,13 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Clock, CheckCircle, Eye, Printer, Search, ArrowUpDown, Phone, MessageSquare, X, Filter, Download, RefreshCw } from 'lucide-react';
 import { Order } from '../../types';
 import { orderService } from '../../services/orderService';
-import { useRestaurant } from '../../context/RestaurantContext';
 import { useNotification } from '../../context/NotificationContext';
-import { useOrderNotifications } from '../../hooks/useOrderNotifications';
-import { useRealTimeUpdates } from '../../hooks/useRealTimeUpdates';
 
 const AdminOrders: React.FC = () => {
-  const { selectedRestaurant } = useRestaurant();
   const { showNotification } = useNotification();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
