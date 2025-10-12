@@ -94,7 +94,8 @@ const HomePage: React.FC = () => {
                     if (slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 0) {
                       const baseUrl = window.location.origin;
                       const imageUrl = `${baseUrl}/${slide.background_images[0]}`;
-                      const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${imageUrl}')`;
+                      // Test: Try without gradient first to see if image shows
+                      const bgUrl = `url('${imageUrl}')`;
                       console.log(`🖼️ [HomePage] Menu slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                       console.log(`🖼️ [HomePage] Menu slide image URL: ${imageUrl}`);
                       return bgUrl;
@@ -104,7 +105,8 @@ const HomePage: React.FC = () => {
                     if (slide.slide_type === 'reservations' && slide.background_images && slide.background_images.length > 0) {
                       const baseUrl = window.location.origin;
                       const imageUrl = `${baseUrl}/${slide.background_images[0]}`;
-                      const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${imageUrl}')`;
+                      // Test: Try without gradient first to see if image shows
+                      const bgUrl = `url('${imageUrl}')`;
                       console.log(`🖼️ [HomePage] Reservations slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                       console.log(`🖼️ [HomePage] Reservations slide image URL: ${imageUrl}`);
                       return bgUrl;
@@ -114,7 +116,8 @@ const HomePage: React.FC = () => {
                     if (slide.background_image_url) {
                       // Check if it's a full URL or a filename
                       if (slide.background_image_url.startsWith('http')) {
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${slide.background_image_url}')`;
+                        // Test: Try without gradient first to see if image shows
+                        const bgUrl = `url('${slide.background_image_url}')`;
                         console.log(`🖼️ [HomePage] External URL slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] External URL: ${slide.background_image_url}`);
                         return bgUrl;
@@ -122,7 +125,8 @@ const HomePage: React.FC = () => {
                         // For local files, use the full domain URL to ensure proper loading
                         const baseUrl = window.location.origin;
                         const imageUrl = `${baseUrl}/${slide.background_image_url}`;
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${imageUrl}')`;
+                        // Test: Try without gradient first to see if image shows
+                        const bgUrl = `url('${imageUrl}')`;
                         console.log(`🖼️ [HomePage] Local file slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] Local file URL: ${imageUrl}`);
                         return bgUrl;
@@ -130,7 +134,7 @@ const HomePage: React.FC = () => {
                     }
                     
                     // Fallback to gradient only
-                    const defaultBg = 'linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7))';
+                    const defaultBg = 'linear-gradient(rgba(83, 39, 52, 0.2), rgba(83, 39, 52, 0.2))';
                     console.log(`🖼️ [HomePage] Slide (ID: ${slide.id}) using default background (no image): ${defaultBg}`);
                     return defaultBg;
                   })()
