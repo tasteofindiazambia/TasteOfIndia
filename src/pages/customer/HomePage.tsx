@@ -447,7 +447,7 @@ const HomePage: React.FC = () => {
           </p>
           <div className="animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
             <a 
-              href="https://www.facebook.com/tasteofindia_lsk" 
+              href="https://www.facebook.com/p/Taste-of-India-61554487411311/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-3 bg-white text-deep-maroon px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-lg"
