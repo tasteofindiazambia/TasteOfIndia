@@ -10,6 +10,7 @@ class ApiService {
 
   constructor() {
     this.baseURL = API_BASE_URL;
+    console.log('🔧 [ApiService] Base URL:', this.baseURL);
   }
 
   // Get JWT token from localStorage
@@ -48,6 +49,8 @@ class ApiService {
     const token = this.getAuthToken();
     
     console.log('🔄 [apiService] Making request to:', url);
+    console.log('🔄 [apiService] Base URL:', this.baseURL);
+    console.log('🔄 [apiService] Endpoint:', endpoint);
     console.log('🔄 [apiService] Request options:', options);
     console.log('🔄 [apiService] Auth token present:', !!token);
     
