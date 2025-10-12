@@ -1,19 +1,14 @@
 import Database from './database.js';
 import { SupabaseDatabase } from '../../lib/supabase.js';
 
-// Database adapter that switches between SQLite (dev) and Supabase (production)
+// Database adapter that uses Supabase for both development and production
 class DatabaseAdapter {
   constructor() {
-    // Use Supabase in production, SQLite in development
-    this.useSupabase = process.env.NODE_ENV === 'production' || process.env.USE_SUPABASE === 'true';
+    // Always use Supabase database (both development and production)
+    this.useSupabase = true;
     
-    if (this.useSupabase) {
-      console.log('🔄 Using Supabase database (production mode)');
-      this.db = new SupabaseDatabase();
-    } else {
-      console.log('🔄 Using SQLite database (development mode)');
-      this.db = Database;
-    }
+    console.log('🔄 Using Supabase database (unified mode)');
+    this.db = new SupabaseDatabase();
   }
 
   async init() {
