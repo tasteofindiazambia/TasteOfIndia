@@ -1026,6 +1026,25 @@ async function handleHeroSlides(req, res, pathSegments, query) {
       // Remove id from update data if present
       delete updateData.id;
       
+      // First check if the slide exists
+      const { data: existingSlide, error: checkError } = await supabaseAdmin
+        .from('hero_slides')
+        .select('id')
+        .eq('id', slideId)
+        .single();
+        
+      if (checkError) {
+        console.error('Error checking if slide exists:', checkError);
+        return res.status(500).json({ 
+          error: 'Failed to check hero slide',
+          details: checkError.message
+        });
+      }
+      
+      if (!existingSlide) {
+        return res.status(404).json({ error: 'Hero slide not found' });
+      }
+
       const { data, error } = await supabaseAdmin
         .from('hero_slides')
         .update({
