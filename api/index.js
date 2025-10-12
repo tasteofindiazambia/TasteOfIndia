@@ -227,8 +227,6 @@ export default async function handler(req, res) {
       return await handleHeroSlides(req, res, pathSegments, query);
     }
 
-
-
     if (pathSegments[0] === 'menu-categories') {
       return await handleMenuCategories(req, res, pathSegments, query);
     }
@@ -241,7 +239,13 @@ export default async function handler(req, res) {
       return await handleAdmin(req, res, query);
     }
 
-    return res.status(404).json({ error: `Endpoint not found: ${pathSegments[0]}` });
+    // Debug: Log all unmatched routes
+    console.log('🚫 [API] Unmatched route:', pathSegments[0], 'Full path:', path);
+    return res.status(404).json({ 
+      error: `Endpoint not found: ${pathSegments[0]}`,
+      path: path,
+      segments: pathSegments
+    });
 
   } catch (error) {
     console.error('API Error:', error);
