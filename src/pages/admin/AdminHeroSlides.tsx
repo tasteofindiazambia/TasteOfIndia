@@ -6,7 +6,6 @@ import {
   Eye, 
   EyeOff, 
   GripVertical, 
-  Upload,
   Save,
   X
 } from 'lucide-react';
@@ -37,7 +36,6 @@ const AdminHeroSlides: React.FC = () => {
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -80,57 +78,6 @@ const AdminHeroSlides: React.FC = () => {
     return cleaned;
   };
 
-  // Handle image upload
-  const handleImageUpload = async (file: File) => {
-    if (!file) return;
-    
-    setUploadingImage(true);
-    try {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        showNotification({ type: 'error', message: 'Please select a valid image file' });
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        showNotification({ type: 'error', message: 'Image file is too large. Maximum size is 5MB' });
-        return;
-      }
-      
-      // File will be converted to base64 and stored directly
-      
-      // Convert file to base64 for storage (temporary solution)
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const base64 = e.target?.result as string;
-        
-        // For now, we'll store the base64 data in the database
-        // In production, you'd upload to a cloud service like Cloudinary, AWS S3, etc.
-        
-        // Update the background image URL with the base64 data
-        setFormData(prev => ({
-          ...prev,
-          background_image_url: base64
-        }));
-        
-        showNotification({ type: 'success', message: `Image "${file.name}" uploaded successfully!` });
-      };
-      
-      reader.onerror = () => {
-        showNotification({ type: 'error', message: 'Failed to process image file' });
-        setUploadingImage(false);
-      };
-      
-      reader.readAsDataURL(file);
-      
-    } catch (error) {
-      console.error('Error handling image upload:', error);
-      showNotification({ type: 'error', message: 'Failed to process image upload' });
-    } finally {
-      setUploadingImage(false);
-    }
-  };
 
   const fetchSlides = async () => {
     try {
@@ -510,34 +457,11 @@ const AdminHeroSlides: React.FC = () => {
                     value={formData.background_image_url}
                     onChange={(e) => setFormData({ ...formData, background_image_url: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-                    placeholder="Enter image URL or filename (e.g., hero-image.png)"
+                    placeholder="Enter public image URL (e.g., https://example.com/image.jpg)"
                   />
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="file"
-                      id="image-upload"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleImageUpload(file);
-                      }}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="image-upload"
-                      className="flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md cursor-pointer transition-colors"
-                    >
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm">Upload New Image</span>
-                    </label>
-                    {uploadingImage && (
-                      <span className="text-sm text-gray-500">Processing...</span>
-                    )}
-                  </div>
                   <div className="text-xs text-gray-500 space-y-1">
-                    <p>💡 <strong>URL:</strong> Paste any image URL (we'll clean trailing commas automatically)</p>
-                    <p>📁 <strong>File Upload:</strong> Select an image file - it will be uploaded directly to the database</p>
-                    <p>🔄 <strong>Replacement:</strong> New images automatically replace the previous one</p>
+                    <p>💡 <strong>URL Only:</strong> Paste any public image URL (we'll clean trailing commas automatically)</p>
+                    <p>🔄 <strong>Replacement:</strong> New URLs automatically replace the previous one</p>
                     <p>🎨 <strong>No Image:</strong> Leave empty to use maroon background color</p>
                   </div>
                 </div>
