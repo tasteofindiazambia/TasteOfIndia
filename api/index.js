@@ -1016,20 +1016,24 @@ async function handleHeroSlides(req, res, pathSegments, query) {
       const id = pathSegments[1];
       const updateData = req.body;
 
+      // Convert id to integer for proper comparison
+      const slideId = parseInt(id);
+      
       console.log('Updating hero slide:', id);
       console.log('Update data:', JSON.stringify(updateData, null, 2));
+      console.log('Parsed slide ID:', slideId);
 
       // Remove id from update data if present
       delete updateData.id;
-
+      
       const { data, error } = await supabaseAdmin
         .from('hero_slides')
         .update({
           ...updateData,
           updated_at: new Date().toISOString()
         })
-        .eq('id', id)
-          .select();
+        .eq('id', slideId)
+        .select();
         
       if (error) {
         console.error('Error updating hero slide:', error);
