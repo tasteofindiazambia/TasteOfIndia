@@ -85,34 +85,25 @@ const HomePage: React.FC = () => {
                   backgroundImage: (() => {
                     // For menu slides, use background_images if available
                     if (slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 0) {
-                      const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`;
-                      console.log('🖼️ [HomePage] Menu slide background:', bgUrl);
-                      return bgUrl;
+                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`;
                     }
                     
                     // For reservations slides, use background_images if available
                     if (slide.slide_type === 'reservations' && slide.background_images && slide.background_images.length > 0) {
-                      const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`;
-                      console.log('🖼️ [HomePage] Reservations slide background:', bgUrl);
-                      return bgUrl;
+                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`;
                     }
                     
                     // For other slides or fallback, use background_image_url
                     if (slide.background_image_url) {
                       // Check if it's a full URL or a filename
                       if (slide.background_image_url.startsWith('http')) {
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${slide.background_image_url}')`;
-                        console.log('🖼️ [HomePage] External URL background:', bgUrl);
-                        return bgUrl;
+                        return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${slide.background_image_url}')`;
                       } else {
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/${slide.background_image_url}')`;
-                        console.log('🖼️ [HomePage] Local file background:', bgUrl);
-                        return bgUrl;
+                        return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/${slide.background_image_url}')`;
                       }
                     }
                     
                     // Fallback to gradient only
-                    console.log('🖼️ [HomePage] No background image, using gradient only');
                     return 'linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7))';
                   })()
                 }}
