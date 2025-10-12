@@ -130,7 +130,7 @@ Thank you for your order! 🙏
 
   const chatWithRestaurant = () => {
     // Restaurant WhatsApp number
-    const phoneNumber = '+917099539615';
+    const phoneNumber = '+260773219999';
     const message = `Hi, I'm order no #${order.id}. I have a question about my order.`;
     
     const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
