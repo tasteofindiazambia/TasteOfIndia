@@ -2,64 +2,58 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Utensils, Users, Calendar } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
+import apiService from '../../services/api';
+
+interface HeroSlide {
+  id: number;
+  slide_order: number;
+  slide_type: 'menu' | 'location' | 'reservations' | 'custom';
+  title: string;
+  subtitle?: string;
+  description?: string;
+  background_image_url?: string;
+  background_images?: string[];
+  button_text?: string;
+  button_link?: string;
+  button_type: 'internal' | 'external' | 'whatsapp';
+  is_active: boolean;
+}
 
 const HomePage: React.FC = () => {
   const { loading } = useRestaurant();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
+  const [slidesLoading, setSlidesLoading] = useState(true);
+
+  // Fetch hero slides from API
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        const response = await apiService.request('/hero-slides');
+        setSlides(response);
+        setSlidesLoading(false);
+      } catch (error) {
+        console.error('Error fetching hero slides:', error);
+        // Fallback to empty array if API fails
+        setSlides([]);
+        setSlidesLoading(false);
+      }
+    };
+
+    fetchSlides();
+  }, []);
 
   // Auto-scroll slides every 5 seconds
   useEffect(() => {
+    if (slides.length === 0) return;
+    
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 4);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
 
-  // Sample slide data - will be replaced with actual images later
-  const slides = [
-    {
-      id: 1,
-      type: "menu",
-      title: "Taste of India",
-      subtitle: "Where Evenings Come Alive",
-      description: "Experience authentic Indian flavors in the heart of Lusaka",
-      backgroundImages: ["buffet_TOI.jpeg", "Dhokla_TOI.jpeg", "KajuKatli_TOI.jpeg", "Laddoo_TOI.jpeg"],
-      buttonText: "View Menu",
-      buttonLink: "/menu/1"
-    },
-    {
-      id: 2,
-      type: "location",
-      title: "Rhodespark Location",
-      subtitle: "Plot 611, Parirenyetwa Rd",
-      description: "Our flagship restaurant in the heart of Rhodespark, offering an authentic Indian dining experience with warm hospitality and traditional flavors.",
-      backgroundImage: "hero-image.png", // Placeholder until you provide location images
-      buttonText: "Get Directions",
-      buttonLink: "https://maps.google.com/?q=Plot+611,+Parirenyetwa+Rd,+Rhodespark,+Lusaka"
-    },
-    {
-      id: 3,
-      type: "location",
-      title: "Manda Hill Location",
-      subtitle: "Great East Rd, Lusaka",
-      description: "Conveniently located in Manda Hill shopping center, bringing the same authentic Indian cuisine and exceptional service to the heart of the city.",
-      backgroundImage: "hero-image.png", // Placeholder until you provide location images
-      buttonText: "Get Directions",
-      buttonLink: "https://maps.google.com/?q=Manda+Hill,+Great+East+Rd,+Lusaka"
-    },
-    {
-      id: 4,
-      type: "reservations",
-      title: "Venue Booking & Events",
-      subtitle: "Reservations & Art Classes",
-      description: "Book our beautiful venue for special occasions, corporate events, or join our cultural art classes. Create unforgettable memories with us.",
-      backgroundImages: ["Reservations_TOI.jpeg", "VenueBookingArtClass_TOI.jpeg"],
-      buttonText: "Make Reservation",
-      buttonLink: "https://wa.me/260774219999?text=Hi! I would like to make a reservation or book your venue for an event."
-    }
-  ];
-
-  if (loading) {
+  if (loading || slidesLoading) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-spice"></div>
@@ -84,25 +78,33 @@ const HomePage: React.FC = () => {
               <div 
                 className="w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
-                  backgroundImage: slide.type === 'menu' 
-                    ? `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.backgroundImages[0]}')`
-                    : slide.type === 'reservations'
-                    ? `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.backgroundImages[0]}')`
-                    : `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/${slide.backgroundImage}')`
+                  backgroundImage: slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 0
+                    ? `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`
+                    : slide.slide_type === 'reservations' && slide.background_images && slide.background_images.length > 0
+                    ? `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`
+                    : slide.background_image_url
+                    ? `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/${slide.background_image_url}')`
+                    : 'linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7))'
                 }}
               >
                 {/* Food Collage Overlay for Menu Slide */}
-                {slide.type === 'menu' && (
+                {slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 1 && (
                   <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-10 right-10 w-32 h-32 rounded-full overflow-hidden">
-                      <img src={`/${slide.backgroundImages[1]}`} alt="Dhokla" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="absolute bottom-20 left-10 w-24 h-24 rounded-full overflow-hidden">
-                      <img src={`/${slide.backgroundImages[2]}`} alt="Kaju Katli" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="absolute top-1/2 right-20 w-20 h-20 rounded-full overflow-hidden">
-                      <img src={`/${slide.backgroundImages[3]}`} alt="Laddoo" className="w-full h-full object-cover" />
-                    </div>
+                    {slide.background_images[1] && (
+                      <div className="absolute top-10 right-10 w-32 h-32 rounded-full overflow-hidden">
+                        <img src={`/${slide.background_images[1]}`} alt="Food item" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    {slide.background_images[2] && (
+                      <div className="absolute bottom-20 left-10 w-24 h-24 rounded-full overflow-hidden">
+                        <img src={`/${slide.background_images[2]}`} alt="Food item" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    {slide.background_images[3] && (
+                      <div className="absolute top-1/2 right-20 w-20 h-20 rounded-full overflow-hidden">
+                        <img src={`/${slide.background_images[3]}`} alt="Food item" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -118,42 +120,35 @@ const HomePage: React.FC = () => {
                     <p className="font-accent text-base sm:text-lg md:text-xl text-light-cream/90 mb-6 sm:mb-8 animate-slide-in-up px-2" style={{ animationDelay: '0.4s' }}>
                       {slide.description}
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-in-up px-4" style={{ animationDelay: '0.6s' }}>
-                      {slide.type === 'menu' ? (
-                        <>
+                    {slide.button_text && slide.button_link && (
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-in-up px-4" style={{ animationDelay: '0.6s' }}>
+                        {slide.button_type === 'internal' ? (
                           <Link
-                            to={slide.buttonLink}
+                            to={slide.button_link}
                             className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
                           >
-                            {slide.buttonText}
+                            {slide.button_text}
                           </Link>
+                        ) : (
+                          <a
+                            href={slide.button_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
+                          >
+                            {slide.button_text}
+                          </a>
+                        )}
+                        {slide.slide_type === 'menu' && (
                           <Link
                             to="/menu/1"
                             className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md text-sm sm:text-base"
                           >
                             Order Now
                           </Link>
-                        </>
-                      ) : slide.type === 'location' ? (
-                        <a
-                          href={slide.buttonLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
-                        >
-                          {slide.buttonText}
-                        </a>
-                      ) : (
-                        <a
-                          href={slide.buttonLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
-                        >
-                          {slide.buttonText}
-                        </a>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

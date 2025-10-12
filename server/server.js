@@ -9,6 +9,7 @@ import menuRoutes from './routes/menu.js';
 import orderRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
 import customerRoutes from './routes/customers.js';
+import heroSlidesRoutes from './routes/heroSlides.js';
 
 // Import database to initialize
 import DatabaseAdapter from './models/databaseAdapter.js';
@@ -60,6 +61,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
 // Removed: blog, event, and branding routes - features removed
 app.use('/api/customers', customerRoutes);
+app.use('/api/hero-slides', heroSlidesRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

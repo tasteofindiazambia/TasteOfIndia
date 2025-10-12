@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Menu, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Menu, LogOut, Users, Monitor } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminSidebarProps {
@@ -22,6 +22,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ onClose }) => {
     { path: '/admin/menu', icon: Menu, label: 'Menu Management' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
     { path: '/admin/customers', icon: Users, label: 'Customer Management' },
+    { path: '/admin/hero-slides', icon: Monitor, label: 'Hero Section' },
   ];
 
   const isActive = (path: string) => location.pathname === path;

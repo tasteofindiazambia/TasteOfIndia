@@ -22,6 +22,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminHeroSlides from './pages/admin/AdminHeroSlides';
 
 // Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
@@ -72,6 +73,11 @@ function App() {
                   <Route path="customers" element={
                     <ProtectedRoute requireOwnerAccess={true}>
                       <AdminCustomers />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="hero-slides" element={
+                    <ProtectedRoute requireOwnerAccess={true}>
+                      <AdminHeroSlides />
                     </ProtectedRoute>
                   } />
                 </Route>
