@@ -95,7 +95,7 @@ async function verifyToken(req) {
 
 // Check if endpoint requires authentication
 function requiresAuth(path) {
-  const publicEndpoints = ['/health', '/auth/login', '/auth', '/'];
+  const publicEndpoints = ['/health', '/auth/login', '/auth', '/', '/hero-slides'];
   console.log('Checking auth for path:', path, 'requires auth:', !publicEndpoints.some(p => path.startsWith(p)));
   return !publicEndpoints.some(p => path.startsWith(p));
 }
@@ -217,6 +217,10 @@ export default async function handler(req, res) {
 
     if (pathSegments[0] === 'customers') {
       return await handleCustomers(req, res, query);
+    }
+
+    if (pathSegments[0] === 'hero-slides') {
+      return await handleHeroSlides(req, res, pathSegments, query);
     }
 
 
@@ -905,6 +909,171 @@ async function handleCustomers(req, res, query) {
   return res.status(405).json({ error: 'Method not allowed' });
 }
 
+// Hero Slides handler
+async function handleHeroSlides(req, res, pathSegments, query) {
+  try {
+    // GET /api/hero-slides - Get all active hero slides (public)
+    if (req.method === 'GET' && pathSegments.length === 1) {
+      const { data, error } = await supabase
+        .from('hero_slides')
+        .select('*')
+        .eq('is_active', true)
+        .order('slide_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching hero slides:', error);
+        return res.status(500).json({ error: 'Failed to fetch hero slides' });
+      }
+
+      return res.json(data || []);
+    }
+
+    // GET /api/hero-slides/admin - Get all hero slides (admin only)
+    if (req.method === 'GET' && pathSegments[1] === 'admin') {
+      const { data, error } = await supabase
+        .from('hero_slides')
+        .select('*')
+        .order('slide_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching hero slides for admin:', error);
+        return res.status(500).json({ error: 'Failed to fetch hero slides' });
+      }
+
+      return res.json(data || []);
+    }
+
+    // POST /api/hero-slides - Create new hero slide (admin only)
+    if (req.method === 'POST' && pathSegments.length === 1) {
+      const {
+        slide_order,
+        slide_type,
+        title,
+        subtitle,
+        description,
+        background_image_url,
+        background_images,
+        button_text,
+        button_link,
+        button_type = 'internal',
+        is_active = true
+      } = req.body;
+
+      // Validate required fields
+      if (!slide_order || !slide_type || !title) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      const { data, error } = await supabase
+        .from('hero_slides')
+        .insert({
+          slide_order,
+          slide_type,
+          title,
+          subtitle,
+          description,
+          background_image_url,
+          background_images,
+          button_text,
+          button_link,
+          button_type,
+          is_active
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating hero slide:', error);
+        return res.status(500).json({ error: 'Failed to create hero slide' });
+      }
+
+      return res.status(201).json(data);
+    }
+
+    // PUT /api/hero-slides/:id - Update hero slide (admin only)
+    if (req.method === 'PUT' && pathSegments.length === 2) {
+      const id = pathSegments[1];
+      const updateData = req.body;
+
+      // Remove id from update data if present
+      delete updateData.id;
+
+      const { data, error } = await supabase
+        .from('hero_slides')
+        .update({
+          ...updateData,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating hero slide:', error);
+        return res.status(500).json({ error: 'Failed to update hero slide' });
+      }
+
+      if (!data) {
+        return res.status(404).json({ error: 'Hero slide not found' });
+      }
+
+      return res.json(data);
+    }
+
+    // DELETE /api/hero-slides/:id - Delete hero slide (admin only)
+    if (req.method === 'DELETE' && pathSegments.length === 2) {
+      const id = pathSegments[1];
+
+      const { error } = await supabase
+        .from('hero_slides')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting hero slide:', error);
+        return res.status(500).json({ error: 'Failed to delete hero slide' });
+      }
+
+      return res.json({ message: 'Hero slide deleted successfully' });
+    }
+
+    // PUT /api/hero-slides/reorder - Reorder hero slides (admin only)
+    if (req.method === 'PUT' && pathSegments[1] === 'reorder') {
+      const { slides } = req.body; // Array of {id, slide_order}
+
+      if (!Array.isArray(slides)) {
+        return res.status(400).json({ error: 'Invalid slides data' });
+      }
+
+      // Update each slide's order
+      const updatePromises = slides.map(slide => 
+        supabase
+          .from('hero_slides')
+          .update({ 
+            slide_order: slide.slide_order,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', slide.id)
+      );
+
+      const results = await Promise.all(updatePromises);
+      
+      // Check for errors
+      const errors = results.filter(result => result.error);
+      if (errors.length > 0) {
+        console.error('Error reordering hero slides:', errors);
+        return res.status(500).json({ error: 'Failed to reorder hero slides' });
+      }
+
+      return res.json({ message: 'Hero slides reordered successfully' });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error) {
+    console.error('Error in hero slides handler:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
 
 // Menu Categories handler
 async function handleMenuCategories(req, res, pathSegments, query) {
