@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StaffSidebar from './StaffSidebar';
@@ -8,6 +8,15 @@ import { usePermissions } from '../hooks/usePermissions';
 const StaffLayout: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const { isWorker } = usePermissions();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleMobileMenuClose = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   // Show loading while checking authentication
   if (loading) {
@@ -33,9 +42,15 @@ const StaffLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <StaffSidebar />
+      <StaffSidebar 
+        isMobileMenuOpen={isMobileMenuOpen}
+        onMobileMenuClose={handleMobileMenuClose}
+      />
       <div className="lg:pl-64">
-        <StaffHeader />
+        <StaffHeader 
+          onMobileMenuToggle={handleMobileMenuToggle}
+          isMobileMenuOpen={isMobileMenuOpen}
+        />
         <main className="py-6">
           <div className="px-4 sm:px-6 lg:px-8">
             <Outlet />
