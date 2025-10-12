@@ -82,7 +82,7 @@ const HomePage: React.FC = () => {
               <div 
                 className="w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
-                  backgroundColor: '#8B4513', // Brown fallback color
+                  backgroundColor: '#5C2F37', // Maroon fallback color
                   backgroundImage: (() => {
                     console.log(`🖼️ [HomePage] Processing slide ${slide.id}:`, {
                       slide_type: slide.slide_type,
@@ -95,8 +95,8 @@ const HomePage: React.FC = () => {
                     if (slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 0) {
                       const baseUrl = window.location.origin;
                       const imageUrl = `${baseUrl}/${slide.background_images[0]}`;
-                      // Test: Try without gradient first to see if image shows
-                      const bgUrl = `url('${imageUrl}')`;
+                      // Add 40% opacity maroon gradient overlay for better text readability
+                      const bgUrl = `linear-gradient(rgba(92, 47, 55, 0.4), rgba(92, 47, 55, 0.4)), url('${imageUrl}')`;
                       console.log(`🖼️ [HomePage] Menu slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                       console.log(`🖼️ [HomePage] Menu slide image URL: ${imageUrl}`);
                       return bgUrl;
@@ -106,8 +106,8 @@ const HomePage: React.FC = () => {
                     if (slide.slide_type === 'reservations' && slide.background_images && slide.background_images.length > 0) {
                       const baseUrl = window.location.origin;
                       const imageUrl = `${baseUrl}/${slide.background_images[0]}`;
-                      // Test: Try without gradient first to see if image shows
-                      const bgUrl = `url('${imageUrl}')`;
+                      // Add 40% opacity maroon gradient overlay for better text readability
+                      const bgUrl = `linear-gradient(rgba(92, 47, 55, 0.4), rgba(92, 47, 55, 0.4)), url('${imageUrl}')`;
                       console.log(`🖼️ [HomePage] Reservations slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                       console.log(`🖼️ [HomePage] Reservations slide image URL: ${imageUrl}`);
                       return bgUrl;
@@ -118,30 +118,30 @@ const HomePage: React.FC = () => {
                       // Check if it's a full URL, base64, or a filename
                       if (slide.background_image_url.startsWith('http')) {
                         // External URL
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${slide.background_image_url}')`;
+                        const bgUrl = `linear-gradient(rgba(92, 47, 55, 0.4), rgba(92, 47, 55, 0.4)), url('${slide.background_image_url}')`;
                         console.log(`🖼️ [HomePage] External URL slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] External URL: ${slide.background_image_url}`);
                         return bgUrl;
                       } else if (slide.background_image_url.startsWith('data:image')) {
                         // Base64 image
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${slide.background_image_url}')`;
+                        const bgUrl = `linear-gradient(rgba(92, 47, 55, 0.4), rgba(92, 47, 55, 0.4)), url('${slide.background_image_url}')`;
                         console.log(`🖼️ [HomePage] Base64 image slide (ID: ${slide.id}) background URL: ${bgUrl.substring(0, 100)}...`);
                         return bgUrl;
                       } else {
                         // Local filename (legacy)
                         const baseUrl = window.location.origin;
                         const imageUrl = `${baseUrl}/${slide.background_image_url}`;
-                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${imageUrl}')`;
+                        const bgUrl = `linear-gradient(rgba(92, 47, 55, 0.4), rgba(92, 47, 55, 0.4)), url('${imageUrl}')`;
                         console.log(`🖼️ [HomePage] Local file slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] Local file URL: ${imageUrl}`);
                         return bgUrl;
                       }
                     }
                     
-                    // Fallback to brown color when no image is provided
-                    const brownColor = '#8B4513'; // Brown color
-                    console.log(`🖼️ [HomePage] Slide (ID: ${slide.id}) using brown fallback (no image): ${brownColor}`);
-                    return brownColor;
+                    // Fallback to maroon color when no image is provided
+                    const maroonColor = '#5C2F37'; // Maroon color
+                    console.log(`🖼️ [HomePage] Slide (ID: ${slide.id}) using maroon fallback (no image): ${maroonColor}`);
+                    return maroonColor;
                   })()
                 }}
               >

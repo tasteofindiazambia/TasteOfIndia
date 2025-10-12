@@ -538,7 +538,7 @@ const AdminHeroSlides: React.FC = () => {
                     <p>💡 <strong>URL:</strong> Paste any image URL (we'll clean trailing commas automatically)</p>
                     <p>📁 <strong>File Upload:</strong> Select an image file - it will be uploaded directly to the database</p>
                     <p>🔄 <strong>Replacement:</strong> New images automatically replace the previous one</p>
-                    <p>🎨 <strong>No Image:</strong> Leave empty to use brown background color</p>
+                    <p>🎨 <strong>No Image:</strong> Leave empty to use maroon background color</p>
                   </div>
                 </div>
               </div>
