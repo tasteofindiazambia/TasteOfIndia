@@ -38,6 +38,7 @@ const AdminHeroSlides: React.FC = () => {
   const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -57,6 +58,53 @@ const AdminHeroSlides: React.FC = () => {
   useEffect(() => {
     fetchSlides();
   }, []);
+
+  // Clean URL function to handle common issues
+  const cleanUrl = (url: string) => {
+    if (!url) return url;
+    
+    // Remove trailing commas, spaces, and other common issues
+    let cleaned = url.trim();
+    cleaned = cleaned.replace(/[,\s]+$/, ''); // Remove trailing commas and spaces
+    cleaned = cleaned.replace(/^[,\s]+/, ''); // Remove leading commas and spaces
+    
+    // If it's a relative path (starts with /), keep as is
+    if (cleaned.startsWith('/')) {
+      return cleaned;
+    }
+    
+    // If it doesn't start with http, assume it's a filename
+    if (!cleaned.startsWith('http')) {
+      return cleaned;
+    }
+    
+    return cleaned;
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    
+    setUploadingImage(true);
+    try {
+      // For now, we'll just use the filename and assume it's uploaded to public folder
+      // In a real implementation, you'd upload to a cloud service or your server
+      const fileName = file.name;
+      
+      // Update the background image URL
+      setFormData(prev => ({
+        ...prev,
+        background_image_url: fileName
+      }));
+      
+      showNotification('success', `Image "${fileName}" ready to use. Make sure to upload it to your public folder.`);
+    } catch (error) {
+      console.error('Error handling image upload:', error);
+      showNotification('error', 'Failed to process image upload');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const fetchSlides = async () => {
     try {
@@ -109,16 +157,23 @@ const AdminHeroSlides: React.FC = () => {
 
   const handleSave = async () => {
     try {
+      // Clean URLs before saving
+      const cleanedFormData = {
+        ...formData,
+        background_image_url: cleanUrl(formData.background_image_url),
+        button_link: cleanUrl(formData.button_link)
+      };
+
       if (isCreating) {
         await apiService.request('/hero-slides', {
           method: 'POST',
-          body: formData
+          body: cleanedFormData
         });
         showNotification('success', 'Hero slide created successfully');
       } else if (editingSlide) {
         await apiService.request(`/hero-slides/${editingSlide.id}`, {
           method: 'PUT',
-          body: formData
+          body: cleanedFormData
         });
         showNotification('success', 'Hero slide updated successfully');
       }
@@ -399,15 +454,42 @@ const AdminHeroSlides: React.FC = () => {
               {/* Background Image */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Background Image URL
+                  Background Image
                 </label>
-                <input
-                  type="text"
-                  value={formData.background_image_url}
-                  onChange={(e) => setFormData({ ...formData, background_image_url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-deep-maroon"
-                  placeholder="Enter image URL or filename"
-                />
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={formData.background_image_url}
+                    onChange={(e) => setFormData({ ...formData, background_image_url: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-deep-maroon"
+                    placeholder="Enter image URL or filename (e.g., hero-image.png)"
+                  />
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="file"
+                      id="image-upload"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(file);
+                      }}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className="flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md cursor-pointer transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span className="text-sm">Upload Image</span>
+                    </label>
+                    {uploadingImage && (
+                      <span className="text-sm text-gray-500">Processing...</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    💡 Tip: You can paste any URL (even with trailing commas) - we'll clean it automatically!
+                  </p>
+                </div>
               </div>
 
               {/* Button Configuration */}
