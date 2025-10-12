@@ -83,51 +83,103 @@ const HomePage: React.FC = () => {
                 className="w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
                   backgroundImage: (() => {
+                    console.log(`🖼️ [HomePage] Processing slide ${slide.id}:`, {
+                      slide_type: slide.slide_type,
+                      background_image_url: slide.background_image_url,
+                      background_images: slide.background_images,
+                      title: slide.title
+                    });
+
                     // For menu slides, use background_images if available
                     if (slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 0) {
                       const baseUrl = window.location.origin;
-                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${baseUrl}/${slide.background_images[0]}')`;
+                      const imageUrl = `${baseUrl}/${slide.background_images[0]}`;
+                      const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${imageUrl}')`;
+                      console.log(`🖼️ [HomePage] Menu slide (ID: ${slide.id}) background URL: ${bgUrl}`);
+                      console.log(`🖼️ [HomePage] Menu slide image URL: ${imageUrl}`);
+                      return bgUrl;
                     }
                     
                     // For reservations slides, use background_images if available
                     if (slide.slide_type === 'reservations' && slide.background_images && slide.background_images.length > 0) {
                       const baseUrl = window.location.origin;
-                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${baseUrl}/${slide.background_images[0]}')`;
+                      const imageUrl = `${baseUrl}/${slide.background_images[0]}`;
+                      const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${imageUrl}')`;
+                      console.log(`🖼️ [HomePage] Reservations slide (ID: ${slide.id}) background URL: ${bgUrl}`);
+                      console.log(`🖼️ [HomePage] Reservations slide image URL: ${imageUrl}`);
+                      return bgUrl;
                     }
                     
                     // For other slides or fallback, use background_image_url
                     if (slide.background_image_url) {
                       // Check if it's a full URL or a filename
                       if (slide.background_image_url.startsWith('http')) {
-                        return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${slide.background_image_url}')`;
+                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${slide.background_image_url}')`;
+                        console.log(`🖼️ [HomePage] External URL slide (ID: ${slide.id}) background URL: ${bgUrl}`);
+                        console.log(`🖼️ [HomePage] External URL: ${slide.background_image_url}`);
+                        return bgUrl;
                       } else {
                         // For local files, use the full domain URL to ensure proper loading
                         const baseUrl = window.location.origin;
-                        return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${baseUrl}/${slide.background_image_url}')`;
+                        const imageUrl = `${baseUrl}/${slide.background_image_url}`;
+                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${imageUrl}')`;
+                        console.log(`🖼️ [HomePage] Local file slide (ID: ${slide.id}) background URL: ${bgUrl}`);
+                        console.log(`🖼️ [HomePage] Local file URL: ${imageUrl}`);
+                        return bgUrl;
                       }
                     }
                     
                     // Fallback to gradient only
-                    return 'linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7))';
+                    const defaultBg = 'linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7))';
+                    console.log(`🖼️ [HomePage] Slide (ID: ${slide.id}) using default background (no image): ${defaultBg}`);
+                    return defaultBg;
                   })()
                 }}
               >
+                {/* Debug: Test if background image is applied */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div 
+                    className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs p-1 rounded z-50"
+                    style={{ fontSize: '10px' }}
+                  >
+                    Debug: Slide {slide.id} - {slide.background_image_url || 'No image URL'}
+                  </div>
+                )}
+                
                 {/* Food Collage Overlay for Menu Slide */}
                 {slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 1 && (
                   <div className="absolute inset-0 opacity-20">
                     {slide.background_images[1] && (
                       <div className="absolute top-10 right-10 w-32 h-32 rounded-full overflow-hidden">
-                        <img src={`${window.location.origin}/${slide.background_images[1]}`} alt="Food item" className="w-full h-full object-cover" />
+                        <img 
+                          src={`${window.location.origin}/${slide.background_images[1]}`} 
+                          alt="Food item" 
+                          className="w-full h-full object-cover"
+                          onLoad={() => console.log(`✅ [HomePage] Food collage image 1 loaded: ${window.location.origin}/${slide.background_images?.[1]}`)}
+                          onError={(e) => console.error(`❌ [HomePage] Food collage image 1 failed to load: ${window.location.origin}/${slide.background_images?.[1]}`, e)}
+                        />
                       </div>
                     )}
                     {slide.background_images[2] && (
                       <div className="absolute bottom-20 left-10 w-24 h-24 rounded-full overflow-hidden">
-                        <img src={`${window.location.origin}/${slide.background_images[2]}`} alt="Food item" className="w-full h-full object-cover" />
+                        <img 
+                          src={`${window.location.origin}/${slide.background_images[2]}`} 
+                          alt="Food item" 
+                          className="w-full h-full object-cover"
+                          onLoad={() => console.log(`✅ [HomePage] Food collage image 2 loaded: ${window.location.origin}/${slide.background_images?.[2]}`)}
+                          onError={(e) => console.error(`❌ [HomePage] Food collage image 2 failed to load: ${window.location.origin}/${slide.background_images?.[2]}`, e)}
+                        />
                       </div>
                     )}
                     {slide.background_images[3] && (
                       <div className="absolute top-1/2 right-20 w-20 h-20 rounded-full overflow-hidden">
-                        <img src={`${window.location.origin}/${slide.background_images[3]}`} alt="Food item" className="w-full h-full object-cover" />
+                        <img 
+                          src={`${window.location.origin}/${slide.background_images[3]}`} 
+                          alt="Food item" 
+                          className="w-full h-full object-cover"
+                          onLoad={() => console.log(`✅ [HomePage] Food collage image 3 loaded: ${window.location.origin}/${slide.background_images?.[3]}`)}
+                          onError={(e) => console.error(`❌ [HomePage] Food collage image 3 failed to load: ${window.location.origin}/${slide.background_images?.[3]}`, e)}
+                        />
                       </div>
                     )}
                   </div>
