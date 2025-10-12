@@ -97,15 +97,3 @@ export const optionalAuth = async (req, res, next) => {
     next();
   }
 };
-
-// Legacy middleware for backward compatibility (deprecated)
-export const authenticateAdmin = (req, res, next) => {
-  console.warn('authenticateAdmin is deprecated, use authenticateToken instead');
-  authenticateToken(req, res, next);
-};
-
-// Legacy middleware for backward compatibility (deprecated)
-export const requireAuth = (req, res, next) => {
-  console.warn('requireAuth is deprecated, use authenticateToken instead');
-  authenticateToken(req, res, next);
-};

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Utensils, Users, Calendar } from 'lucide-react';
+import { Utensils, Users } from 'lucide-react';
 import { useRestaurant } from '../../context/RestaurantContext';
 
 const HomePage: React.FC = () => {

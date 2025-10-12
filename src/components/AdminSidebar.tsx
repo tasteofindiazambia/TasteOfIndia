@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Menu, Calendar, LogOut, Users } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Menu, LogOut, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface AdminSidebarProps {
