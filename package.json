@@ -11,6 +11,7 @@
     "server": "node server/server.js",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
     "start": "node server/server.js",
+    "setup-env": "node scripts/setup-env.js",
     "vercel-build": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
