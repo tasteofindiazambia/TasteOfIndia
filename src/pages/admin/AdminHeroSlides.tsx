@@ -157,11 +157,21 @@ const AdminHeroSlides: React.FC = () => {
 
   const handleSave = async () => {
     try {
-      // Clean URLs before saving
+      // Clean URLs before saving and structure data properly for database
       const cleanedFormData = {
-        ...formData,
-        background_image_url: cleanUrl(formData.background_image_url),
-        button_link: cleanUrl(formData.button_link)
+        slide_order: formData.slide_order,
+        slide_type: formData.slide_type,
+        title: formData.title,
+        subtitle: formData.subtitle || null,
+        description: formData.description || null,
+        background_image_url: cleanUrl(formData.background_image_url) || null,
+        background_images: formData.background_images && formData.background_images.length > 0 
+          ? formData.background_images 
+          : null,
+        button_text: formData.button_text || null,
+        button_link: cleanUrl(formData.button_link) || null,
+        button_type: formData.button_type,
+        is_active: formData.is_active
       };
 
       if (isCreating) {
@@ -208,7 +218,19 @@ const AdminHeroSlides: React.FC = () => {
     try {
       await apiService.request(`/hero-slides/${slide.id}`, {
         method: 'PUT',
-        body: { is_active: !slide.is_active }
+        body: { 
+          slide_order: slide.slide_order,
+          slide_type: slide.slide_type,
+          title: slide.title,
+          subtitle: slide.subtitle,
+          description: slide.description,
+          background_image_url: slide.background_image_url,
+          background_images: slide.background_images,
+          button_text: slide.button_text,
+          button_link: slide.button_link,
+          button_type: slide.button_type,
+          is_active: !slide.is_active
+        }
       });
       showNotification('success', `Hero slide ${!slide.is_active ? 'activated' : 'deactivated'}`);
       fetchSlides();
