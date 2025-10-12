@@ -436,6 +436,31 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* Facebook Section */}
+      <section className="py-12 sm:py-16 bg-gradient-to-r from-blue-600 to-blue-700 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 animate-slide-in-up">
+            Keep up with new dishes and promos
+          </h2>
+          <p className="font-accent text-lg sm:text-xl text-white/90 mb-6 sm:mb-8 leading-relaxed animate-slide-in-up px-4" style={{ animationDelay: '0.2s' }}>
+            Follow us on Facebook for the latest menu updates, special promotions, and behind-the-scenes content from our kitchen.
+          </p>
+          <div className="animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
+            <a 
+              href="https://www.facebook.com/tasteofindia_lsk" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-3 bg-white text-blue-600 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-lg"
+            >
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              <span>Follow us on Facebook</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Experience Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-deep-maroon via-primary to-burgundy relative overflow-hidden">
         {/* Background Pattern */}
@@ -449,11 +474,11 @@ const HomePage: React.FC = () => {
             Every visit is an occasion to connect. Experience our family-friendly atmosphere, 
             perfect for celebrations and casual dinners. Join our cultural events and special evenings.
           </p>
-          <div className="card-glass p-6 sm:p-8 mb-6 sm:mb-8 animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
-            <p className="font-accent text-base sm:text-lg text-light-cream italic">
+          <div className="bg-white p-6 sm:p-8 mb-6 sm:mb-8 animate-slide-in-up rounded-2xl shadow-lg" style={{ animationDelay: '0.4s' }}>
+            <p className="font-accent text-base sm:text-lg text-charcoal italic">
               "Where everyone feels at home - this is what genuine hospitality feels like."
             </p>
-            <p className="text-light-cream/80 mt-2 text-sm sm:text-base">- Our valued guest</p>
+            <p className="text-warm-gray mt-2 text-sm sm:text-base">- Our valued guest</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-in-up px-4" style={{ animationDelay: '0.6s' }}>
             <Link 
