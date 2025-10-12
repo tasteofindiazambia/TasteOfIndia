@@ -8,8 +8,7 @@ import {
   GripVertical, 
   Upload,
   Save,
-  X,
-  Image as ImageIcon
+  X
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import apiService from '../../services/api';
@@ -43,7 +42,7 @@ const AdminHeroSlides: React.FC = () => {
   // Form state
   const [formData, setFormData] = useState({
     slide_order: 1,
-    slide_type: 'menu' as const,
+    slide_type: 'menu' as 'menu' | 'location' | 'reservations' | 'custom',
     title: '',
     subtitle: '',
     description: '',
@@ -51,7 +50,7 @@ const AdminHeroSlides: React.FC = () => {
     background_images: [] as string[],
     button_text: '',
     button_link: '',
-    button_type: 'internal' as const,
+    button_type: 'internal' as 'internal' | 'external' | 'whatsapp',
     is_active: true
   });
 
@@ -87,20 +86,46 @@ const AdminHeroSlides: React.FC = () => {
     
     setUploadingImage(true);
     try {
-      // For now, we'll just use the filename and assume it's uploaded to public folder
-      // In a real implementation, you'd upload to a cloud service or your server
-      const fileName = file.name;
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        showNotification({ type: 'error', message: 'Please select a valid image file' });
+        return;
+      }
       
-      // Update the background image URL
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification({ type: 'error', message: 'Image file is too large. Maximum size is 5MB' });
+        return;
+      }
+      
+      // Create a unique filename to avoid conflicts
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop();
+      const uniqueFileName = `hero-slide-${timestamp}.${fileExtension}`;
+      
+      // For now, we'll use the filename and assume manual upload to public folder
+      // In production, you'd upload to a cloud service like Cloudinary, AWS S3, etc.
+      
+      // Update the background image URL with the new filename
       setFormData(prev => ({
         ...prev,
-        background_image_url: fileName
+        background_image_url: uniqueFileName
       }));
       
-      showNotification('success', `Image "${fileName}" ready to use. Make sure to upload it to your public folder.`);
+      showNotification({ type: 'success', message: `Image "${file.name}" processed. Filename: ${uniqueFileName}. Please upload this file to your public folder.` });
+      
+      // Create a download link for the user to save the file
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(file);
+      downloadLink.download = uniqueFileName;
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
     } catch (error) {
       console.error('Error handling image upload:', error);
-      showNotification('error', 'Failed to process image upload');
+      showNotification({ type: 'error', message: 'Failed to process image upload' });
     } finally {
       setUploadingImage(false);
     }
@@ -113,7 +138,7 @@ const AdminHeroSlides: React.FC = () => {
       setSlides(response);
     } catch (error) {
       console.error('Error fetching hero slides:', error);
-      showNotification('error', 'Failed to fetch hero slides');
+      showNotification({ type: 'error', message: 'Failed to fetch hero slides' });
     } finally {
       setLoading(false);
     }
@@ -179,13 +204,13 @@ const AdminHeroSlides: React.FC = () => {
           method: 'POST',
           body: cleanedFormData
         });
-        showNotification('success', 'Hero slide created successfully');
+        showNotification({ type: 'success', message: 'Hero slide created successfully' });
       } else if (editingSlide) {
         await apiService.request(`/hero-slides/${editingSlide.id}`, {
           method: 'PUT',
           body: cleanedFormData
         });
-        showNotification('success', 'Hero slide updated successfully');
+        showNotification({ type: 'success', message: 'Hero slide updated successfully' });
       }
       
       setEditingSlide(null);
@@ -193,7 +218,7 @@ const AdminHeroSlides: React.FC = () => {
       fetchSlides();
     } catch (error) {
       console.error('Error saving hero slide:', error);
-      showNotification('error', 'Failed to save hero slide');
+      showNotification({ type: 'error', message: 'Failed to save hero slide' });
     }
   };
 
@@ -206,11 +231,11 @@ const AdminHeroSlides: React.FC = () => {
       await apiService.request(`/hero-slides/${id}`, {
         method: 'DELETE'
       });
-      showNotification('success', 'Hero slide deleted successfully');
+      showNotification({ type: 'success', message: 'Hero slide deleted successfully' });
       fetchSlides();
     } catch (error) {
       console.error('Error deleting hero slide:', error);
-      showNotification('error', 'Failed to delete hero slide');
+      showNotification({ type: 'error', message: 'Failed to delete hero slide' });
     }
   };
 
@@ -232,11 +257,11 @@ const AdminHeroSlides: React.FC = () => {
           is_active: !slide.is_active
         }
       });
-      showNotification('success', `Hero slide ${!slide.is_active ? 'activated' : 'deactivated'}`);
+      showNotification({ type: 'success', message: `Hero slide ${!slide.is_active ? 'activated' : 'deactivated'}` });
       fetchSlides();
     } catch (error) {
       console.error('Error toggling hero slide:', error);
-      showNotification('error', 'Failed to update hero slide');
+      showNotification({ type: 'error', message: 'Failed to update hero slide' });
     }
   };
 
@@ -272,11 +297,11 @@ const AdminHeroSlides: React.FC = () => {
         method: 'PUT',
         body: { slides: reorderedSlides }
       });
-      showNotification('success', 'Hero slides reordered successfully');
+      showNotification({ type: 'success', message: 'Hero slides reordered successfully' });
       fetchSlides();
     } catch (error) {
       console.error('Error reordering hero slides:', error);
-      showNotification('error', 'Failed to reorder hero slides');
+      showNotification({ type: 'error', message: 'Failed to reorder hero slides' });
     }
 
     setDraggedIndex(null);
@@ -502,15 +527,17 @@ const AdminHeroSlides: React.FC = () => {
                       className="flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-md cursor-pointer transition-colors"
                     >
                       <Upload className="w-4 h-4" />
-                      <span className="text-sm">Upload Image</span>
+                      <span className="text-sm">Upload New Image</span>
                     </label>
                     {uploadingImage && (
                       <span className="text-sm text-gray-500">Processing...</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
-                    💡 Tip: You can paste any URL (even with trailing commas) - we'll clean it automatically!
-                  </p>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <p>💡 <strong>URL:</strong> Paste any image URL (we'll clean trailing commas automatically)</p>
+                    <p>📁 <strong>File Upload:</strong> Select an image file - it will be downloaded with a unique name</p>
+                    <p>🔄 <strong>Replacement:</strong> New images automatically replace the previous one</p>
+                  </div>
                 </div>
               </div>
 

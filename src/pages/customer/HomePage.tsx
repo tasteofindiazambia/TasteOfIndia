@@ -85,12 +85,14 @@ const HomePage: React.FC = () => {
                   backgroundImage: (() => {
                     // For menu slides, use background_images if available
                     if (slide.slide_type === 'menu' && slide.background_images && slide.background_images.length > 0) {
-                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`;
+                      const baseUrl = window.location.origin;
+                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${baseUrl}/${slide.background_images[0]}')`;
                     }
                     
                     // For reservations slides, use background_images if available
                     if (slide.slide_type === 'reservations' && slide.background_images && slide.background_images.length > 0) {
-                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.background_images[0]}')`;
+                      const baseUrl = window.location.origin;
+                      return `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('${baseUrl}/${slide.background_images[0]}')`;
                     }
                     
                     // For other slides or fallback, use background_image_url
@@ -99,7 +101,9 @@ const HomePage: React.FC = () => {
                       if (slide.background_image_url.startsWith('http')) {
                         return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${slide.background_image_url}')`;
                       } else {
-                        return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/${slide.background_image_url}')`;
+                        // For local files, use the full domain URL to ensure proper loading
+                        const baseUrl = window.location.origin;
+                        return `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('${baseUrl}/${slide.background_image_url}')`;
                       }
                     }
                     
@@ -113,17 +117,17 @@ const HomePage: React.FC = () => {
                   <div className="absolute inset-0 opacity-20">
                     {slide.background_images[1] && (
                       <div className="absolute top-10 right-10 w-32 h-32 rounded-full overflow-hidden">
-                        <img src={`/${slide.background_images[1]}`} alt="Food item" className="w-full h-full object-cover" />
+                        <img src={`${window.location.origin}/${slide.background_images[1]}`} alt="Food item" className="w-full h-full object-cover" />
                       </div>
                     )}
                     {slide.background_images[2] && (
                       <div className="absolute bottom-20 left-10 w-24 h-24 rounded-full overflow-hidden">
-                        <img src={`/${slide.background_images[2]}`} alt="Food item" className="w-full h-full object-cover" />
+                        <img src={`${window.location.origin}/${slide.background_images[2]}`} alt="Food item" className="w-full h-full object-cover" />
                       </div>
                     )}
                     {slide.background_images[3] && (
                       <div className="absolute top-1/2 right-20 w-20 h-20 rounded-full overflow-hidden">
-                        <img src={`/${slide.background_images[3]}`} alt="Food item" className="w-full h-full object-cover" />
+                        <img src={`${window.location.origin}/${slide.background_images[3]}`} alt="Food item" className="w-full h-full object-cover" />
                       </div>
                     )}
                   </div>
