@@ -933,7 +933,7 @@ async function handleHeroSlides(req, res, pathSegments, query) {
       console.log('Fetching hero slides for admin...');
       const { data, error } = await supabaseAdmin
         .from('hero_slides')
-        .select('*')
+          .select('*')
         .order('slide_order', { ascending: true });
 
       if (error) {
@@ -1029,9 +1029,8 @@ async function handleHeroSlides(req, res, pathSegments, query) {
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
-        .select()
-        .single();
-
+          .select();
+        
       if (error) {
         console.error('Error updating hero slide:', error);
         console.error('Error details:', JSON.stringify(error, null, 2));
@@ -1042,11 +1041,11 @@ async function handleHeroSlides(req, res, pathSegments, query) {
         });
       }
 
-      if (!data) {
+      if (!data || data.length === 0) {
         return res.status(404).json({ error: 'Hero slide not found' });
       }
 
-      return res.json(data);
+      return res.json(data[0]);
     }
 
     // DELETE /api/hero-slides/:id - Delete hero slide (admin only)
@@ -1095,9 +1094,9 @@ async function handleHeroSlides(req, res, pathSegments, query) {
       }
 
       return res.json({ message: 'Hero slides reordered successfully' });
-    }
-
-    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  
+  return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     console.error('Error in hero slides handler:', error);
     return res.status(500).json({ error: 'Internal server error' });
