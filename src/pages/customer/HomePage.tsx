@@ -209,12 +209,12 @@ const HomePage: React.FC = () => {
                     {slide.button_text && slide.button_link && (
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-in-up px-4" style={{ animationDelay: '0.6s' }}>
                         {slide.button_type === 'internal' ? (
-                          <Link
+                      <Link
                             to={slide.button_link}
                             className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
-                          >
+                      >
                             {slide.button_text}
-                          </Link>
+                      </Link>
                         ) : (
                           <a
                             href={slide.button_link}
@@ -226,14 +226,14 @@ const HomePage: React.FC = () => {
                           </a>
                         )}
                         {slide.slide_type === 'menu' && (
-                          <Link
+                      <Link
                             to="/menu/1"
                             className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md text-sm sm:text-base"
-                          >
+                      >
                             Order Now
-                          </Link>
+                      </Link>
                         )}
-                      </div>
+                    </div>
                     )}
                   </div>
                 </div>
@@ -437,12 +437,12 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* Facebook Section */}
-      <section className="py-12 sm:py-16 bg-gradient-to-r from-blue-600 to-blue-700 relative overflow-hidden">
+      <section className="py-12 sm:py-16 bg-gradient-to-r from-deep-maroon to-burgundy relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6 animate-slide-in-up">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-light-cream mb-4 sm:mb-6 animate-slide-in-up">
             Keep up with new dishes and promos
           </h2>
-          <p className="font-accent text-lg sm:text-xl text-white/90 mb-6 sm:mb-8 leading-relaxed animate-slide-in-up px-4" style={{ animationDelay: '0.2s' }}>
+          <p className="font-accent text-lg sm:text-xl text-light-cream/90 mb-6 sm:mb-8 leading-relaxed animate-slide-in-up px-4" style={{ animationDelay: '0.2s' }}>
             Follow us on Facebook for the latest menu updates, special promotions, and behind-the-scenes content from our kitchen.
           </p>
           <div className="animate-slide-in-up" style={{ animationDelay: '0.4s' }}>
@@ -450,7 +450,7 @@ const HomePage: React.FC = () => {
               href="https://www.facebook.com/tasteofindia_lsk" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center space-x-3 bg-white text-blue-600 px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-lg"
+              className="inline-flex items-center space-x-3 bg-white text-deep-maroon px-8 py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-lg"
             >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
