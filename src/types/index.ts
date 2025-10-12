@@ -84,7 +84,7 @@ export interface Order {
   total: number;
   total_amount?: number; // Backend field name
   order_number?: string;
-  status: 'preparing' | 'ready' | 'delivered' | 'out for delivery';
+  status: 'preparing' | 'ready for pickup' | 'delivered';
   restaurant_id: number;
   created_at: string;
   special_instructions?: string;

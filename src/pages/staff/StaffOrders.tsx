@@ -154,9 +154,8 @@ const StaffOrders: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'preparing': return 'bg-orange-100 text-orange-800';
-      case 'ready': return 'bg-green-100 text-green-800';
+      case 'ready for pickup': return 'bg-green-100 text-green-800';
       case 'delivered': return 'bg-gray-100 text-gray-800';
-      case 'out for delivery': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -164,9 +163,8 @@ const StaffOrders: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'preparing': return Package;
-      case 'ready': return CheckCircle;
+      case 'ready for pickup': return CheckCircle;
       case 'delivered': return CheckCircle;
-      case 'out for delivery': return Clock;
       default: return Clock;
     }
   };

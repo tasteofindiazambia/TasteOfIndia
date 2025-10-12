@@ -123,9 +123,8 @@ const OrderConfirmationPage: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'preparing': return 'text-orange-800 bg-orange-100';
-      case 'ready': return 'text-green-800 bg-green-100';
+      case 'ready for pickup': return 'text-green-800 bg-green-100';
       case 'delivered': return 'text-gray-800 bg-gray-100';
-      case 'out for delivery': return 'text-blue-800 bg-blue-100';
       default: return 'text-gray-800 bg-gray-100';
     }
   };
@@ -133,9 +132,8 @@ const OrderConfirmationPage: React.FC = () => {
   const getStatusText = (status: string, orderType?: string) => {
     switch (status) {
       case 'preparing': return 'Preparing Your Order';
-      case 'ready': return orderType === 'delivery' ? 'Ready for Delivery' : 'Ready for Pickup';
+      case 'ready for pickup': return 'Ready for Pickup';
       case 'delivered': return 'Order Delivered';
-      case 'out for delivery': return 'Out for Delivery';
       default: return status;
     }
   };

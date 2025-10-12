@@ -246,9 +246,8 @@ const AdminOrders: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'preparing': return 'bg-orange-100 text-orange-800';
-      case 'ready': return 'bg-green-100 text-green-800';
+      case 'ready for pickup': return 'bg-green-100 text-green-800';
       case 'delivered': return 'bg-gray-100 text-gray-800';
-      case 'out for delivery': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -256,9 +255,8 @@ const AdminOrders: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'preparing': return <Clock className="w-4 h-4" />;
-      case 'ready': return <CheckCircle className="w-4 h-4" />;
+      case 'ready for pickup': return <CheckCircle className="w-4 h-4" />;
       case 'delivered': return <CheckCircle className="w-4 h-4" />;
-      case 'out for delivery': return <Clock className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
   };
@@ -786,7 +784,7 @@ const AdminOrders: React.FC = () => {
                 <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="space-y-2">
-                    {['preparing', 'ready', 'delivered', 'out for delivery'].map((status) => (
+                    {['preparing', 'ready for pickup', 'delivered'].map((status) => (
                       <button
                         key={status}
                         onClick={() => {
