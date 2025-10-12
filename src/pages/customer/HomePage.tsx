@@ -82,6 +82,7 @@ const HomePage: React.FC = () => {
               <div 
                 className="w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
+                  backgroundColor: '#532734', // Fallback color
                   backgroundImage: (() => {
                     console.log(`🖼️ [HomePage] Processing slide ${slide.id}:`, {
                       slide_type: slide.slide_type,
@@ -116,8 +117,8 @@ const HomePage: React.FC = () => {
                     if (slide.background_image_url) {
                       // Check if it's a full URL or a filename
                       if (slide.background_image_url.startsWith('http')) {
-                        // Test: Try without gradient first to see if image shows
-                        const bgUrl = `url('${slide.background_image_url}')`;
+                        // Add a very light gradient overlay for better text readability
+                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${slide.background_image_url}')`;
                         console.log(`🖼️ [HomePage] External URL slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] External URL: ${slide.background_image_url}`);
                         return bgUrl;
@@ -125,8 +126,8 @@ const HomePage: React.FC = () => {
                         // For local files, use the full domain URL to ensure proper loading
                         const baseUrl = window.location.origin;
                         const imageUrl = `${baseUrl}/${slide.background_image_url}`;
-                        // Test: Try without gradient first to see if image shows
-                        const bgUrl = `url('${imageUrl}')`;
+                        // Add a very light gradient overlay for better text readability
+                        const bgUrl = `linear-gradient(rgba(83, 39, 52, 0.1), rgba(83, 39, 52, 0.1)), url('${imageUrl}')`;
                         console.log(`🖼️ [HomePage] Local file slide (ID: ${slide.id}) background URL: ${bgUrl}`);
                         console.log(`🖼️ [HomePage] Local file URL: ${imageUrl}`);
                         return bgUrl;
