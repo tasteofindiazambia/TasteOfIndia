@@ -1,6 +1,14 @@
 import express from 'express';
-import { supabase } from '../models/database.js';
+import { createClient } from '@supabase/supabase-js';
 import { authenticateToken } from '../middleware/auth.js';
+
+// Create Supabase client
+const supabaseUrl = process.env.SUPABASE_URL || 'https://qslfidheyalqdetiqdbs.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzbGZpZGhleWFscWRldGlxZGJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNjI5MjYsImV4cCI6MjA3MzkzODkyNn0.IRX5qpkcIenyECrTTuPwsRK-hBXsW57eF4TFjm2RhxE';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 const router = express.Router();
 
@@ -28,17 +36,24 @@ router.get('/', async (req, res) => {
 // Get all hero slides (admin only)
 router.get('/admin', authenticateToken, async (req, res) => {
   try {
-    const { data, error } = await supabase
+    console.log('Fetching hero slides for admin...');
+    const { data, error } = await supabaseAdmin
       .from('hero_slides')
       .select('*')
       .order('slide_order', { ascending: true });
 
     if (error) {
       console.error('Error fetching hero slides for admin:', error);
-      return res.status(500).json({ error: 'Failed to fetch hero slides' });
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      return res.status(500).json({ 
+        error: 'Failed to fetch hero slides',
+        details: error.message,
+        hint: error.hint || 'Check if hero_slides table exists'
+      });
     }
 
-    res.json(data);
+    console.log('Successfully fetched hero slides:', data?.length || 0, 'slides');
+    res.json(data || []);
   } catch (error) {
     console.error('Error in hero slides admin GET:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -67,7 +82,7 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('hero_slides')
       .insert({
         slide_order,
@@ -106,7 +121,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     // Remove id from update data if present
     delete updateData.id;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('hero_slides')
       .update({
         ...updateData,
@@ -137,7 +152,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('hero_slides')
       .delete()
       .eq('id', id);
@@ -165,7 +180,7 @@ router.put('/reorder', authenticateToken, async (req, res) => {
 
     // Update each slide's order
     const updatePromises = slides.map(slide => 
-      supabase
+      supabaseAdmin
         .from('hero_slides')
         .update({ 
           slide_order: slide.slide_order,

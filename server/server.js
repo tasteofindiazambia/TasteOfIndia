@@ -27,12 +27,7 @@ const db = DatabaseAdapter;
 const corsOptions = {
   origin: [
     // Development
-    'http://localhost:5173', 
-    'http://localhost:5174', 
-    'http://localhost:5175', 
-    'http://127.0.0.1:5173', 
-    'http://127.0.0.1:5174', 
-    'http://127.0.0.1:5175',
+    'http://localhost:5173',
     // Production
     'https://taste-of-india-tawny.vercel.app',
     'https://qslfidheyalqdetiqdbs.supabase.co',
