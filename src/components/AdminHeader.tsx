@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Settings, User, Menu } from 'lucide-react';
+import { User, Menu } from 'lucide-react';
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -24,15 +24,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onMenuClick }) => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button className="p-2 text-gray-400 hover:text-gray-600 relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
-          
-          <button className="p-2 text-gray-400 hover:text-gray-600">
-            <Settings className="w-5 h-5" />
-          </button>
-          
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
               <User className="w-4 h-4" />

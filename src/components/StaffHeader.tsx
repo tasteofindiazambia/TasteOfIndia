@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, Bell, User, X } from 'lucide-react';
+import { Menu, User, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface StaffHeaderProps {
@@ -49,14 +49,8 @@ const StaffHeader: React.FC<StaffHeaderProps> = ({ onMobileMenuToggle, isMobileM
             </p>
           </div>
 
-          {/* Right side - notifications and user */}
+          {/* Right side - user */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Notifications */}
-            <button className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-500 relative">
-              <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 h-1.5 w-1.5 sm:h-2 sm:w-2 bg-red-500 rounded-full"></span>
-            </button>
-
             {/* User avatar */}
             <div className="flex items-center space-x-2 sm:space-x-3">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-deep-maroon rounded-full flex items-center justify-center">
