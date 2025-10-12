@@ -1016,6 +1016,9 @@ async function handleHeroSlides(req, res, pathSegments, query) {
       const id = pathSegments[1];
       const updateData = req.body;
 
+      console.log('Updating hero slide:', id);
+      console.log('Update data:', JSON.stringify(updateData, null, 2));
+
       // Remove id from update data if present
       delete updateData.id;
 
@@ -1031,7 +1034,12 @@ async function handleHeroSlides(req, res, pathSegments, query) {
 
       if (error) {
         console.error('Error updating hero slide:', error);
-        return res.status(500).json({ error: 'Failed to update hero slide' });
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        return res.status(500).json({ 
+          error: 'Failed to update hero slide',
+          details: error.message,
+          hint: error.hint || 'Check if hero slide exists and data is valid'
+        });
       }
 
       if (!data) {
