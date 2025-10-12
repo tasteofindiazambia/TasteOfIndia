@@ -116,6 +116,10 @@ export default async function handler(req, res) {
     const path = urlParts[0].replace('/api', '');
     const pathSegments = path.split('/').filter(Boolean);
     
+    console.log('🔍 [API] Request URL:', req.url);
+    console.log('🔍 [API] Processed path:', path);
+    console.log('🔍 [API] Path segments:', pathSegments);
+    
     // Parse query parameters
     const query = {};
     if (urlParts[1]) {
