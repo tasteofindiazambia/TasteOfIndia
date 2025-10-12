@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   ClipboardList,
-  Calendar,
   BarChart3,
   LogOut,
   User

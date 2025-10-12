@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {  
-  Users, Search, Phone, Mail, Calendar, Download, MessageSquare, ShoppingBag
+  Users, Search, Phone, Mail, Download, MessageSquare, ShoppingBag, Clock
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { customerService, Customer } from '../../services/customerService';
@@ -271,7 +271,7 @@ const AdminCustomers: React.FC = () => {
                           </div>
                         )}
                         <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                          <Clock className="w-4 h-4 text-gray-400" />
                           <span className="text-sm text-gray-600">
                             Added: {new Date(customer.created_at).toLocaleDateString()}
                           </span>
