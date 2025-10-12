@@ -931,9 +931,9 @@ async function handleHeroSlides(req, res, pathSegments, query) {
     // GET /api/hero-slides/admin - Get all hero slides (admin only)
     if (req.method === 'GET' && pathSegments[1] === 'admin') {
       console.log('Fetching hero slides for admin...');
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('hero_slides')
-          .select('*')
+        .select('*')
         .order('slide_order', { ascending: true });
 
       if (error) {
@@ -991,7 +991,7 @@ async function handleHeroSlides(req, res, pathSegments, query) {
 
       console.log('Inserting hero slide data:', JSON.stringify(insertData, null, 2));
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('hero_slides')
         .insert(insertData)
         .select()
@@ -1019,7 +1019,7 @@ async function handleHeroSlides(req, res, pathSegments, query) {
       // Remove id from update data if present
       delete updateData.id;
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('hero_slides')
         .update({
           ...updateData,
@@ -1045,7 +1045,7 @@ async function handleHeroSlides(req, res, pathSegments, query) {
     if (req.method === 'DELETE' && pathSegments.length === 2) {
       const id = pathSegments[1];
 
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('hero_slides')
         .delete()
         .eq('id', id);
@@ -1068,7 +1068,7 @@ async function handleHeroSlides(req, res, pathSegments, query) {
 
       // Update each slide's order
       const updatePromises = slides.map(slide => 
-        supabase
+        supabaseAdmin
           .from('hero_slides')
           .update({ 
             slide_order: slide.slide_order,
