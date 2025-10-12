@@ -29,18 +29,22 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
+        console.log('🔄 [HomePage] Fetching hero slides...');
         const response = await apiService.request('/hero-slides');
+        console.log('✅ [HomePage] Hero slides fetched:', response);
         setSlides(response);
         setSlidesLoading(false);
       } catch (error) {
-        console.error('Error fetching hero slides:', error);
+        console.error('❌ [HomePage] Error fetching hero slides:', error);
         // Fallback to empty array if API fails
         setSlides([]);
         setSlidesLoading(false);
       }
     };
 
-    fetchSlides();
+    // Add a small delay to ensure the page is fully loaded
+    const timer = setTimeout(fetchSlides, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Auto-scroll slides every 5 seconds
