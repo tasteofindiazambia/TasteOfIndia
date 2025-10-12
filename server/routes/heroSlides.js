@@ -118,6 +118,16 @@ router.put('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
+    console.log('🔄 [PUT] Updating hero slide:', id);
+    console.log('🔄 [PUT] Request body:', JSON.stringify(updateData, null, 2));
+    console.log('🔄 [PUT] Body type:', typeof updateData);
+
+    // Validate request body
+    if (!updateData || typeof updateData !== 'object') {
+      console.error('❌ [PUT] Invalid request body:', updateData);
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
+
     // Remove id from update data if present
     delete updateData.id;
 
@@ -132,14 +142,21 @@ router.put('/:id', authenticateToken, async (req, res) => {
       .single();
 
     if (error) {
-      console.error('Error updating hero slide:', error);
-      return res.status(500).json({ error: 'Failed to update hero slide' });
+      console.error('❌ [PUT] Supabase error:', error);
+      console.error('❌ [PUT] Error details:', JSON.stringify(error, null, 2));
+      return res.status(500).json({ 
+        error: 'Failed to update hero slide',
+        details: error.message,
+        hint: error.hint || 'Check if hero slide exists and data is valid'
+      });
     }
 
     if (!data) {
+      console.error('❌ [PUT] No data returned from update');
       return res.status(404).json({ error: 'Hero slide not found' });
     }
 
+    console.log('✅ [PUT] Successfully updated hero slide:', data);
     res.json(data);
   } catch (error) {
     console.error('Error in hero slides PUT:', error);

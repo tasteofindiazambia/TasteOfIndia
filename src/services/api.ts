@@ -63,6 +63,11 @@ class ApiService {
       ...options,
     };
 
+    // Stringify body if it's an object
+    if (config.body && typeof config.body === 'object') {
+      config.body = JSON.stringify(config.body);
+    }
+
     console.log('🔄 [apiService] Request config:', config);
 
     try {
