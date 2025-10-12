@@ -152,17 +152,23 @@ const AdminOrders: React.FC = () => {
             </div>
             <div class="items">
               <h3>Order Items:</h3>
-              ${orderItems.map((item: {name: string, quantity: number, price: number}) => `
-                <div class="item">
-                  <span>${item.name} × ${item.quantity}</span>
-                  <span>K{(item.price * item.quantity).toFixed(0)}</span>
-                </div>
-              `).join('')}
+              ${orderItems.map((item: any) => {
+                const itemName = item.name || item.menuItem?.name || 'Unknown Item';
+                const quantity = item.quantity || 1;
+                const price = item.price || item.unit_price || item.menuItem?.price || 0;
+                const itemTotal = (price * quantity).toFixed(0);
+                return `
+                  <div class="item">
+                    <span>${itemName} × ${quantity}</span>
+                    <span>K${itemTotal}</span>
+                  </div>
+                `;
+              }).join('')}
             </div>
             <div class="total">
               <div class="item">
                 <span>Total:</span>
-                <span>K{(order.total || order.total_amount || 0).toFixed(0)}</span>
+                <span>K${(order.total || order.total_amount || 0).toFixed(0)}</span>
               </div>
             </div>
             ${order.special_instructions ? `
