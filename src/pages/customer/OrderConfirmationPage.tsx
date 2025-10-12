@@ -138,6 +138,35 @@ const OrderConfirmationPage: React.FC = () => {
     }
   };
 
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return phone;
+    
+    // Remove all non-digit characters
+    const digits = phone.replace(/[^0-9]/g, '');
+    
+    // If it starts with 260 (Zambia country code without +)
+    if (digits.startsWith('260')) {
+      // Remove the leading 0 from the local number if it exists
+      const localNumber = digits.substring(3);
+      if (localNumber.startsWith('0')) {
+        return `+260${localNumber.substring(1)}`;
+      }
+      return `+${digits}`;
+    }
+    
+    // If it already has +260, check for redundant zero
+    if (phone.startsWith('+260')) {
+      const localNumber = phone.substring(4);
+      if (localNumber.startsWith('0')) {
+        return `+260${localNumber.substring(1)}`;
+      }
+      return phone;
+    }
+    
+    // Return as is if no formatting needed
+    return phone;
+  };
+
   const getEstimatedTime = (order: any) => {
     const prepTime = order.estimated_preparation_time || 20;
     const deliveryTime = order.delivery_time_estimate || 0;
@@ -180,7 +209,7 @@ const OrderConfirmationPage: React.FC = () => {
         <div className="border-t pt-4 mb-4">
           <h3 className="font-semibold mb-2">Customer Information</h3>
           <p className="text-gray-700">{order.customer_name}</p>
-          <p className="text-gray-700">{order.customer_phone}</p>
+          <p className="text-gray-700">{formatPhoneNumber(order.customer_phone)}</p>
         </div>
 
         {/* Order Type & Delivery Info */}

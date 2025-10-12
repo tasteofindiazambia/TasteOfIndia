@@ -141,6 +141,35 @@ const StaffOrders: React.FC = () => {
     return itemsSum + (Number.isNaN(fee) ? 0 : fee);
   };
 
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return phone;
+    
+    // Remove all non-digit characters
+    const digits = phone.replace(/[^0-9]/g, '');
+    
+    // If it starts with 260 (Zambia country code without +)
+    if (digits.startsWith('260')) {
+      // Remove the leading 0 from the local number if it exists
+      const localNumber = digits.substring(3);
+      if (localNumber.startsWith('0')) {
+        return `+260${localNumber.substring(1)}`;
+      }
+      return `+${digits}`;
+    }
+    
+    // If it already has +260, check for redundant zero
+    if (phone.startsWith('+260')) {
+      const localNumber = phone.substring(4);
+      if (localNumber.startsWith('0')) {
+        return `+260${localNumber.substring(1)}`;
+      }
+      return phone;
+    }
+    
+    // Return as is if no formatting needed
+    return phone;
+  };
+
   const buildWhatsAppLink = (phone: string | undefined, orderNumber?: string) => {
     if (!phone) return '#';
     // Strip non-digits and keep leading + if present
@@ -406,7 +435,7 @@ const StaffOrders: React.FC = () => {
                 <div>
                   <p><strong>Customer:</strong> {selectedOrder.customer_name}</p>
                   <p className="flex items-center gap-2">
-                    <span><strong>Phone:</strong> {selectedOrder.customer_phone}</span>
+                    <span><strong>Phone:</strong> {formatPhoneNumber(selectedOrder.customer_phone)}</span>
                     <a
                       href={buildWhatsAppLink(selectedOrder.customer_phone, selectedOrder.id.toString())}
                       target="_blank"

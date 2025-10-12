@@ -146,7 +146,7 @@ const AdminOrders: React.FC = () => {
             </div>
             <div class="order-info">
               <p><strong>Customer:</strong> ${order.customer_name}</p>
-              <p><strong>Phone:</strong> ${order.customer_phone}</p>
+              <p><strong>Phone:</strong> ${formatPhoneNumber(order.customer_phone)}</p>
               <p><strong>Order Time:</strong> ${formatDate(order.created_at)}</p>
               <p><strong>Status:</strong> ${order.status}</p>
             </div>
@@ -263,6 +263,35 @@ const AdminOrders: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
+  };
+
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return phone;
+    
+    // Remove all non-digit characters
+    const digits = phone.replace(/[^0-9]/g, '');
+    
+    // If it starts with 260 (Zambia country code without +)
+    if (digits.startsWith('260')) {
+      // Remove the leading 0 from the local number if it exists
+      const localNumber = digits.substring(3);
+      if (localNumber.startsWith('0')) {
+        return `+260${localNumber.substring(1)}`;
+      }
+      return `+${digits}`;
+    }
+    
+    // If it already has +260, check for redundant zero
+    if (phone.startsWith('+260')) {
+      const localNumber = phone.substring(4);
+      if (localNumber.startsWith('0')) {
+        return `+260${localNumber.substring(1)}`;
+      }
+      return phone;
+    }
+    
+    // Return as is if no formatting needed
+    return phone;
   };
 
   if (loading) {
@@ -449,7 +478,7 @@ const AdminOrders: React.FC = () => {
                           <div className="text-xs sm:text-sm text-gray-900">{order.customer_name}</div>
                           <div className="text-xs sm:text-sm text-gray-500 flex items-center">
                             <Phone className="w-3 h-3 mr-1" />
-                            {order.customer_phone}
+                            {formatPhoneNumber(order.customer_phone)}
                           </div>
                         </td>
                         <td className="px-2 sm:px-4 py-3 sm:py-4 whitespace-nowrap hidden md:table-cell">
@@ -536,7 +565,7 @@ const AdminOrders: React.FC = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="space-y-2">
                     <p><strong>Name:</strong> {selectedOrder?.customer_name || 'Test Customer'}</p>
-                    <p><strong>Phone:</strong> {selectedOrder?.customer_phone || '1234567890'}</p>
+                    <p><strong>Phone:</strong> {formatPhoneNumber(selectedOrder?.customer_phone || '1234567890')}</p>
                     <p><strong>Order Time:</strong> {selectedOrder ? formatDate(selectedOrder.created_at) : '2025-01-01 12:00:00'}</p>
                   </div>
                   
