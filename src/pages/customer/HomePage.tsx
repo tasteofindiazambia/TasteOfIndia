@@ -19,27 +19,43 @@ const HomePage: React.FC = () => {
   const slides = [
     {
       id: 1,
-      title: "Welcome to Taste of India",
+      type: "menu",
+      title: "Taste of India",
       subtitle: "Where Evenings Come Alive",
-      description: "Experience authentic Indian flavors in the heart of Lusaka"
+      description: "Experience authentic Indian flavors in the heart of Lusaka",
+      backgroundImages: ["buffet_TOI.jpeg", "Dhokla_TOI.jpeg", "KajuKatli_TOI.jpeg", "Laddoo_TOI.jpeg"],
+      buttonText: "View Menu",
+      buttonLink: "/menu/1"
     },
     {
       id: 2,
-      title: "Authentic Indian Cuisine",
-      subtitle: "Fresh, Traditional, Delicious",
-      description: "From fragrant biryanis to crispy samosas, every dish tells a story"
+      type: "location",
+      title: "Rhodespark Location",
+      subtitle: "Plot 611, Parirenyetwa Rd",
+      description: "Our flagship restaurant in the heart of Rhodespark, offering an authentic Indian dining experience with warm hospitality and traditional flavors.",
+      backgroundImage: "hero-image.png", // Placeholder until you provide location images
+      buttonText: "Get Directions",
+      buttonLink: "https://maps.google.com/?q=Plot+611,+Parirenyetwa+Rd,+Rhodespark,+Lusaka"
     },
     {
       id: 3,
-      title: "Warm Zambian Hospitality",
-      subtitle: "A Place for Everyone",
-      description: "Join our community where friends become family"
+      type: "location",
+      title: "Manda Hill Location",
+      subtitle: "Great East Rd, Lusaka",
+      description: "Conveniently located in Manda Hill shopping center, bringing the same authentic Indian cuisine and exceptional service to the heart of the city.",
+      backgroundImage: "hero-image.png", // Placeholder until you provide location images
+      buttonText: "Get Directions",
+      buttonLink: "https://maps.google.com/?q=Manda+Hill,+Great+East+Rd,+Lusaka"
     },
     {
       id: 4,
-      title: "Gather. Savor. Connect.",
-      subtitle: "Your Verandah Awaits",
-      description: "Create memories over shared meals and meaningful conversations"
+      type: "reservations",
+      title: "Venue Booking & Events",
+      subtitle: "Reservations & Art Classes",
+      description: "Book our beautiful venue for special occasions, corporate events, or join our cultural art classes. Create unforgettable memories with us.",
+      backgroundImages: ["Reservations_TOI.jpeg", "VenueBookingArtClass_TOI.jpeg"],
+      buttonText: "Make Reservation",
+      buttonLink: "https://wa.me/260774219999?text=Hi! I would like to make a reservation or book your venue for an event."
     }
   ];
 
@@ -64,15 +80,34 @@ const HomePage: React.FC = () => {
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
               }`}
             >
-              {/* Slide Background - using hero image */}
+              {/* Slide Background */}
               <div 
                 className="w-full h-full bg-cover bg-center bg-no-repeat"
                 style={{
-                  backgroundImage: `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/hero-image.png')`
+                  backgroundImage: slide.type === 'menu' 
+                    ? `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.backgroundImages[0]}')`
+                    : slide.type === 'reservations'
+                    ? `linear-gradient(rgba(83, 39, 52, 0.8), rgba(83, 39, 52, 0.8)), url('/${slide.backgroundImages[0]}')`
+                    : `linear-gradient(rgba(83, 39, 52, 0.7), rgba(83, 39, 52, 0.7)), url('/${slide.backgroundImage}')`
                 }}
               >
+                {/* Food Collage Overlay for Menu Slide */}
+                {slide.type === 'menu' && (
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-10 right-10 w-32 h-32 rounded-full overflow-hidden">
+                      <img src={`/${slide.backgroundImages[1]}`} alt="Dhokla" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute bottom-20 left-10 w-24 h-24 rounded-full overflow-hidden">
+                      <img src={`/${slide.backgroundImages[2]}`} alt="Kaju Katli" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="absolute top-1/2 right-20 w-20 h-20 rounded-full overflow-hidden">
+                      <img src={`/${slide.backgroundImages[3]}`} alt="Laddoo" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                )}
+
                 {/* Slide Content */}
-                <div className="flex items-center justify-center h-full px-4">
+                <div className="flex items-center justify-center h-full px-4 relative z-10">
                   <div className="text-center text-white max-w-4xl w-full">
                     <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 sm:mb-4 animate-slide-in-up leading-tight">
                       {slide.title}
@@ -84,18 +119,40 @@ const HomePage: React.FC = () => {
                       {slide.description}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-in-up px-4" style={{ animationDelay: '0.6s' }}>
-                      <Link
-                        to="/menu/1"
-                        className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
-                      >
-                        View Menu
-                      </Link>
-                      <Link
-                        to="/menu/1"
-                        className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md text-sm sm:text-base"
-                      >
-                        Order Now
-                      </Link>
+                      {slide.type === 'menu' ? (
+                        <>
+                          <Link
+                            to={slide.buttonLink}
+                            className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
+                          >
+                            {slide.buttonText}
+                          </Link>
+                          <Link
+                            to="/menu/1"
+                            className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md text-sm sm:text-base"
+                          >
+                            Order Now
+                          </Link>
+                        </>
+                      ) : slide.type === 'location' ? (
+                        <a
+                          href={slide.buttonLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
+                        >
+                          {slide.buttonText}
+                        </a>
+                      ) : (
+                        <a
+                          href={slide.buttonLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl text-sm sm:text-base"
+                        >
+                          {slide.buttonText}
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
