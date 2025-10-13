@@ -474,7 +474,7 @@ const StaffOrders: React.FC = () => {
                           grams = match ? parseInt(match[1]) : null;
                         }
                         
-                        if (grams && item.unit_price && item.unit_price < 10) {
+                        if (grams && item.unit_price && item.unit_price > 0) {
                           // Dynamic pricing: basePrice is per-gram price
                           basePrice = item.unit_price; // per-gram
                           itemTotal = basePrice * grams * qty;

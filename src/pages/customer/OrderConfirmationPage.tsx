@@ -293,9 +293,9 @@ const OrderConfirmationPage: React.FC = () => {
                   grams = match ? parseInt(match[1]) : null;
                 }
                 
-                if (grams && item.unit_price && item.unit_price < 10) {
+                if (grams && item.unit_price && item.unit_price > 0) {
                   // Dynamic pricing: basePrice is per-gram price
-                  basePrice = item.unit_price; // This is already per-gram price from backend
+                  basePrice = item.unit_price; // per-gram price from backend
                   itemTotal = basePrice * grams * quantity; // Per-gram price × grams × quantity
                   const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
                   packagingPrice = perUnitPackaging * quantity;
@@ -399,7 +399,7 @@ const OrderConfirmationPage: React.FC = () => {
                 grams = match ? parseInt(match[1]) : null;
               }
 
-              if (grams && item.unit_price && item.unit_price < 10) {
+              if (grams && item.unit_price && item.unit_price > 0) {
                 const perGram = item.unit_price || 0;
                 return total + (perGram * grams * quantity);
               }
