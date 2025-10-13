@@ -45,7 +45,8 @@ export const getAllOrders = async (req, res) => {
           oi.*,
           mi.name as menu_item_name,
           mi.description as menu_item_description,
-          mi.price as menu_item_price
+          mi.price as menu_item_price,
+          mi.packaging_price as packaging_price
         FROM order_items oi
         LEFT JOIN menu_items mi ON oi.menu_item_id = mi.id
         WHERE oi.order_id = ?
@@ -89,6 +90,7 @@ export const getOrderById = async (req, res) => {
         mi.description as menu_item_description,
         mi.price as menu_item_price,
         mi.image_url as menu_item_image,
+        mi.packaging_price as packaging_price,
         c.name as category_name
       FROM order_items oi
       LEFT JOIN menu_items mi ON oi.menu_item_id = mi.id
