@@ -245,9 +245,8 @@ const StaffOrders: React.FC = () => {
             >
               <option value="all">All Status</option>
               <option value="preparing">Preparing</option>
-              <option value="ready">Ready</option>
+              <option value="ready for pickup">Ready for pickup</option>
               <option value="delivered">Delivered</option>
-              <option value="out for delivery">Out for Delivery</option>
             </select>
           </div>
         </div>
@@ -331,9 +330,8 @@ const StaffOrders: React.FC = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-deep-maroon"
                       >
                         <option value="preparing">Preparing</option>
-                        <option value="ready">Ready</option>
+                        <option value="ready for pickup">Ready for pickup</option>
                         <option value="delivered">Delivered</option>
-                        <option value="out for delivery">Out for Delivery</option>
                       </select>
                     )}
                   </div>
@@ -399,9 +397,8 @@ const StaffOrders: React.FC = () => {
                             className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-deep-maroon"
                           >
                             <option value="preparing">Preparing</option>
-                            <option value="ready">Ready</option>
+                            <option value="ready for pickup">Ready for pickup</option>
                             <option value="delivered">Delivered</option>
-                            <option value="out for delivery">Out for Delivery</option>
                           </select>
                         )}
                       </div>
