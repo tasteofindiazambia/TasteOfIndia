@@ -129,7 +129,7 @@ const OrderConfirmationPage: React.FC = () => {
     }
   };
 
-  const getStatusText = (status: string, orderType?: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case 'preparing': return 'Preparing Your Order';
       case 'ready for pickup': return 'Ready for Pickup';
@@ -387,12 +387,12 @@ const OrderConfirmationPage: React.FC = () => {
           {/* Calculate items total and packaging total */}
           {(() => {
             const itemsTotal = order.items?.reduce((total: number, item: any) => {
-              // For dynamic pricing items, use the stored total_price or calculate from grams
+              // For dynamic pricing items, total_price is the line total already
               if (item.total_price) {
-                return total + (item.total_price * (item.quantity || 1));
+                return total + item.total_price;
               }
               
-              // For regular items, use unit_price or price
+              // For regular items, use unit_price or price times quantity
               const basePrice = item.unit_price || item.price || 0;
               const quantity = item.quantity || 1;
               return total + (basePrice * quantity);
@@ -449,16 +449,10 @@ const OrderConfirmationPage: React.FC = () => {
             <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'preparing' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
             <span>Preparing Your Order</span>
           </div>
-          <div className={`flex items-center ${order.status === 'ready' ? 'text-deep-maroon' : 'text-gray-400'}`}>
-            <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'ready' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
+          <div className={`flex items-center ${order.status === 'ready for pickup' ? 'text-deep-maroon' : 'text-gray-400'}`}>
+            <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'ready for pickup' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
             <span>{order.order_type === 'delivery' ? 'Ready for Delivery' : 'Ready for Pickup'}</span>
           </div>
-          {order.order_type === 'delivery' && (
-            <div className={`flex items-center ${order.status === 'out for delivery' ? 'text-deep-maroon' : 'text-gray-400'}`}>
-              <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'out for delivery' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
-              <span>Out for Delivery</span>
-            </div>
-          )}
           <div className={`flex items-center ${order.status === 'delivered' ? 'text-deep-maroon' : 'text-gray-400'}`}>
             <div className={`w-3 h-3 rounded-full mr-3 ${order.status === 'delivered' ? 'bg-deep-maroon' : 'bg-gray-300'}`}></div>
             <span>Delivered</span>
