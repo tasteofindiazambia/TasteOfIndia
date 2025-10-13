@@ -297,13 +297,15 @@ const OrderConfirmationPage: React.FC = () => {
                   // Dynamic pricing: basePrice is per-gram price
                   basePrice = item.unit_price; // This is already per-gram price from backend
                   itemTotal = basePrice * grams * quantity; // Per-gram price × grams × quantity
-                  packagingPrice = (item.packaging_price || 0) * quantity;
+                  const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
+                  packagingPrice = perUnitPackaging * quantity;
                   totalPrice = itemTotal + packagingPrice;
                 } else {
                   // Regular pricing: basePrice is per-item price
                   basePrice = item.unit_price || item.price || 0;
                   itemTotal = basePrice * quantity;
-                  packagingPrice = (item.packaging_price || 0) * quantity;
+                  const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
+                  packagingPrice = perUnitPackaging * quantity;
                   totalPrice = itemTotal + packagingPrice;
                 }
                 
@@ -337,7 +339,7 @@ const OrderConfirmationPage: React.FC = () => {
                           <p>• Weight: {grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</p>
                           <p>• Item cost: {grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</p>
                           {packagingPrice > 0 && (
-                            <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
+                            <p>• Packaging: K{(item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0).toFixed(0)} × {quantity} = K{packagingPrice.toFixed(0)}</p>
                           )}
                           <p className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</p>
                         </div>
@@ -349,7 +351,7 @@ const OrderConfirmationPage: React.FC = () => {
                           <p>• Quantity: {quantity} item{quantity > 1 ? 's' : ''}</p>
                           <p>• Item cost: {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</p>
                           {packagingPrice > 0 && (
-                            <p>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</p>
+                            <p>• Packaging: K{(item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0).toFixed(0)} × {quantity} = K{packagingPrice.toFixed(0)}</p>
                           )}
                           <p className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</p>
                         </div>
@@ -407,9 +409,9 @@ const OrderConfirmationPage: React.FC = () => {
             }, 0) || 0;
             
             const packagingTotal = order.items?.reduce((total: number, item: any) => {
-              const packagingPrice = item.packaging_price || 0;
+              const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
               const quantity = item.quantity || 1;
-              return total + (packagingPrice * quantity);
+              return total + (perUnitPackaging * quantity);
             }, 0) || 0;
             
             const subtotal = itemsTotal + packagingTotal;

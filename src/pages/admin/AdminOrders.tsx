@@ -662,7 +662,7 @@ const AdminOrders: React.FC = () => {
                                 <div>• Weight: {grams}g × {quantity} packet{quantity > 1 ? 's' : ''}</div>
                                 <div>• Item cost: {grams}g × {quantity} × K{basePrice.toFixed(2)} = K{itemTotal.toFixed(0)}</div>
                                 {packagingPrice > 0 && (
-                                  <div>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</div>
+                                  <div>• Packaging: K{(item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0).toFixed(0)} × {quantity} = K{packagingPrice.toFixed(0)}</div>
                                 )}
                                 <div className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</div>
                               </div>
@@ -674,7 +674,7 @@ const AdminOrders: React.FC = () => {
                                 <div>• Quantity: {quantity} item{quantity > 1 ? 's' : ''}</div>
                                 <div>• Item cost: {quantity} × K{basePrice.toFixed(0)} = K{itemTotal.toFixed(0)}</div>
                                 {packagingPrice > 0 && (
-                                  <div>• Packaging: K{item.packaging_price?.toFixed(0) || '0'} × {quantity} = K{packagingPrice.toFixed(0)}</div>
+                                  <div>• Packaging: K{(item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0).toFixed(0)} × {quantity} = K{packagingPrice.toFixed(0)}</div>
                                 )}
                                 <div className="font-medium text-deep-maroon">• Total: K{totalPrice.toFixed(0)}</div>
                               </div>
@@ -715,9 +715,9 @@ const AdminOrders: React.FC = () => {
                       }, 0) || 0;
                       
                       const packagingTotal = selectedOrder?.items?.reduce((total: number, item: any) => {
-                        const packagingPrice = item.packaging_price || 0;
+                        const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
                         const quantity = item.quantity || 1;
-                        return total + (packagingPrice * quantity);
+                        return total + (perUnitPackaging * quantity);
                       }, 0) || 0;
                       
                       const subtotal = itemsTotal + packagingTotal;

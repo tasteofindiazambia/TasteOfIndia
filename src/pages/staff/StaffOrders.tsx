@@ -476,15 +476,17 @@ const StaffOrders: React.FC = () => {
                         
                         if (grams && item.unit_price && item.unit_price < 10) {
                           // Dynamic pricing: basePrice is per-gram price
-                          basePrice = item.unit_price; // This is already per-gram price from backend
-                          itemTotal = basePrice * grams * qty; // Per-gram price × grams × quantity
-                          packagingPrice = (item.packaging_price || 0) * qty;
+                          basePrice = item.unit_price; // per-gram
+                          itemTotal = basePrice * grams * qty;
+                          const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
+                          packagingPrice = perUnitPackaging * qty;
                           totalPrice = itemTotal + packagingPrice;
                         } else {
-                          // Regular pricing: basePrice is per-item price
+                          // Regular pricing
                           basePrice = item.unit_price || item.price || 0;
                           itemTotal = basePrice * qty;
-                          packagingPrice = (item.packaging_price || 0) * qty;
+                          const perUnitPackaging = item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0;
+                          packagingPrice = perUnitPackaging * qty;
                           totalPrice = itemTotal + packagingPrice;
                         }
                         
@@ -514,7 +516,7 @@ const StaffOrders: React.FC = () => {
                                   <div>• Weight: {grams}g × {qty} packet{qty > 1 ? 's' : ''}</div>
                                   <div>• Item cost: {grams}g × {qty} × {formatPerGramPrice(basePrice)} = {formatMoney(itemTotal)}</div>
                                   {packagingPrice > 0 && (
-                                    <div>• Packaging: {formatMoney(item.packaging_price || 0)} × {qty} = {formatMoney(packagingPrice)}</div>
+                                    <div>• Packaging: {formatMoney((item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0))} × {qty} = {formatMoney(packagingPrice)}</div>
                                   )}
                                   <div className="font-medium text-deep-maroon">• Total: {formatMoney(totalPrice)}</div>
                                 </div>
@@ -526,7 +528,7 @@ const StaffOrders: React.FC = () => {
                                   <div>• Quantity: {qty} item{qty > 1 ? 's' : ''}</div>
                                   <div>• Item cost: {qty} × {formatMoney(basePrice)} = {formatMoney(itemTotal)}</div>
                                   {packagingPrice > 0 && (
-                                    <div>• Packaging: {formatMoney(item.packaging_price || 0)} × {qty} = {formatMoney(packagingPrice)}</div>
+                                    <div>• Packaging: {formatMoney((item.packaging_price ?? item.menu_items?.packaging_price ?? item.menuItem?.packaging_price ?? 0))} × {qty} = {formatMoney(packagingPrice)}</div>
                                   )}
                                   <div className="font-medium text-deep-maroon">• Total: {formatMoney(totalPrice)}</div>
                                 </div>
