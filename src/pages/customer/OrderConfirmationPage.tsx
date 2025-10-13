@@ -387,14 +387,22 @@ const OrderConfirmationPage: React.FC = () => {
           {/* Calculate items total and packaging total */}
           {(() => {
             const itemsTotal = order.items?.reduce((total: number, item: any) => {
-              // For dynamic pricing items, total_price is the line total already
-              if (item.total_price) {
-                return total + item.total_price;
-              }
-              
-              // For regular items, use unit_price or price times quantity
-              const basePrice = item.unit_price || item.price || 0;
+              // Always compute base total excluding packaging
               const quantity = item.quantity || 1;
+
+              // Dynamic pricing (per-gram)
+              let grams: number | null = null;
+              if (item.grams) grams = item.grams; else if (item.special_instructions && item.special_instructions.includes('g per package')) {
+                const match = item.special_instructions.match(/(\d+)g per package/);
+                grams = match ? parseInt(match[1]) : null;
+              }
+
+              if (grams && item.unit_price && item.unit_price < 10) {
+                const perGram = item.unit_price || 0;
+                return total + (perGram * grams * quantity);
+              }
+
+              const basePrice = item.unit_price || item.price || 0;
               return total + (basePrice * quantity);
             }, 0) || 0;
             
