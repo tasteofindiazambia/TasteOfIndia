@@ -464,43 +464,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Experience Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-deep-maroon via-primary to-burgundy relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-pattern opacity-20"></div>
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-light-cream mb-4 sm:mb-6 animate-slide-in-up">
-            More Than a Meal
-          </h2>
-          <p className="font-accent text-lg sm:text-xl text-light-cream/90 mb-6 sm:mb-8 leading-relaxed animate-slide-in-up px-4" style={{ animationDelay: '0.2s' }}>
-            Every visit is an occasion to connect. Experience our family-friendly atmosphere, 
-            perfect for celebrations and casual dinners. Join our cultural events and special evenings.
-          </p>
-          <div className="bg-white p-6 sm:p-8 mb-6 sm:mb-8 animate-slide-in-up rounded-2xl shadow-lg" style={{ animationDelay: '0.4s' }}>
-            <p className="font-accent text-base sm:text-lg text-charcoal italic">
-              "Where everyone feels at home - this is what genuine hospitality feels like."
-            </p>
-            <p className="text-warm-gray mt-2 text-sm sm:text-base">- Our valued guest</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-slide-in-up px-4" style={{ animationDelay: '0.6s' }}>
-            <Link 
-              to="/menu/1" 
-              className="btn-primary bg-gradient-to-r from-warm-pink to-rose text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl flex items-center justify-center space-x-2 text-sm sm:text-base"
-            >
-              <Utensils className="w-4 h-4" />
-              <span>ORDER NOW</span>
-            </Link>
-            <Link 
-              to="/menu/1" 
-              className="btn-ghost border-2 border-light-cream/30 text-light-cream hover:bg-light-cream/10 hover:text-light-cream px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 backdrop-blur-md flex items-center justify-center space-x-2 text-sm sm:text-base"
-            >
-              <Utensils className="w-4 h-4" />
-              <span>EXPLORE OUR MENU</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* End of main content */}
     </div>
   );
 };
