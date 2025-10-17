@@ -455,8 +455,7 @@ async function handleOrders(req, res, pathSegments, query) {
         .insert(orderItems);
 
       if (itemsError) {
-        console.error('Failed to create order items:', itemsError);
-        // Continue without failing the whole order
+        console.error('Failed to create order items:', itemsError);        // Continue without failing the whole order
       }
 
       return res.status(201).json({
